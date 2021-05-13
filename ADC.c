@@ -11,7 +11,7 @@ void Config_ADC(void){
     AD1CON2bits.VCFG = 0b001;       // Voltajes utilizados: VREF+ y AVSS(DGND)
     
     AD1CON3bits.ADCS = 0b00100000;  // Clock del ADC Tad. Tad = ADCS<7:0> * Tcy
-    AD1CON3bits.ADRC = 0b0;         // Selección de clock de entrada (System Clock)
+    AD1CON3bits.ADRC = 0b0;         // Selección de clock de entrada (System Clock)   
     
     AD1CON2bits.CHPS = 0b00;        // Definición de canales a utiliza. Canal 0 --> Una única entrada.
     AD1CHS0bits.CH0SA = 0b00110;    // Positive input to channel 0 - AN6
@@ -22,7 +22,7 @@ void Config_ADC(void){
     
     //Tiempo de conversión de ADC = 12*Tad (Valor por defecto en 10 bits) + T_Sampleo = 15 Tad.
     //Tconv(total) = 10.4 µSeg
-
+    
     AD1CON1bits.AD12B = 0b0;        // Data result in 10 bits
     AD1CON1bits.FORM = 0b00;        // Formato del dato de salida (Unsigned Int).
 
