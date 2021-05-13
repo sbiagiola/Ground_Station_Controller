@@ -15,7 +15,7 @@
 #include "UART.h"
 #include "ADC.h"
 
-int main() {
+int main(){
     Config_Clock();
     Config_IO();
     Config_UART();

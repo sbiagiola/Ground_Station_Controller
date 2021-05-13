@@ -113,18 +113,19 @@ return(14);
 }
 
 int Set_Pin_As_A_or_D(void){
+    AD1PCFGL = 0xFFFF;          // Seteo todas como Digital
     
-//    AD1PCFGLbits.PCFG0 = ;    //Preguntar sobre configuración de PIN
-    AD1PCFGLbits.PCFG1 = 0b1;   //Digital Mode
-    AD1PCFGLbits.PCFG2 = 0b1;   //Digital Mode
-    AD1PCFGLbits.PCFG3 = 0b1;   //Digital Mode   
-    AD1PCFGLbits.PCFG4 = 0b1;   //Digital Mode   
-    AD1PCFGLbits.PCFG5 = 0b1;   //Digital Mode
-    AD1PCFGLbits.PCFG6 = 0b0;   //Analog Mode
-    AD1PCFGLbits.PCFG7 = 0b1;   //Digital Mode
-    AD1PCFGLbits.PCFG8 = 0b1;   //Digital Mode
-    AD1PCFGLbits.PCFG9 = 0b1;   //Digital Mode
-    AD1PCFGLbits.PCFG10 = 0b1;  //Digital Mode
+    AD1PCFGLbits.PCFG0 = 0b0;   // Analog Mode
+    AD1PCFGLbits.PCFG1 = 0b1;   // Digital Mode
+    AD1PCFGLbits.PCFG2 = 0b1;   // Digital Mode
+    AD1PCFGLbits.PCFG3 = 0b1;   // Digital Mode   
+    AD1PCFGLbits.PCFG4 = 0b1;   // Digital Mode   
+    AD1PCFGLbits.PCFG5 = 0b1;   // Digital Mode
+    AD1PCFGLbits.PCFG6 = 0b0;   // Analog Mode
+    AD1PCFGLbits.PCFG7 = 0b1;   // Digital Mode
+    AD1PCFGLbits.PCFG8 = 0b1;   // Digital Mode
+    AD1PCFGLbits.PCFG9 = 0b1;   // Digital Mode
+    AD1PCFGLbits.PCFG10 = 0b1;  // Digital Mode
 //    AD1PCFGLbits.PCFG11 = ;   //Preguntar sobre configuración de PIN
 //    AD1PCFGLbits.PCFG12 = ;   //Preguntar sobre configuración de PIN
             

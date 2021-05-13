@@ -22,7 +22,7 @@ int Config_IO(void);
 int Define_IO_Pins(void);
 int Remappeable_Pins(void);
 int Change_Config_UART1(void);
-int Set_Pin_A_or_D(void);
+int Set_Pin_As_A_or_D(void);
 /**********************************************/
 
 /************************       Info de Registros       ***********************

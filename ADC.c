@@ -3,17 +3,18 @@
 #include "ADC.h"
 #include "libpic30.h"
 
-//  2.44 mV el ADC cuenta + (o -) 1 con una resolución de 10 bits (2.5 V/2^10 Bit)
+// 2.44 mV el ADC cuenta + (o -) 1 con una resolución de 10 bits 
+// Resolución: (2.5 V- 0V) / 2^10 Bit (Ver página 76 dela nota de ADC)
 
 void Config_ADC(void){
               
     AD1CON2bits.VCFG = 0b001;       // Voltajes utilizados: VREF+ y AVSS(DGND)
     
-    AD1CON3bits.ADCS = 0b00100000;   // Clock del ADC Tad. Tad = ADCS<7:0> * Tcy
-    AD1CON3bits.ADRC = 0b0;          // Selección de clock de entrada (System Clock)   
+    AD1CON3bits.ADCS = 0b00100000;  // Clock del ADC Tad. Tad = ADCS<7:0> * Tcy
+    AD1CON3bits.ADRC = 0b0;         // Selección de clock de entrada (System Clock)   
     
     AD1CON2bits.CHPS = 0b00;        // Definición de canales a utiliza. Canal 0 --> Una única entrada.
-    AD1CHS0bits.CH0SA = 0b00000;    // Positive input to channel 0 - AN0
+    AD1CHS0bits.CH0SA = 0b00110;    // Positive input to channel 0 - AN6
     AD1CHS0bits.CH0NA = 0b0;        // Negative inputto channel 0 - VREL (AVSS)
     
     AD1CON1bits.SSRC = 0b111;       // Sample Clock Source --> Contador interno

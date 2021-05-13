@@ -8,118 +8,80 @@ Inicializacion de interrupciones
 #include <p33FJ128GP804.h>
 #include "interrupts.h"
 
-void enableInterrupts(void)
-{
+void enableInterrupts(void){
 /* Set CPU IPL to 0, enable level 1-7 interrupts */
 /* No restoring of previous CPU IPL state performed here */
     SRbits.IPL = 0;
-    
-    
-    
     return;
 }
 
-void disableInterrupts(void)
-{
+void disableInterrupts(void){
 /* Se deshabilitan todas las interrupciones */
 /* Set CPU IPL to 7, disable level 1-7 interrupts */
 /* No saving of current CPU IPL setting performed here */
     SRbits.IPL = 7;
-    return;
 }
 
-void initInterrupts(void)
-{
-    /* Enable Timer1 interrupt */
-    IEC0bits.T1IE = 1;
+void initInterrupts(void){
+    /* Habilitación de interrupciones*/
     
-    /* Enable ADC1*/
-    IEC0bits.AD1IE = 1;
-    
-    /* Enable UART1 TX*/
-    IEC0bits.U1TXIE= 1;
-    
-    /* Enable UART1 TX*/
-    IEC0bits.U1RXIE= 1;
-    
-    /* Enable UART2 TX*/
-    IEC1bits.U2TXIE = 1;
-    
-    /* Enable UART2 RX*/
-    IEC1bits.U2RXIE = 1;
+    IEC0bits.T1IE   = 0b1;      /* Enable Timer1 interrupt */
+    //IEC0bits.AD1IE  = 0b1;      /* Enable ADC1 interrupt*/
+    IEC0bits.U1TXIE = 0b1;      /* Enable UART1 TX interrupt*/
+    IEC0bits.U1RXIE = 0b1;      /* Enable UART1 RX interrupt*/
+    IEC1bits.U2TXIE = 0b1;      /* Enable UART2 TX interrupt*/
+    IEC1bits.U2RXIE = 0b1;      /* Enable UART2 RX interrupt*/
+    IEC4bits.U1EIE  = 0b1;      /* Enable UART1 Error interrupt*/
+    IEC4bits.U2EIE  = 0b1;      /* Enable UART2 Error interrupt*/
     
     /* Seteo de prioridades */
-    
-    /* Set Timer1 interrupt priority to 2, a modificar */
-    IPC0bits.T1IP = 2;
-    
-    /* Set UART1 RX interrupt priority to 3*/
-    IPC2bits.U1RXIP = 3;
-    
-    /* Set UART1 TX interupt priority to 3*/
-    IPC3bits.U1TXIP = 3;
-    
-    /* Set UART2 RX interrupt priority to 3*/
-    IPC7bits.U2RXIP = 3;
-    
-    /* Set UART2 TX interupt priority to 3*/
-    IPC7bits.U2TXIP = 3;
-    
-    /* Set priority ADC1 interrupt priority to 1 */
-    IPC3bits.AD1IP = 1;
-    
-    return;
+
+    IPC0bits.T1IP   = 2;        /* Set Timer1 interrupt priority to 2*/
+    IPC2bits.U1RXIP = 3;        /* Set UART1 RX interrupt priority to 3*/
+    IPC3bits.U1TXIP = 3;        /* Set UART1 TX interupt priority to 3*/
+    IPC7bits.U2RXIP = 3;        /* Set UART2 RX interrupt priority to 3*/
+    IPC7bits.U2TXIP = 3;        /* Set UART2 TX interupt priority to 3*/
+    IPC16bits.U1EIP = 4;        /* Set UART2 Error interupt priority to 4*/
+    IPC16bits.U2EIP = 4;        /* Set UART2 Error interupt priority to 4*/
+    //IPC3bits.AD1IP = 1;         /* Set priority ADC1 interrupt priority to 1 */
 }
 
-void disableUART1(void)
-{
+void disableUART1(void){
     /* De ser necesario ante el sobrepaso de la fifo*/
-    /* Enable UART1 TX*/
-    IEC0bits.U1TXIE= 0;
-    
-    /* Enable UART1 TX*/
-    IEC0bits.U1RXIE= 0;
-    return;
+    IEC0bits.U1TXIE = 0b0;          /* Disable UART1 TX*/
+    IEC4bits.U1EIE  = 0b0;          /* Disable UART1 Error interrupt*/
+    IEC0bits.U1RXIE = 0b0;          /* Disable UART1 RX*/
 }
 
-void disableUART2(void)
-{
+void disableUART2(void){
     /* De ser necesario ante el sobrepaso de la fifo*/
-    /* Enable UART1 TX*/
-    IEC1bits.U2TXIE= 0;
-    
-    /* Enable UART1 TX*/
-    IEC1bits.U2RXIE= 0;
-    return;
+    IEC1bits.U2TXIE = 0b0;          /* Disable UART2 TX*/
+    IEC4bits.U2EIE  = 0b1;          /* Disable UART2 Error interrupt*/
+    IEC1bits.U2RXIE = 0b0;          /* Disable UART2 RX*/
 }
 
-void disableADC1(void)
-{
-    
-    /* Disable ADC1*/
-    IEC0bits.AD1IE = 0;
-    return;
+void disableADC1(void){
+    IEC0bits.AD1IE = 0b0;           /* Disable ADC1*/
 }
 
-void disableTIMER1(void)
-{
-    
-   /* Disable Timer1 interrupt */
-    IEC0bits.T1IE = 0;
-    return;
+void disableTIMER1(void){
+    IEC0bits.T1IE = 0b0;            /* Disable Timer1 interrupt */
 }
 
 /********************************************************************************/
 
 /* Esta permite modifirar el nombre pero es necesario especificarle el número de la 
    tabla de interrupciones,también pueden agregarse  más opciones, para que pueda vincular 
-   la funcion "MyIRQ" con la tabla de int
+   la funcion "MyIRQ" con la tabla de interrupciones. En esta declaración se pueden guardar
+   valor de variables propias de la ISR
+ * 
  
- void __attribute__((interrupt(auto_psv,irq(52)))) MyIRQ(void){}
+ void __attribute__((interrupt,no_auto_psv,irq(n))) MyIRQ(void){}
  
 */
+
 /* Con esta de aca abajo se define de una manera más sencilla y pero se debe usar 
-e  el nombre que figura en la tabla de vector de interrupciones
+   el nombre que figura en la tabla de vector de interrupciones
 
     void _ISR _T1Interrupt(void){}
 
@@ -135,5 +97,15 @@ __builtin_disi(0x3FFF); disable interrupts   <---- Esta función no parece estar 
 DISICNT = 0x0000;  enable interrupts          <----   Este registro existe.
  #include <p33FJ128GP804.h>                   <----   aca
  */
+/*
+ _T1Interrupt
+        _U1RXInterrupt      (Done)
+        _U1TXInterrupt      (Done)
+ _ADC1Interrupt             Puede no utilizarse la del ADC
+        _U2RXInterrupt      (Done)
+        _U2TXInterrupt      (Done)
+        _U1ErrInterrupt     (Done)
+        _U2ErrInterrupt     (Done)
+*/
 
 
