@@ -56,7 +56,7 @@ void disableUART1(void){
 void disableUART2(void){
     /* De ser necesario ante el sobrepaso de la fifo*/
     IEC1bits.U2TXIE = 0b0;          /* Disable UART2 TX*/
-    IEC4bits.U2EIE  = 0b1;          /* Disable UART2 Error interrupt*/
+    IEC4bits.U2EIE  = 0b0;          /* Disable UART2 Error interrupt*/
     IEC1bits.U2RXIE = 0b0;          /* Disable UART2 RX*/
 }
 
@@ -96,8 +96,7 @@ __builtin_disi(0x3FFF); disable interrupts   <---- Esta función no parece estar 
 // ... protected C code ... 
 DISICNT = 0x0000;  enable interrupts          <----   Este registro existe.
  #include <p33FJ128GP804.h>                   <----   aca
- */
-/*
+ 
  _T1Interrupt
         _U1RXInterrupt      (Done)
         _U1TXInterrupt      (Done)

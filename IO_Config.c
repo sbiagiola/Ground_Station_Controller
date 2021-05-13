@@ -33,7 +33,6 @@ return(12);
 int Remappeable_Pins(void){ 
     
     /********* Input *********/
-    
 //   Vienen tiradas a VSS por defecto luego del reset. La configuración debajo la dejo por que ya habia escrito todo esto.
    
 //   RPINR0bits.INT1R  = 0b11111;                                    /***** External interrupt 1 *****/
