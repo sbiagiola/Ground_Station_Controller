@@ -2,6 +2,20 @@
 #include "UART.h"
 #include "Clock.h"
 #include "libpic30.h"
+#include "RingBuffer.h"
+#include "stdint.h"
+
+/*==================== [Macros y definiciones] ===========================*/
+#define RING_BUFFER_SIZE 16   // Tamaño del Ring Buffer
+/*========================================================================*/
+
+/*======================= [Variables Internas] ===========================*/
+void* pRingBufferTx_U1;     
+void* pRingBufferRx_U1;  
+void* pRingBufferTx_U2;  
+void* pRingBufferRx_U2;
+uint8_t Char_Recup[4];
+/*========================================================================*/
 
 void Config_UART(void){
 
@@ -14,9 +28,9 @@ void Config_UART(void){
     U1MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
     
     //Register U1STA
-    U1STAbits.UTXISEL0 = 0b1;       // Interrupcion de TX cuando se encuentren vacío ambos registros
-    U1STAbits.UTXISEL1 = 0b0;       
-    U1STAbits.URXISEL = 0b00;       // Interrupciones cuando hay 1 (o +) datos en el buffer de recepción
+    U1STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita al registro TSR un caracter y el buffer de transmisión este vacío
+    U1STAbits.UTXISEL1 = 0b1;      
+    U1STAbits.URXISEL = 0b10;       // Interrupciones cuando hay 3 (o 4) datos en el buffer de recepción
       
     // Con este valor de BRG obtengo un Baud Rate de 9615 y un error del 0.125% respecto al buscado de 9600 */
     U1BRG = 259;                    //Valor del Baud Rate Generator Register de la UART1
@@ -30,11 +44,19 @@ void Config_UART(void){
     U2MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
     
     //Register U2STA
-    U2STAbits.UTXISEL0 = 0b1;       // Interrupcion de TX cuando se encuentren vacío ambos registros
-    U2STAbits.UTXISEL1 = 0b0;       
-    U2STAbits.URXISEL = 0b00;       // Interrupciones cuando hay 1 (o +) datos en el buffer de recepción
+    U2STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita al registro TSR un caracter y el buffer de transmisión
+    U2STAbits.UTXISEL1 = 0b1;       
+    U2STAbits.URXISEL = 0b10;       // Interrupciones cuando hay 3 (o 4) datos en el buffer de recepción
     
     U2BRG = U1BRG;                  // Valor del Baud Rate Generator de la UART2
+}
+
+void Create_RingBuffer(void){
+    /* Inicialización de buffer de recepción y transmisión*/
+    pRingBufferTx_U1 = ringBuffer_init(RING_BUFFER_SIZE);
+    pRingBufferRx_U1 = ringBuffer_init(RING_BUFFER_SIZE);     
+    pRingBufferTx_U2 = ringBuffer_init(RING_BUFFER_SIZE);
+    pRingBufferRx_U2 = ringBuffer_init(RING_BUFFER_SIZE);
 }
 
 /*******************        UART1        *******************/
@@ -93,11 +115,11 @@ unsigned int Rx_Shift_Reg_U1_State(void){
         return(0);
 }
 
-void Get_Char_Rx_Reg_U1(char *data){
+void Get_Char_Rx_Reg_U1(uint8_t *data){
      *data = U1RXREG;
 }
 
-void Send_Char_Tx_Reg_U1(char *data){
+void Send_Char_Tx_Reg_U1(uint8_t *data){
     U1TXREG = *data;
 }
 
@@ -158,11 +180,11 @@ unsigned int Rx_Shift_Reg_U2_State(void){
         return(0);
 }
 
-void Get_Char_Rx_Reg_U2(char *data){
+void Get_Char_Rx_Reg_U2(uint8_t *data){
      *data = U2RXREG;
 }
 
-void Send_Char_Tx_Reg_U2(char *data){
+void Send_Char_Tx_Reg_U2(uint8_t *data){
     U2TXREG = *data;
 }
 
@@ -207,38 +229,288 @@ void Loopback_Mode(void){
     U2MODEbits.LPBACK = 0b01;       //Loopback Mode habilitado U2TX conectado internamente a U2RX
 }
 
+int32_t uart_ringBuffer_recDatos_U1(uint8_t *pBuf, int32_t size){
+    int32_t ret = 0;
+    
+    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
+    
+     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
+     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
+     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
+     a 0 se vuelven a habilitar las interrupciones. 
+    
+    */
+    
+    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
+    DISICNT = 16384;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
+       
+    /*================== Sección critica de código ==================*/
+    
+    while (!ringBuffer_isEmpty(pRingBufferRx_U1) && ret < size)
+    {
+    	uint8_t dato;
+
+        ringBuffer_getData(pRingBufferRx_U1, &dato);
+        pBuf[ret] = dato;
+        ret++;
+        DISICNT = 16384;        // Recarga del contador
+    }
+    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
+    
+    /*================== Fin de sección critica de código ==================*/
+return ret;
+}
+
+int32_t uart_ringBuffer_envDatos_U1(uint8_t *pBuf, int32_t size){
+    int32_t ret = 0;
+    
+    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
+    
+     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
+     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
+     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
+     a 0 se vuelven a habilitar las interrupciones. 
+    
+    */ 
+    
+    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
+    DISICNT = 16384;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
+       
+    /*================== Sección critica de código ==================*/
+    
+    /* si el buffer estaba vacío hay que habilitar la int TX */
+    if (ringBuffer_isEmpty(pRingBufferTx_U1))
+
+    while (!ringBuffer_isFull(pRingBufferTx_U1) && ret < size)
+    {
+        ringBuffer_putData(pRingBufferTx_U1, pBuf[ret]);
+        ret++;
+        DISICNT = 16384;        // Recarga del contador
+    }
+    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
+    
+    /*============== Fin de sección critica de código ===============*/
+return ret;
+}
+
+int32_t uart_ringBuffer_recDatos_U2(uint8_t *pBuf, int32_t size){
+    int32_t ret = 0;
+    
+    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
+    
+     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
+     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
+     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
+     a 0 se vuelven a habilitar las interrupciones. 
+    
+     */
+    
+    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
+    DISICNT = 16384;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
+       
+    /*================== Sección critica de código ==================*/
+    
+    while (!ringBuffer_isEmpty(pRingBufferRx_U2) && ret < size)
+    {
+    	uint8_t dato;
+
+        ringBuffer_getData(pRingBufferRx_U2, &dato);
+        pBuf[ret] = dato;
+        ret++;
+        DISICNT = 16384;        // Recarga del contador
+    }
+    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
+    
+    /*============== Fin de sección critica de código ===============*/
+return ret;
+}
+
+int32_t uart_ringBuffer_envDatos_U2(uint8_t *pBuf, int32_t size){
+    int32_t ret = 0;
+    
+    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
+    
+     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
+     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
+     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
+     a 0 se vuelven a habilitar las interrupciones. 
+    
+     */
+    
+    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
+    DISICNT = 16384;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
+    
+    /*================== Sección critica de código ==================*/
+    
+    /* si el buffer estaba vacío hay que habilitar la int TX */
+    if (ringBuffer_isEmpty(pRingBufferTx_U2))
+
+    while (!ringBuffer_isFull(pRingBufferTx_U2) && ret < size)
+    {
+        ringBuffer_putData(pRingBufferTx_U2, pBuf[ret]);
+        ret++;
+        DISICNT = 16384;        // Recarga del contador
+    }
+    
+    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
+    
+    /*============== Fin de sección critica de código ===============*/
+return ret;
+}
+
 /* Dado que no utilizamos el registro PSV ni tenemos mapeados en dicha memoria ninguna variable
  que nos sea de interes guardar y no perder, no tenemos que utilizar ciclos de clocks de seguridad 
  en escrituras/lecturas asociadas a dicho registro.
  */
 
 void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
-    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
-    //Código de interrupción
+    uint8_t data;           //Variable temporal - Almacena 1 dato del RB
+
+    if(!Tx_Reg_U1_State() && ringBuffer_getData(pRingBufferTx_U1, &data)){      //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
+        while( !Tx_Reg_U1_State() && ringBuffer_getData(pRingBufferTx_U1, &data) ){     //Hasta que no se llene el registro de transmisión
+            Send_Char_Tx_Reg_U1(&data);
+        }
+    }
+    else
+        // No hay datos en RB, se limpia solo la bandera seteada por que se vacío el TXREG 
+    IFS0bits.U1TXIF = 0;    // Clear TX Interrupt flag
 }
 
 void __attribute__((interrupt,no_auto_psv)) _U1RXInterrupt(void){
+    uint8_t data;           //Variable temporal - Almacena 1 dato del RB
+   
+    while( !Rx_Reg_U1_State() ){        // Hay al menos 1 dato en la FIFO de RXREG, vaciamos el registro
+        Get_Char_Rx_Reg_U1(&data);      // Saco un dato x iteración
+        ringBuffer_putData(pRingBufferRx_U2, data);
+    }
+    
     IFS0bits.U1RXIF = 0;    // Clear RX Interrupt flag
-    //Código de interrupción
 }
 
 void __attribute__((interrupt,no_auto_psv)) _U1ErrInterrupt(void){
-    IFS4bits.U1EIF = 0;     // Clear Error Interrupt flag 
-    //Código de interrupción
+    uint8_t data;
+    int i = 0,j = 0;
+   
+    if(U1STAbits.OERR && !U1STAbits.FERR){ // Overflow
+        
+            while( !Rx_Reg_U1_State() ){
+                Get_Char_Rx_Reg_U1(&data);   // Saco un dato x iteración, lo guardo dentro de data
+                ringBuffer_putData(pRingBufferRx_U1, data);     // Envio el dato recuperado de la FIFO al RB
+            }
+            
+        // Podríamos usar una lógica de ACK para hacerle sabera la PC que esta todo joya y puede mandar 
+        // cuando recibimos un dato y que puede mandar el próximo dato. Sino que vuelva a mandar dicho dato.
+            
+        U1STAbits.OERR &= ~(1UL << 0b1); // Clear del overrun para permitir recepción de más datos
+    }
+    if(U1STAbits.FERR && !U1STAbits.OERR){ // Falla en la detección del bit de STOP
+        
+        while(!Rx_Reg_U1_State()){
+           Get_Char_Rx_Reg_U1(&data);  // Saco un dato x iteración, lo guardo dentro de data
+           Char_Recup[i] = data;       // Uso i para saber cuantos datos recupero de la FIFO (Valor máx = dato con error)
+           i++;
+        }
+        
+        while( i != (j+1) ){         // Uso j para escribir los datos sin error. En i = j esta el dato que esta roto
+            ringBuffer_putData(pRingBufferRx_U1, Char_Recup[j]);     // Envio el dato recuperado de la FIFO al RB
+            j++;
+        }
+        
+        // Char_Recup[j] tiene el dato erroneo.
+        
+        // Podriamos enviar un mensaje para hacerle saber a la PC que hubo un problema y que mande de nuevo el mensaje
+        // Si se utiliza la lógica de ACK, si no se le envia nada a la PC esta volvería a retransmitir el último dato.
+        i=0; j=0;
+    }
+        
+    if(U1STAbits.FERR && U1STAbits.OERR){
+        
+        while(!Rx_Reg_U1_State() && i < 4){     // Vacio solamente RXREG, el dato erroneo esta en RSR
+            Get_Char_Rx_Reg_U1(&data);          // Saco un dato x iteración, lo guardo dentro de data    
+            ringBuffer_putData(pRingBufferRx_U1, data);     // Envio el dato recuperado al RB
+            i++;
+        }
+        // Podriamos enviar un mensaje para hacerle saber a la PC que hubo un problema y que mande de nuevo el mensaje
+        // Si se utiliza la lógica de ACK, si no se le envia nada a la PC esta podría volver a retransmitir el último dato.
+        i = 0;
+        U1STAbits.OERR &= ~(1UL << 0b1); // Clear del overrun para permitir recepción de más datos
+    }
+    IFS4bits.U1EIF = 0;     // Clear Error Interrupt flag
 }
 
 void __attribute__((interrupt,no_auto_psv)) _U2TXInterrupt(void){
+    uint8_t data;           //Variable temporal - Almacena 1 dato del RB
+    
+    if(!Tx_Reg_U1_State() && ringBuffer_getData(pRingBufferTx_U1, &data)){
+        //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
+        while( !Tx_Reg_U2_State() && ringBuffer_getData(pRingBufferTx_U2, &data) ){
+            Send_Char_Tx_Reg_U2(&data);
+        }
+    }
+    else
+        // No hay datos en RB, se limpia solo la bandera seteada.
+        
     IFS1bits.U2TXIF = 0;    // Clear TX Interrupt flag
-    //Código de interrupción
 }
-
 void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
-    IFS1bits.U2RXIF = 0;    // Clear RX Interrupt flag
-    //Código de interrupción
+    uint8_t data;           //Variable temporal - Almacena 1 dato del RB
+  
+    while( !Rx_Reg_U2_State() ){
+        Get_Char_Rx_Reg_U2(&data);      // Saco un dato x iteración, lo guardo dentro de data
+        ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
+    }
+    
+    IFS1bits.U2RXIF = 0;    // Clear RX Interrupt flag 
 }
 
 void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
+    uint8_t data;
+    int i = 0,j = 0;
+   
+    if(U2STAbits.OERR && !U2STAbits.FERR){ // Overflow
+        
+            while( !Rx_Reg_U2_State() ){
+                Get_Char_Rx_Reg_U2(&data);   // Saco un dato x iteración, lo guardo dentro de data
+                ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado de la FIFO al RB
+            }
+            
+        // Podríamos usar una lógica de ACK para hacerle sabera la PC que esta todo joya y puede mandar 
+        // cuando recibimos un dato y que puede mandar el próximo dato. Sino que vuelva a mandar dicho dato.
+            
+        U2STAbits.OERR &= ~(1UL << 0b1); // Clear del overrun para permitir recepción de más datos
+    }
+    if(U2STAbits.FERR && !U2STAbits.OERR){ // Falla en la detección del bit de STOP
+        
+        while(!Rx_Reg_U2_State()){
+           Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, lo guardo dentro de data
+           Char_Recup[i] = data;       // Uso i para saber cuantos datos recupero de la FIFO (Valor máx = dato con error)
+           i++;
+        }
+        
+        while( i != (j+1) ){         // Uso j para escribir los datos sin error. En i = j esta el dato que esta roto
+            ringBuffer_putData(pRingBufferRx_U2, Char_Recup[j]);     // Envio el dato recuperado de la FIFO al RB
+            j++;
+        }
+        
+        // Char_Recup[j] tiene el dato erroneo.
+        
+        // Podriamos enviar un mensaje para hacerle saber a la PC que hubo un problema y que mande de nuevo el mensaje
+        // Si se utiliza la lógica de ACK, si no se le envia nada a la PC esta volvería a retransmitir el último dato.
+        i=0; j=0;
+    }
+        
+    if(U2STAbits.FERR && U2STAbits.OERR){
+        
+        while(!Rx_Reg_U2_State() && i < 4){     // Vacio solamente RXREG, el dato erroneo esta en RSR
+            Get_Char_Rx_Reg_U2(&data);          // Saco un dato x iteración, lo guardo dentro de data    
+            ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
+            i++;
+        }
+        // Podriamos enviar un mensaje para hacerle saber a la PC que hubo un problema y que mande de nuevo el mensaje
+        // Si se utiliza la lógica de ACK, si no se le envia nada a la PC esta podría volver a retransmitir el último dato.
+        i = 0;
+        U2STAbits.OERR &= ~(1UL << 0b1); // Clear del overrun para permitir recepción de más datos
+    }
     IFS4bits.U2EIF = 0;     // Clear Error Interrupt flag 
-    //Código de interrupción
 }
 

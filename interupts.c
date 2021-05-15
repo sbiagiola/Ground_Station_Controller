@@ -23,6 +23,9 @@ void disableInterrupts(void){
 }
 
 void initInterrupts(void){
+    
+    // Luego del reset las interrupciones son por añidamiento.
+    
     /* Habilitación de interrupciones*/
     
     IEC0bits.T1IE   = 0b1;      /* Enable Timer1 interrupt */
@@ -78,9 +81,7 @@ void disableTIMER1(void){
  
  void __attribute__((interrupt,no_auto_psv,irq(n))) MyIRQ(void){}
  
-*/
-
-/* Con esta de aca abajo se define de una manera más sencilla y pero se debe usar 
+ Con esta de aca abajo se define de una manera más sencilla y pero se debe usar 
    el nombre que figura en la tabla de vector de interrupciones
 
     void _ISR _T1Interrupt(void){}
