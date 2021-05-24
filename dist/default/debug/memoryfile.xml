@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/debug/Prueba.X.debug.elf">
+  <executable name="dist/default/debug/Sofware-Micro.debug.elf">
     <memory name="data">
       <units>bytes</units>
       <length>16384</length>
-      <used>0</used>
-      <free>16384</free>
+      <used>36</used>
+      <free>16348</free>
     </memory>
     <memory name="program">
       <units>bytes</units>
       <length>131328</length>
-      <used>1761</used>
-      <free>129567</free>
+      <used>4764</used>
+      <free>126564</free>
     </memory>
   </executable>
 </project>

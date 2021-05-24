@@ -36,6 +36,7 @@ void initInterrupts(void){
     IEC1bits.U2RXIE = 0b1;      /* Enable UART2 RX interrupt*/
     IEC4bits.U1EIE  = 0b1;      /* Enable UART1 Error interrupt*/
     IEC4bits.U2EIE  = 0b1;      /* Enable UART2 Error interrupt*/
+    IEC4bits.DAC1RIE = 1;      	/* Right Channel DAC Interrupt Enable */
     
     /* Seteo de prioridades */
 
@@ -46,6 +47,7 @@ void initInterrupts(void){
     IPC7bits.U2TXIP = 3;        /* Set UART2 TX interupt priority to 3*/
     IPC16bits.U1EIP = 4;        /* Set UART2 Error interupt priority to 4*/
     IPC16bits.U2EIP = 4;        /* Set UART2 Error interupt priority to 4*/
+    IPC19bits.DAC1RIP = 3;	   /* Right Channel DAC Interrupt Priority Set */  
     //IPC3bits.AD1IP = 1;         /* Set priority ADC1 interrupt priority to 1 */
 }
 

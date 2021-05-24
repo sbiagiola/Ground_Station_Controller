@@ -8,7 +8,7 @@
 #include <xc.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "DAC.h"
 #include "Clock.h"
 #include "libpic30.h"   
 #include "IO_Config.h"
