@@ -5,11 +5,11 @@
  * Created on 24 de mayo de 2021, 13:20
  */
 
-
 #include <xc.h>
 #include "stdint.h"
 #include "DAC.h"
 #include "libpic30.h"
+
 void init_DAC(void){
     DAC1CONbits.DACEN = 1;              /* Enables module*/
     DAC1CONbits.DACSIDL = 0;            /*Continue module operation in Idle mode*/

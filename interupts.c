@@ -36,7 +36,7 @@ void initInterrupts(void){
     IEC1bits.U2RXIE = 0b1;      /* Enable UART2 RX interrupt*/
     IEC4bits.U1EIE  = 0b1;      /* Enable UART1 Error interrupt*/
     IEC4bits.U2EIE  = 0b1;      /* Enable UART2 Error interrupt*/
-    IEC4bits.DAC1RIE = 1;      	/* Right Channel DAC Interrupt Enable */
+    //IEC4bits.DAC1RIE = 1;      	/* Right Channel DAC Interrupt Enable */
     
     /* Seteo de prioridades */
 

@@ -4,6 +4,7 @@
 #include "libpic30.h"
 #include "RingBuffer.h"
 #include "stdint.h"
+#include "Protocolo_Comm_Yaesu.h"
 
 /*==================== [Macros y definiciones] ===========================*/
 #define RING_BUFFER_SIZE 16   // Tamaño del Ring Buffer
@@ -14,7 +15,9 @@ void* pRingBufferTx_U1;
 void* pRingBufferRx_U1;  
 void* pRingBufferTx_U2;  
 void* pRingBufferRx_U2;
-uint8_t Char_Recup[4];
+uint8_t Respuesta;
+int Error_UART_U1;
+volatile int Error_UART_U2;
 /*========================================================================*/
 
 void Config_UART(void){
@@ -30,7 +33,7 @@ void Config_UART(void){
     //Register U1STA
     U1STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita al registro TSR un caracter y el buffer de transmisión este vacío
     U1STAbits.UTXISEL1 = 0b1;      
-    U1STAbits.URXISEL = 0b10;       // Interrupciones cuando hay 3 (o 4) datos en el buffer de recepción
+    U1STAbits.URXISEL = 0b00;       // Interrupciones cuando un caracter es transferido de RSR al RXREG
       
     // Con este valor de BRG obtengo un Baud Rate de 9615 y un error del 0.125% respecto al buscado de 9600 */
     U1BRG = 259;                    //Valor del Baud Rate Generator Register de la UART1
@@ -46,7 +49,7 @@ void Config_UART(void){
     //Register U2STA
     U2STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita al registro TSR un caracter y el buffer de transmisión
     U2STAbits.UTXISEL1 = 0b1;       
-    U2STAbits.URXISEL = 0b10;       // Interrupciones cuando hay 3 (o 4) datos en el buffer de recepción
+    U2STAbits.URXISEL = 0b00;       // Interrupciones cuando un caracter es transferido de RSR al RXREG
     
     U2BRG = U1BRG;                  // Valor del Baud Rate Generator de la UART2
 }
@@ -358,11 +361,6 @@ int32_t uart_ringBuffer_envDatos_U2(uint8_t *pBuf, int32_t size){
 return ret;
 }
 
-/* Dado que no utilizamos el registro PSV ni tenemos mapeados en dicha memoria ninguna variable
- que nos sea de interes guardar y no perder, no tenemos que utilizar ciclos de clocks de seguridad 
- en escrituras/lecturas asociadas a dicho registro.
- */
-
 void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
 
@@ -379,79 +377,56 @@ void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
 void __attribute__((interrupt,no_auto_psv)) _U1RXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
    
-    while( !Rx_Reg_U1_State() ){        // Hay al menos 1 dato en la FIFO de RXREG, vaciamos el registro
-        Get_Char_Rx_Reg_U1(&data);      // Saco un dato x iteración
-        ringBuffer_putData(pRingBufferRx_U2, data);
-    }
+        while( !Rx_Reg_U1_State() ){        // Hay al menos 1 dato en la FIFO de RXREG, vaciamos el registro
+            Get_Char_Rx_Reg_U1(&data);      // Saco un dato x iteración
+            ringBuffer_putData(pRingBufferRx_U2, data);
+        }
     
     IFS0bits.U1RXIF = 0;    // Clear RX Interrupt flag
 }
 
 void __attribute__((interrupt,no_auto_psv)) _U1ErrInterrupt(void){
     uint8_t data;
-    int i = 0,j = 0;
-   
-    if(U1STAbits.OERR && !U1STAbits.FERR){ // Overflow
-        
-            while( !Rx_Reg_U1_State() ){
-                Get_Char_Rx_Reg_U1(&data);   // Saco un dato x iteración, lo guardo dentro de data
-                ringBuffer_putData(pRingBufferRx_U1, data);     // Envio el dato recuperado de la FIFO al RB
-            }
-            
-        // Podríamos usar una lógica de ACK para hacerle sabera la PC que esta todo joya y puede mandar 
-        // cuando recibimos un dato y que puede mandar el próximo dato. Sino que vuelva a mandar dicho dato.
-            
-        U1STAbits.OERR &= ~(1UL << 0b1); // Clear del overrun para permitir recepción de más datos
-    }
-    if(U1STAbits.FERR && !U1STAbits.OERR){ // Falla en la detección del bit de STOP
-        
-        while(!Rx_Reg_U1_State()){
-           Get_Char_Rx_Reg_U1(&data);  // Saco un dato x iteración, lo guardo dentro de data
-           Char_Recup[i] = data;       // Uso i para saber cuantos datos recupero de la FIFO (Valor máx = dato con error)
-           i++;
-        }
-        
-        while( i != (j+1) ){         // Uso j para escribir los datos sin error. En i = j esta el dato que esta roto
-            ringBuffer_putData(pRingBufferRx_U1, Char_Recup[j]);     // Envio el dato recuperado de la FIFO al RB
-            j++;
-        }
-        
-        // Char_Recup[j] tiene el dato erroneo.
-        
-        // Podriamos enviar un mensaje para hacerle saber a la PC que hubo un problema y que mande de nuevo el mensaje
-        // Si se utiliza la lógica de ACK, si no se le envia nada a la PC esta volvería a retransmitir el último dato.
-        i=0; j=0;
-    }
-        
-    if(U1STAbits.FERR && U1STAbits.OERR){
-        
-        while(!Rx_Reg_U1_State() && i < 4){     // Vacio solamente RXREG, el dato erroneo esta en RSR
-            Get_Char_Rx_Reg_U1(&data);          // Saco un dato x iteración, lo guardo dentro de data    
-            ringBuffer_putData(pRingBufferRx_U1, data);     // Envio el dato recuperado al RB
-            i++;
-        }
-        // Podriamos enviar un mensaje para hacerle saber a la PC que hubo un problema y que mande de nuevo el mensaje
-        // Si se utiliza la lógica de ACK, si no se le envia nada a la PC esta podría volver a retransmitir el último dato.
-        i = 0;
-        U1STAbits.OERR &= ~(1UL << 0b1); // Clear del overrun para permitir recepción de más datos
-    }
-    IFS4bits.U1EIF = 0;     // Clear Error Interrupt flag
-}
+    Error_UART_U1 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
+    Respuesta = NEGATIVE_ACKNOWLEDGE;
+    Send_Char_Tx_Reg_U1(&Respuesta);
 
+    if(U1STAbits.OERR && !U1STAbits.FERR){ // Overflow 
+        U1STAbits.OERR = 0b0; // Clear del overrun para permitir recepción de más datos
+    }
+    
+    if(U1STAbits.FERR && !U1STAbits.OERR){
+        while(1){
+            if(!U1STAbits.FERR){ 
+                Get_Char_Rx_Reg_U1(&data);  // Saco un dato x iteración, solo vacio la FIFO
+            }
+            if(U1STAbits.FERR){             // el char en la FIFO contiene falla en el bit de STOP
+                Get_Char_Rx_Reg_U1(&data);  // Saco un dato x iteración, solo vacio la FIFO
+                break;
+            }
+        }
+    }
+        IFS4bits.U1EIF = 0;     // Clear Error Interrupt flag
+}  
+    
 void __attribute__((interrupt,no_auto_psv)) _U2TXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
     
     if(!Tx_Reg_U1_State() && ringBuffer_getData(pRingBufferTx_U1, &data)){
+        
         //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
+        
         while( !Tx_Reg_U2_State() && ringBuffer_getData(pRingBufferTx_U2, &data) ){
             Send_Char_Tx_Reg_U2(&data);
         }
+        
     }
     else
         // No hay datos en RB, se limpia solo la bandera seteada.
         
     IFS1bits.U2TXIF = 0;    // Clear TX Interrupt flag
 }
+
 void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
   
@@ -465,51 +440,26 @@ void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
 
 void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     uint8_t data;
-    int i = 0,j = 0;
-   
-    if(U2STAbits.OERR && !U2STAbits.FERR){ // Overflow
-        
-            while( !Rx_Reg_U2_State() ){
-                Get_Char_Rx_Reg_U2(&data);   // Saco un dato x iteración, lo guardo dentro de data
-                ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado de la FIFO al RB
+    
+    Error_UART_U2 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
+    Respuesta = NEGATIVE_ACKNOWLEDGE;
+    Send_Char_Tx_Reg_U2(&Respuesta);
+
+    
+    if(U2STAbits.OERR && !U2STAbits.FERR){     
+        U2STAbits.OERR = 0b0;       // Clear del permitir recepción de más datosverrun para permitir recepción de más datos.
+    }
+    
+    if(U2STAbits.FERR && !U2STAbits.OERR){
+        while(1){
+            if(!U2STAbits.FERR){ 
+                Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, solo vacio la FIFO
             }
-            
-        // Podríamos usar una lógica de ACK para hacerle sabera la PC que esta todo joya y puede mandar 
-        // cuando recibimos un dato y que puede mandar el próximo dato. Sino que vuelva a mandar dicho dato.
-            
-        U2STAbits.OERR &= ~(1UL << 0b1); // Clear del overrun para permitir recepción de más datos
-    }
-    if(U2STAbits.FERR && !U2STAbits.OERR){ // Falla en la detección del bit de STOP
-        
-        while(!Rx_Reg_U2_State()){
-           Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, lo guardo dentro de data
-           Char_Recup[i] = data;       // Uso i para saber cuantos datos recupero de la FIFO (Valor máx = dato con error)
-           i++;
+            if(U2STAbits.FERR){             // el char en la FIFO contiene falla en el bit de STOP
+                Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, solo vacio la FIFO
+                break;
+            }
         }
-        
-        while( i != (j+1) ){         // Uso j para escribir los datos sin error. En i = j esta el dato que esta roto
-            ringBuffer_putData(pRingBufferRx_U2, Char_Recup[j]);     // Envio el dato recuperado de la FIFO al RB
-            j++;
-        }
-        
-        // Char_Recup[j] tiene el dato erroneo.
-        
-        // Podriamos enviar un mensaje para hacerle saber a la PC que hubo un problema y que mande de nuevo el mensaje
-        // Si se utiliza la lógica de ACK, si no se le envia nada a la PC esta volvería a retransmitir el último dato.
-        i=0; j=0;
-    }
-        
-    if(U2STAbits.FERR && U2STAbits.OERR){
-        
-        while(!Rx_Reg_U2_State() && i < 4){     // Vacio solamente RXREG, el dato erroneo esta en RSR
-            Get_Char_Rx_Reg_U2(&data);          // Saco un dato x iteración, lo guardo dentro de data    
-            ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
-            i++;
-        }
-        // Podriamos enviar un mensaje para hacerle saber a la PC que hubo un problema y que mande de nuevo el mensaje
-        // Si se utiliza la lógica de ACK, si no se le envia nada a la PC esta podría volver a retransmitir el último dato.
-        i = 0;
-        U2STAbits.OERR &= ~(1UL << 0b1); // Clear del overrun para permitir recepción de más datos
     }
     IFS4bits.U2EIF = 0;     // Clear Error Interrupt flag 
 }

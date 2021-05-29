@@ -67,15 +67,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
-    #define DAC_INT_PRI_0                   				0x0000 /* DAC Priority Value: 0 */
-    #define DAC_INT_PRI_1                   				0x0001 /* DAC Priority Value: 1 */
-    #define DAC_INT_PRI_2                   				0x0002 /* DAC Priority Value: 2 */
-    #define DAC_INT_PRI_3                   				0x0003 /* DAC Priority Value: 3 */
-    #define DAC_INT_PRI_4                   				0x0004 /* DAC Priority Value: 4 */
-    #define DAC_INT_PRI_5                   				0x0005 /* DAC Priority Value: 5 */
-    #define DAC_INT_PRI_6                   				0x0006 /* DAC Priority Value: 6 */
-    #define DAC_INT_PRI_7                           		0x0007 /* DAC Priority Value: 7 */ 
-    
+   #define DAC_INT_PRI_0                   				0x0000 /* DAC Priority Value: 0 */
+   #define DAC_INT_PRI_1                   				0x0001 /* DAC Priority Value: 1 */
+   #define DAC_INT_PRI_2                   				0x0002 /* DAC Priority Value: 2 */
+   #define DAC_INT_PRI_3                   				0x0003 /* DAC Priority Value: 3 */
+   #define DAC_INT_PRI_4                   				0x0004 /* DAC Priority Value: 4 */
+   #define DAC_INT_PRI_5                   				0x0005 /* DAC Priority Value: 5 */
+   #define DAC_INT_PRI_6                   				0x0006 /* DAC Priority Value: 6 */
+   #define DAC_INT_PRI_7                           		0x0007 /* DAC Priority Value: 7 */ 
+
    void init_DAC(void);
    void Send_DAC(uint16_t *data); 
     // TODO If C++ is being used, regular C code needs function names to have C 
