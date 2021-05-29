@@ -31,7 +31,7 @@ int main(){
     Config_UART();
     Config_ADC();
     Create_RingBuffer();
-    extern volatile uint8_t Micro_Ready;  
+    extern volatile uint8_t Micro_Ready; 
     Micro_Ready = 1;
 
     while(1) {

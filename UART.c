@@ -447,7 +447,7 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
 
     
     if(U2STAbits.OERR && !U2STAbits.FERR){     
-        U2STAbits.OERR = 0b0;       // Clear del permitir recepción de más datosverrun para permitir recepción de más datos.
+        U2STAbits.OERR = 0b0;       // Clear del overrun para permitir recepción de más datos. Vaciamos la FIFO
     }
     
     if(U2STAbits.FERR && !U2STAbits.OERR){
@@ -464,3 +464,16 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     IFS4bits.U2EIF = 0;     // Clear Error Interrupt flag 
 }
 
+void Clean_RingBufferRx_U2(void){
+    uint8_t data;
+    while(!ringBuffer_isEmpty(pRingBufferRx_U2)){
+        ringBuffer_getData(pRingBufferRx_U2, &data); 
+    }
+}
+
+void Clean_RingBufferRx_U1(void){
+    uint8_t data;
+    while(!ringBuffer_isEmpty(pRingBufferRx_U1)){
+        ringBuffer_getData(pRingBufferRx_U1, &data); 
+    }
+}

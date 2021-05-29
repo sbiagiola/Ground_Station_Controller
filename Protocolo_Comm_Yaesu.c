@@ -205,10 +205,7 @@ void Comm_PC_Interface(){
                 
                 if(Error_UART_U2 == 1){ // Dado que solo nos comunicamos con la PC por la UART2
                     Indice_Rec = 0;
-                    
-                    while(!ringBuffer_isEmpty(pRingBufferRx_U2)){
-                        ringBuffer_getData(pRingBufferRx_U2, &Commando_Recibido[0]); 
-                    }
+                    Clean_RingBufferRx_U2();
                     Estado_Actual = Esperando_Datos;
                     break;
                 }

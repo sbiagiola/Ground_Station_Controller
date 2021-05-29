@@ -29,6 +29,7 @@ void Get_Char_Rx_Reg_U1(uint8_t *data);
 void Send_Char_Tx_Reg_U1(uint8_t *data);
 void Enable_UART1(void);
 void Disable_UART1(void);
+void Clean_RingBufferRx_U1(void);
 
 /**********     UART2     **********/
 unsigned int Tx_Reg_U2_State(void);
@@ -39,6 +40,7 @@ void Get_Char_U2(uint8_t *data);
 void Send_Char_Tx_Reg_U2(uint8_t *data);
 void Enable_UART2(void);
 void Disable_UART2(void);
+void Clean_RingBufferRx_U2(void);
 /***********************************************/
 
 #ifdef	__cplusplus
