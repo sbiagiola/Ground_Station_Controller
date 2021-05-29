@@ -1,13 +1,21 @@
 /*
  * File:   timer.c
- * Author: biagi
+ * Author: biagiola
  *
  * Created on 26 de mayo de 2021, 20:07
  */
 
 
 #include "xc.h"
+#include "stdint.h"
+#include "timer1.h"
+#include "libpic30.h"
 
-int main(void) {
-    return 0;
+void init_timer1()
+{
+
+    
+    
+    
+
 }
