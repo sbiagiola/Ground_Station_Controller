@@ -4,6 +4,7 @@
  *
  * Created on 15 de abril de 2021, 09:52
  */
+#include "stdint.h"
 
 #ifndef UART_H
 #define	UART_H

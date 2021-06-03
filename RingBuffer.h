@@ -4,7 +4,7 @@
  *
  * Created on 13 de mayo de 2021, 19:37
  */
-#include "stdint.h"     // Sino hay problemas con los int32_t
+#include "stdint.h"     
 
 #ifndef RINGBUFFER_H
 #define	RINGBUFFER_H

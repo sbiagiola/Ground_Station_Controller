@@ -16,6 +16,7 @@
 #include "ADC.h"
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
+#include "interrupts.h"
 
 /*==================== [macros and definitions] ==========================*/
 #define CHAR_CR  13     // Retorno del carro
@@ -24,16 +25,19 @@
 /*========================================================================*/
 
 int main(){
-  
-    /* Configuración interna del microcontrolador*/
+    
+    Create_RingBuffer();    // Ponerlo antes de habilitar el uso de UART
+    
+    /*============ Configuración interna del microcontrolador ============*/
     Config_Clock();
     Config_IO();
     Config_UART();
     Config_ADC();
-    Create_RingBuffer();
+    initInterrupts();
+    /*====================================================================*/
     extern volatile uint8_t Micro_Ready; 
     Micro_Ready = 1;
-
+    
     while(1) {
 
     }
