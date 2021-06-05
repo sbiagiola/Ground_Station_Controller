@@ -21,6 +21,8 @@
 #define CHAR_CR  13     // Retorno del carro
 #define CHAR_LF  10     // Fin de linea
 #define BUFFER_SIZE 8   // Tamaño del buffer de caracteres a utilizar
+uint16_t count_timer = 0; // contador del timer 1
+uint8_t count_seg = 0; // se incrementa cada un segundo 
 /*========================================================================*/
 
 int main(){
