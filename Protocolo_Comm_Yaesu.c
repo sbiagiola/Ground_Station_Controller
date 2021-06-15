@@ -2,9 +2,10 @@
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
 
-
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 /*
  * (CR)0xD -> Retorno de carro
  * (LF)0xA -> Avance de línea 
@@ -32,8 +33,8 @@
 /*
   Trama (PC -> Interface):  Envio: XXX'CR'             (XXX comando valido)
   Trama (intercafe -> PC):  Respuesta: 'CR'            (Sin pedidos de datos)
-                                       'LF'XXX'CR'     (XXX datos)
-                                       'LF'?>'CR'      (Comando no valido)
+                                       'CR''LF'XXX     (XXX datos)
+                                       ?>              (Comando no valido)
  * 
  Nota: Los comandos basicos del Yaesu solo soportan 3 digitos por ángulo, en el caso de los
  comando extendidos se enviaran/recibiran más caracteres.
@@ -76,42 +77,211 @@ typedef enum {
     Esperando_Datos,
     Recopilando_Datos,
     Validando_Comando,
-    Error_Analizando_Datos,
+    Error_Recibiendo_Datos,
 }Estado_Comm;
 
 typedef struct{
-   uint8_t Comando_Actual;
-   uint8_t Proximo_Comando;
-   uint8_t Comando_Acimut;
-   uint8_t Comando_Elevacion;
-   uint8_t Velocidad_E;
+    uint8_t Comando_Actual;
+    uint8_t Proximo_Comando;
+    uint8_t Comando_Acimut;
+    uint8_t Comando_Elevacion;
+    uint8_t Velocidad_E;
 }Comandos_Procesados;
+
+typedef struct{
+    char Ultimo_Comando_Almacenado[MAX_SIZE_COMMAND_AVALIBLE];
+    char Ang_Acimut[MAX_LONG_DATA_ANGLE];     //123.4\0
+    char Ang_Elevacion[MAX_LONG_DATA_ANGLE];  //160.8\0
+}Data_Control;
 
 /*===================== [Variables Internas (Globales)] =====================*/
 uint8_t Mensaje_Env[MAX_SIZE_DATA_SEND];
 uint8_t Caracter_Rec;
-uint8_t Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
+uint8_t Mensaje_Error[] = "?>";
+
 uint32_t FlagRec;
 uint32_t Indice_Rec = 0;
+
+Data_Control Control;
 Comandos_Procesados Situacion_Actual;
-volatile uint8_t Micro_Ready;       // Config. del microcontrolador terminada
+
+char Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
+volatile int Habilitar_Comunicacion;       // Inicialización luego de la configuración del micro en main.c
 extern volatile int Error_UART_U2;
 /*===========================================================================*/
 
+/*
+    Esta función segmenta un string de acuerdo a los delimitadores definidos y 
+separa la cadena ingresada en segmentos que se encuentren entre ellos. Se debe
+corroborar el formato de la misma antes de el llamado de esta función, dado que 
+esta solo divide la cadema ingresada.
+
+Para el uso se debe pasar la dirección de memoria del string a partir de la cual se 
+comenzara a filtra los datos, una vez detectado un espacio o un 'CR' se copiara dicha cadena
+y se devolveran los datos a traves de Out_Data_1 y Out_Data_2, si no se detecto el final del string.
+En caso de querer un único segmento de salida, repetir el dato de salida en los dos campos anteriores.
+  
+    char *Dato_No_Filtrada  (IN)        ->  Puntero al string a filtrar
+    char* Out_Data_1        (IN/OUT)    ->  Primer dato de salida
+    char* Out_Data_2        (IN/OUT)    ->  Segundo dato de salida
+*/
+void Segmentar_Datos(char *Dato_No_Filtrada, char* Out_Data_1, char* Out_Data_2){
+    char * token;
+    char *Delimitador = " \r";  //Caracteres de a delimitar el string: ' ' (space) y 'CHAR_CR' o '\r' (carriage return))
+    token = strtok(Dato_No_Filtrada, Delimitador);
+    strcpy(Out_Data_1,token);
+    token = strtok(NULL, " ");
+    if( token != NULL){
+        strcpy(Out_Data_2,token);
+    }
+}
+
+/* 
+    Esta función análiza el formato del dato enviado por la PC a la interface. Es la encargada de 
+determinar si un dato esta correcto de acuerdo a la forma de definición del comando según lo comentado
+en la parte superior del archivo.
+Retorna un 1 si el comando esta correcto. En caso contrario se devolvera un 0
+ 
+    char* Segmento      (IN)    ->  Puntero a cadena a analizar.
+ */
+int Analizando_Datos(char* Segmento){
+    int j,Angulo_Num=1;
+    int Cant_Dig_Antes=0;
+    
+    if(Segmento[1] == 'C'){     //PC123.0 150.9\r
+        j=2;
+        while(Segmento[j] != '\0' && Angulo_Num <= 2){
+            for( ; Segmento[j] != '.' && !isspace(Segmento[j]); j++){
+                if(!isdigit(Segmento[j])){
+                    //Error detectando digitos
+                    return 0;
+                }
+                Cant_Dig_Antes++;
+                if(Cant_Dig_Antes > 3){
+                    // + de 3 digitos en el ángulo antes del '.' o ' '
+                    return 0;
+                }
+            }
+            if(Segmento[j] == '.' || isspace(Segmento[j])){
+                j++;
+            }
+            else{
+                // Punto o espacio no detectado
+                return 0;
+            }
+            if(Segmento[j-1] == '.'){
+                for( ; !isspace(Segmento[j]); j++){
+                    if(!isdigit(Segmento[j])){
+                        //Error detectando digitos
+                        return 0;
+                    }
+                }                
+            }
+            Angulo_Num++;
+            j++;
+            Cant_Dig_Antes = 0;
+        }
+        if(Angulo_Num > 3){
+            // Más de dos angulos se detectaron.
+            return 0;
+        }
+    // Dato valido
+    return 1; 
+    }
+    
+    if(Segmento[1]=='E' || Segmento[1]=='A'){
+        j=2;
+        for(  ; Segmento[j] != '.' && !isspace(Segmento[j]); j++){
+            if(!isdigit(Segmento[j])){
+                // Error detectando digitos
+                return 0;
+            }
+            Cant_Dig_Antes++;
+            if(Cant_Dig_Antes > 3){
+                // + de 3 digitos en el ángulo antes del '.' o ' '
+                return 0;
+            }
+        }
+        if(Segmento[j] == '.' || isspace(Segmento[j])){
+            j++;
+        }
+        else{
+            printf("Detecte algo raro\n");
+            return 0;
+        }
+        if(Segmento[j-1] == '.'){
+            for(  ; !isspace(Segmento[j]); j++){
+                if(!isdigit(Segmento[j])){
+                    // Error detectando digitos
+                    return 0;
+                }
+            }                
+        }
+        j++;
+        Cant_Dig_Antes = 0;
+    //Dato valido
+    return 1;
+    }
+    
+    if(Segmento[0] == 'W'){
+        j=1;
+        while(Segmento[j] != '\0' && Angulo_Num <=2){
+            for( ; !isspace(Segmento[j]); j++){
+                if(!isdigit(Segmento[j])){
+                    // Error detectando digitos
+                    return 0;
+                }
+                Cant_Dig_Antes++;
+            }
+            if(Cant_Dig_Antes != 3){
+                //Datos invalidos algún ángulo
+                return 0;
+            }
+            if(isspace(Segmento[j]) && Cant_Dig_Antes <= 3){
+                j++;
+            }
+            else{
+                //No se detecto el espacio o se detecto + de 3 digitos en algún ángulo
+                return 0;
+            }
+            Angulo_Num++;
+            Cant_Dig_Antes = 0;
+        }
+    //Dato valido
+    return 1; 
+    }
+    
+    if(Segmento[0] == 'M'){
+            for( j=1; !isspace(Segmento[j]); j++){
+                if(!isdigit(Segmento[j])){
+                    // Error detectando digitos
+                    return 0;
+                }
+                Cant_Dig_Antes++;
+            }
+            if(Cant_Dig_Antes != 3){
+                //Se detecto + de 3 digitos en el ángulo
+                return 0;
+            }
+    //"Dato valido
+    return 1; 
+    }
+    
+return 0;
+}
+
 uint8_t Verificando_Comando(){
-    int i = 1 ,Angulo_Num = 1;
     if(Comando_Recibido[0] == 'R' || Comando_Recibido[0] == 'r'){return Giro_Horario;}
     if(Comando_Recibido[0] == 'L' || Comando_Recibido[0] == 'l'){return Giro_Antihorario;}
     if(Comando_Recibido[0] == 'A' || Comando_Recibido[0] == 'a'){return Stop_Acimut;}
     
-    if(Comando_Recibido[0] == 'M' || Comando_Recibido[0] == 'm'){
-        if(isdigit(Comando_Recibido[i]) && isdigit(Comando_Recibido[i+1]) && isdigit(Comando_Recibido[i+2])){
-            if ( Comando_Recibido[i+3] != CHAR_CR ){     
-                    return Comando_No_Valido;
-            }
-        }            
-        else return Comando_No_Valido;
-        
+    if(Comando_Recibido[0] == 'M' || Comando_Recibido[0] == 'm'){ // M123'CR'   M123'\r'
+        if(Analizando_Datos(&Comando_Recibido[0])){
+            Segmentar_Datos(&Comando_Recibido[1],Control.Ang_Acimut,Control.Ang_Acimut); 
+        }
+        else{
+            return Comando_No_Valido;
+        }
     return Hacia_aaa_grados;
     }
     
@@ -126,25 +296,14 @@ uint8_t Verificando_Comando(){
         }
         else return Devolver_Valor_Acimut;
     }
-    
-    if(Comando_Recibido[0] == 'W' || Comando_Recibido[0] == 'w'){
-        while(Comando_Recibido[i+3] != CHAR_CR && Angulo_Num <= 2){
-            if( isdigit(Comando_Recibido[i]) && isdigit(Comando_Recibido[i+1]) && isdigit(Comando_Recibido[i+2]) ){
-                if(Comando_Recibido[i+3] == '.'){
-                    if(isdigit(Comando_Recibido[i+4])){
-                    }
-                    else return Comando_No_Valido;
-               }
-                else return Comando_No_Valido;
-            }
-            else return Comando_No_Valido;
-            
-            if(isspace(Comando_Recibido[i+5]) && Angulo_Num == 1){
-                i = 6;
-                Angulo_Num++;
-            }
-            else return Comando_No_Valido;
-        }   
+                                                                    // 0  3 5 7      // 0  3 5 7
+    if(Comando_Recibido[0] == 'W' || Comando_Recibido[0] == 'w'){   // W123 356'CR'     W123 356'\r'
+        if(Analizando_Datos(&Comando_Recibido[0])){
+            Segmentar_Datos(&Comando_Recibido[1],Control.Ang_Acimut,Control.Ang_Elevacion); 
+        }
+        else{
+            return Comando_No_Valido;
+        }
     return Hacia_aaa_eee_grados;
     }
     
@@ -156,33 +315,42 @@ uint8_t Verificando_Comando(){
         if(Comando_Recibido[1] == '3'){return Velocidad_3_Elevacion;}
         if(Comando_Recibido[1] == '4'){return Velocidad_4_Elevacion;}
     }
-    
+                                                                  
     if(Comando_Recibido[0] == 'P' || Comando_Recibido[0] == 'p'){
-        i = 2;
-        while(Comando_Recibido[i+5] != CHAR_CR && Angulo_Num <= 2){
-            if( isdigit(Comando_Recibido[i]) && isdigit(Comando_Recibido[i+1]) && isdigit(Comando_Recibido[i+2]) ){
-                if(Comando_Recibido[i+3] == '.'){
-                    if(isdigit(Comando_Recibido[i+4])){
-                    }
-                    else return Comando_No_Valido;
-               }
-                else return Comando_No_Valido;
+                                                                        //   2   6 
+        if(Comando_Recibido[1] == 'A' || Comando_Recibido[1] == 'a'){   // PA344.1'CR'
+            if(Analizando_Datos(&Comando_Recibido[0])){
+                Segmentar_Datos(&Comando_Recibido[2],Control.Ang_Acimut,Control.Ang_Acimut);
             }
-            else return Comando_No_Valido;
-            
-            if(isspace(Comando_Recibido[i+5]) && Angulo_Num == 1){
-                i = 8;
-                Angulo_Num++;
+            else{
+                return Comando_No_Valido;
             }
-            else return Comando_No_Valido;
-        }     
-        if(Comando_Recibido[1] == 'A' || Comando_Recibido[1] == 'a'){return Mayor_Presicion_a_grados;}
-        if(Comando_Recibido[1] == 'E' || Comando_Recibido[1] == 'e'){return Mayor_Presicione_e_grados;}       
-        if(Comando_Recibido[1] == 'C' || Comando_Recibido[1] == 'c'){return Mayor_Presicion_a_e_grados;}
+        return Mayor_Presicion_a_grados; 
+        }
+                                                                        //   2   6
+        if(Comando_Recibido[1] == 'E' || Comando_Recibido[1] == 'e'){   // PE344.1'CR'    
+            if(Analizando_Datos(&Comando_Recibido[0])){
+                Segmentar_Datos( &Comando_Recibido[2],Control.Ang_Elevacion,Control.Ang_Elevacion);  
+            }
+            else{
+                return Comando_No_Valido;
+            }   
+        return Mayor_Presicione_e_grados;
+        }  
+                                                                      //   2     8
+        if(Comando_Recibido[1] == 'C' || Comando_Recibido[1] == 'c'){ // PC344.1 133.1'CR'             
+            if(Analizando_Datos(&Comando_Recibido[0])){
+                Segmentar_Datos( &Comando_Recibido[2],Control.Ang_Acimut,Control.Ang_Elevacion );   
+            }
+            else{
+                return Comando_No_Valido;
+            }           
+        return Mayor_Presicion_a_e_grados;
+        }      
     }
-
-return Comando_No_Valido;      
+return Comando_No_Valido;
 }
+
 void Comm_PC_Interface(){
     /*====================== Inicialización por seguridad ======================*/
                 Situacion_Actual.Comando_Actual = Parar_Todo;
@@ -193,13 +361,13 @@ void Comm_PC_Interface(){
                 
     static Estado_Comm Estado_Actual = Estableciendo_Conexion;      
     FlagRec = uart_ringBuffer_recDatos_U2(&Caracter_Rec, sizeof(Caracter_Rec));
+    
         switch (Estado_Actual) {
             
             case Estableciendo_Conexion:
-                
-                if( Micro_Ready ){
+                if( Habilitar_Comunicacion ){
                     Mensaje_Env[0] = ACKNOWLEDGE;
-                    Send_Char_Tx_Reg_U2(&Mensaje_Env[0]);  // Notificación de que estamos queriendo establecer comunicación
+                    uart_ringBuffer_envDatos_U2(&Mensaje_Env[0],sizeof(char));  // Notificación de que estamos queriendo establecer comunicación
                 }
                 
                 if ( FlagRec != 0 && Caracter_Rec == ACKNOWLEDGE){   // Esperas un ACK de la respuesta de la PC
@@ -222,8 +390,8 @@ void Comm_PC_Interface(){
                 if(Error_UART_U2 == 1){ 
                     Indice_Rec = 0;
                     Clean_RingBufferRx_U2();
-                    Mensaje_Env[0] = ACKNOWLEDGE;         
-                    Send_Char_Tx_Reg_U2(&Mensaje_Env[0]);  
+                    Mensaje_Env[0] = ACKNOWLEDGE;
+                    uart_ringBuffer_envDatos_U2(&Mensaje_Env[0],sizeof(char));
                     Estado_Actual = Esperando_Datos;
                     break;
                 }
@@ -233,15 +401,16 @@ void Comm_PC_Interface(){
                         Comando_Recibido[Indice_Rec] = Caracter_Rec;
                         Indice_Rec++;
                     }
-                    else{ 
-                        Estado_Actual = Error_Analizando_Datos;
+                    else{
+                        Indice_Rec = 0;
+                        Clean_RingBufferRx_U2();
+                        Estado_Actual = Error_Recibiendo_Datos;
                         break;
                     }
                 }
             
                 if( (FlagRec != 0) && (Caracter_Rec == CHAR_CR) ){
                     Comando_Recibido[Indice_Rec] = Caracter_Rec; 
- 
                     Estado_Actual = Validando_Comando;
                 }
             break;
@@ -253,100 +422,100 @@ void Comm_PC_Interface(){
                 nos ayudaria aca. No debe afectar a los comandos de posicionamiento. 
             */
                 Situacion_Actual.Proximo_Comando = Verificando_Comando();
-                switch(Situacion_Actual.Proximo_Comando){
-                    case Parar_Todo:
+                    
+                if(Situacion_Actual.Proximo_Comando != Comando_No_Valido){
+                        strcpy(Control.Ultimo_Comando_Almacenado,Comando_Recibido);
+                }
+                    
+                    switch(Situacion_Actual.Proximo_Comando){
+                        case Parar_Todo:
+                            
+                        break;
 
-                    break;
+                        case Giro_Horario:
+                            
+                        break;
 
-                    case Giro_Horario:
+                        case Giro_Antihorario:
 
-                    break;
+                        break;
 
-                    case Giro_Antihorario:
+                        case Stop_Acimut:
 
-                    break;
+                        break;
 
-                    case Stop_Acimut:
+                        case Devolver_Valor_Acimut:
 
-                    break;
+                        break;
 
-                    case Devolver_Valor_Acimut:
+                        case Hacia_aaa_grados:
+                            
+                        break;
 
-                    break;
+                        case Arriba:
+                            
+                        break;
 
-                    case Hacia_aaa_grados:
+                        case Abajo:
+                            
+                        break;
 
-                    break;
+                        case Stop_Elevacion:
 
-                    case Arriba:
+                        break;
 
-                    break;
+                        case Devolver_Valor_Elevacion:
 
-                    case Abajo:
+                        break;
 
-                    break;
+                        case Velocidad_1_Elevacion:
 
-                    case Stop_Elevacion:
+                        break;
 
-                    break;
+                        case Velocidad_2_Elevacion:
 
-                    case Devolver_Valor_Elevacion:
+                        break;
 
-                    break;
+                        case Velocidad_3_Elevacion:
 
-                    case Velocidad_1_Elevacion:
+                        break;
 
-                    break;
+                        case Velocidad_4_Elevacion:
 
-                    case Velocidad_2_Elevacion:
+                        break;
 
-                    break;
+                        case Hacia_aaa_eee_grados:
 
-                    case Velocidad_3_Elevacion:
+                        break;
 
-                    break;
+                        case Devolver_Valor_A_E:
 
-                    case Velocidad_4_Elevacion:
+                        break;
 
-                    break;
+                        case Mayor_Presicion_a_grados:
 
-                    case Hacia_aaa_eee_grados:
+                        break;
 
-                    break;
+                        case Mayor_Presicione_e_grados:
 
-                    case Devolver_Valor_A_E:
+                        break;
 
-                    break;
+                        case Mayor_Presicion_a_e_grados:
 
-                    case Mayor_Presicion_a_grados:
+                        break;
 
-                    break;
-
-                    case Mayor_Presicione_e_grados:
-
-                    break;
-
-                    case Mayor_Presicion_a_e_grados:
-
-                    break;
-
-                    case Comando_No_Valido:
-                        Mensaje_Env[0] = '?';
-                        Mensaje_Env[1] = '>';
-                        Mensaje_Env[2]= CHAR_CR;
-                        uart_ringBuffer_envDatos_U2(Mensaje_Env,3*sizeof(Mensaje_Env[0]));
-                    break;
-                    }
+                        case Comando_No_Valido:
+                            uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
+                            Estado_Actual = Esperando_Datos;
+                        break;
+                        }
             break;
-            
-            case Error_Analizando_Datos:
-                Mensaje_Env[0] = '?';
-                Mensaje_Env[1] = '>';
-                Mensaje_Env[2]= CHAR_CR;
-                uart_ringBuffer_envDatos_U2(Mensaje_Env,3*sizeof(Mensaje_Env[0]));
+                
+            case Error_Recibiendo_Datos:
+                uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
                 Estado_Actual = Esperando_Datos;
             break;
             
-            default: Estado_Actual = Estableciendo_Conexion;    
+            default: Estado_Actual = Esperando_Datos;
         }
 }

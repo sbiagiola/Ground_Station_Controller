@@ -1,4 +1,3 @@
 build/default/production/DAC.o:  \
 DAC.c  \
-DAC.h  \
-
+DAC.h 

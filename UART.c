@@ -410,8 +410,8 @@ void __attribute__((interrupt,no_auto_psv)) _U1ErrInterrupt(void){
     uint8_t data;
     Error_UART_U1 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
     Respuesta = NEGATIVE_ACKNOWLEDGE;
-    Send_Char_Tx_Reg_U1(&Respuesta);
-
+    uart_ringBuffer_envDatos_U1(Respuesta,sizeof(char));
+    
     if(U1STAbits.OERR && !U1STAbits.FERR){ // Overflow 
         U1STAbits.OERR = 0b0; // Clear del overrun para permitir recepción de más datos
     }
@@ -464,9 +464,8 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     
     Error_UART_U2 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
     Respuesta = NEGATIVE_ACKNOWLEDGE;
-    Send_Char_Tx_Reg_U2(&Respuesta);
+    uart_ringBuffer_envDatos_U2(Respuesta,sizeof(char));
 
-    
     if(U2STAbits.OERR && !U2STAbits.FERR){     
         U2STAbits.OERR = 0b0;       // Clear del overrun para permitir recepción de más datos. Vaciamos la FIFO
     }

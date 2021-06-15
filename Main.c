@@ -35,8 +35,8 @@ int main(){
     Config_ADC();
     initInterrupts();
     /*====================================================================*/
-    extern volatile uint8_t Micro_Ready; 
-    Micro_Ready = 1;
+    extern volatile int Habilitar_Comunicacion; 
+    Habilitar_Comunicacion = 1;
     
     while(1) {
 
