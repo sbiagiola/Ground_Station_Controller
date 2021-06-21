@@ -90,8 +90,10 @@ typedef struct{
 
 typedef struct{
     char Ultimo_Comando_Almacenado[MAX_SIZE_COMMAND_AVALIBLE];
-    char Ang_Acimut[MAX_LONG_DATA_ANGLE];     //123.4\0
-    char Ang_Elevacion[MAX_LONG_DATA_ANGLE];  //160.8\0
+    char Char_Acimut[MAX_LONG_DATA_ANGLE];     //123.4\0
+    char Char_Elevacion[MAX_LONG_DATA_ANGLE];  //160.8\0
+    float Ang_Acimut;
+    float Ang_Elevacion;
 }Data_Control;
 
 /*===================== [Variables Internas (Globales)] =====================*/
@@ -277,7 +279,8 @@ uint8_t Verificando_Comando(){
     
     if(Comando_Recibido[0] == 'M' || Comando_Recibido[0] == 'm'){ // M123'CR'   M123'\r'
         if(Analizando_Datos(&Comando_Recibido[0])){
-            Segmentar_Datos(&Comando_Recibido[1],Control.Ang_Acimut,Control.Ang_Acimut); 
+            Segmentar_Datos(&Comando_Recibido[1],Control.Char_Acimut,Control.Char_Acimut);
+            Control.Ang_Acimut = atof(Control.Char_Acimut);
         }
         else{
             return Comando_No_Valido;
@@ -299,7 +302,9 @@ uint8_t Verificando_Comando(){
                                                                     // 0  3 5 7      // 0  3 5 7
     if(Comando_Recibido[0] == 'W' || Comando_Recibido[0] == 'w'){   // W123 356'CR'     W123 356'\r'
         if(Analizando_Datos(&Comando_Recibido[0])){
-            Segmentar_Datos(&Comando_Recibido[1],Control.Ang_Acimut,Control.Ang_Elevacion); 
+            Segmentar_Datos(&Comando_Recibido[1],Control.Char_Acimut,Control.Char_Elevacion);
+            Control.Ang_Acimut = atof(Control.Char_Acimut);
+            Control.Ang_Elevacion = atof(Control.Char_Elevacion);
         }
         else{
             return Comando_No_Valido;
@@ -320,7 +325,8 @@ uint8_t Verificando_Comando(){
                                                                         //   2   6 
         if(Comando_Recibido[1] == 'A' || Comando_Recibido[1] == 'a'){   // PA344.1'CR'
             if(Analizando_Datos(&Comando_Recibido[0])){
-                Segmentar_Datos(&Comando_Recibido[2],Control.Ang_Acimut,Control.Ang_Acimut);
+                Segmentar_Datos(&Comando_Recibido[2],Control.Char_Acimut,Control.Char_Acimut);
+                Control.Ang_Acimut = atof(Control.Char_Acimut);
             }
             else{
                 return Comando_No_Valido;
@@ -330,7 +336,8 @@ uint8_t Verificando_Comando(){
                                                                         //   2   6
         if(Comando_Recibido[1] == 'E' || Comando_Recibido[1] == 'e'){   // PE344.1'CR'    
             if(Analizando_Datos(&Comando_Recibido[0])){
-                Segmentar_Datos( &Comando_Recibido[2],Control.Ang_Elevacion,Control.Ang_Elevacion);  
+                Segmentar_Datos( &Comando_Recibido[2],Control.Char_Elevacion,Control.Char_Elevacion);
+                Control.Ang_Elevacion = atof(Control.Char_Elevacion);
             }
             else{
                 return Comando_No_Valido;
@@ -340,7 +347,9 @@ uint8_t Verificando_Comando(){
                                                                       //   2     8
         if(Comando_Recibido[1] == 'C' || Comando_Recibido[1] == 'c'){ // PC344.1 133.1'CR'             
             if(Analizando_Datos(&Comando_Recibido[0])){
-                Segmentar_Datos( &Comando_Recibido[2],Control.Ang_Acimut,Control.Ang_Elevacion );   
+                Segmentar_Datos(&Comando_Recibido[2],Control.Char_Acimut,Control.Char_Elevacion);
+                Control.Ang_Acimut = atof(Control.Char_Acimut);
+                Control.Ang_Elevacion = atof(Control.Char_Elevacion);
             }
             else{
                 return Comando_No_Valido;
@@ -424,91 +433,91 @@ void Comm_PC_Interface(){
                 Situacion_Actual.Proximo_Comando = Verificando_Comando();
                     
                 if(Situacion_Actual.Proximo_Comando != Comando_No_Valido){
-                        strcpy(Control.Ultimo_Comando_Almacenado,Comando_Recibido);
+                    strcpy(Control.Ultimo_Comando_Almacenado,Comando_Recibido);
                 }
                     
-                    switch(Situacion_Actual.Proximo_Comando){
-                        case Parar_Todo:
-                            
-                        break;
+                switch(Situacion_Actual.Proximo_Comando){
+                    case Parar_Todo:
 
-                        case Giro_Horario:
-                            
-                        break;
+                    break;
 
-                        case Giro_Antihorario:
+                    case Giro_Horario:
 
-                        break;
+                    break;
 
-                        case Stop_Acimut:
+                    case Giro_Antihorario:
 
-                        break;
+                    break;
 
-                        case Devolver_Valor_Acimut:
+                    case Stop_Acimut:
 
-                        break;
+                    break;
 
-                        case Hacia_aaa_grados:
-                            
-                        break;
+                    case Devolver_Valor_Acimut:
 
-                        case Arriba:
-                            
-                        break;
+                    break;
 
-                        case Abajo:
-                            
-                        break;
+                    case Hacia_aaa_grados:
 
-                        case Stop_Elevacion:
+                    break;
 
-                        break;
+                    case Arriba:
 
-                        case Devolver_Valor_Elevacion:
+                    break;
 
-                        break;
+                    case Abajo:
 
-                        case Velocidad_1_Elevacion:
+                    break;
 
-                        break;
+                    case Stop_Elevacion:
 
-                        case Velocidad_2_Elevacion:
+                    break;
 
-                        break;
+                    case Devolver_Valor_Elevacion:
 
-                        case Velocidad_3_Elevacion:
+                    break;
 
-                        break;
+                    case Velocidad_1_Elevacion:
 
-                        case Velocidad_4_Elevacion:
+                    break;
 
-                        break;
+                    case Velocidad_2_Elevacion:
 
-                        case Hacia_aaa_eee_grados:
+                    break;
 
-                        break;
+                    case Velocidad_3_Elevacion:
 
-                        case Devolver_Valor_A_E:
+                    break;
 
-                        break;
+                    case Velocidad_4_Elevacion:
 
-                        case Mayor_Presicion_a_grados:
+                    break;
 
-                        break;
+                    case Hacia_aaa_eee_grados:
 
-                        case Mayor_Presicione_e_grados:
+                    break;
 
-                        break;
+                    case Devolver_Valor_A_E:
 
-                        case Mayor_Presicion_a_e_grados:
+                    break;
 
-                        break;
+                    case Mayor_Presicion_a_grados:
 
-                        case Comando_No_Valido:
-                            uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
-                            Estado_Actual = Esperando_Datos;
-                        break;
-                        }
+                    break;
+
+                    case Mayor_Presicione_e_grados:
+
+                    break;
+
+                    case Mayor_Presicion_a_e_grados:
+
+                    break;
+
+                    case Comando_No_Valido:
+                        uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
+                        Estado_Actual = Esperando_Datos;
+                    break;
+                    }
             break;
                 
             case Error_Recibiendo_Datos:
