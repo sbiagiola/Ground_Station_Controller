@@ -214,7 +214,7 @@ Valor_Act_END_STOP_1 = PORTAbits.RA4;
         if(Enconder_1_Fase_Z == HIGH){
             Conteo.Encoder_1_Vueltas++;
             Conteo.Encoder_1_Pulsos = 0;
-        }
+         }
     } 
 
     if( (Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A) || (Enconder_2_Fase_B != Valor_Anterior.Encoder_2_B) || Enconder_2_Fase_Z != Valor_Anterior.Encoder_2_Z){
