@@ -25,7 +25,7 @@ void disableInterrupts(void){
 void initInterrupts(void){
     
     // Luego del reset las interrupciones son por añidamiento.
-    
+ 
     /* Habilitación de interrupciones*/
     
     IEC0bits.T1IE   = 0b1;      /* Enable Timer1 interrupt */
@@ -35,6 +35,7 @@ void initInterrupts(void){
     IEC1bits.U2RXIE = 0b1;      /* Enable UART2 RX interrupt*/
     IEC4bits.U1EIE  = 0b1;      /* Enable UART1 Error interrupt*/
     IEC4bits.U2EIE  = 0b1;      /* Enable UART2 Error interrupt*/
+    IEC1bits.CNIE = 1;          /* Enable CN interrupts*/
     //IEC4bits.DAC1RIE = 1;      	/* Right Channel DAC Interrupt Enable */
     //IEC0bits.AD1IE  = 0b1;      /* Enable ADC1 interrupt*/
     
@@ -46,10 +47,11 @@ void initInterrupts(void){
     IPC16bits.U2EIP = 5;        /* Set UART2 Error interupt priority to 5*/
     IPC7bits.U2RXIP = 4;        /* Set UART2 RX interrupt priority to 4*/
     IPC7bits.U2TXIP = 3;        /* Set UART2 TX interupt priority to 3*/
-    
-    IPC0bits.T1IP   = 2;        /* Set Timer1 interrupt priority to 2*/ 
-    //IPC19bits.DAC1RIP = 1;	   /* Right Channel DAC Interrupt Priority Set */  
-    //IPC3bits.AD1IP = 1;         /* Set priority ADC1 interrupt priority to 1 */
+    IPC4bits.CNIP = 2;          /* Set Change Notification pins interupt priority to 2*/
+    IPC0bits.T1IP = 1;          /* Set Timer1 interrupt priority to 1*/ 
+
+    //IPC19bits.DAC1RIP = 1;	/* Right Channel DAC Interrupt Priority Set */  
+    //IPC3bits.AD1IP = 1;       /* Set priority ADC1 interrupt priority to 1 */
 }
 
 void disableUART1(void){
@@ -74,6 +76,9 @@ void disableTIMER1(void){
     IEC0bits.T1IE = 0b0;            /* Disable Timer1 interrupt */
 }
 
+void disableCN(void){
+    IEC1bits.CNIE = 0b0;          /* Disable CN interrupts*/
+}
 /********************************************************************************/
 
 /* Esta permite modifirar el nombre pero es necesario especificarle el número de la 

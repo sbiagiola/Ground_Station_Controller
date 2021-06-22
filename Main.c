@@ -19,9 +19,7 @@
 #include "interrupts.h"
 
 /*==================== [macros and definitions] ==========================*/
-#define CHAR_CR  13     // Retorno del carro
-#define CHAR_LF  10     // Fin de linea
-#define BUFFER_SIZE 8   // Tamaño del buffer de caracteres a utilizar
+
 /*========================================================================*/
 
 int main(){
@@ -35,11 +33,13 @@ int main(){
     Config_ADC();
     initInterrupts();
     /*====================================================================*/
+    
+    // Change_Config_UART1();
     extern volatile int Habilitar_Comunicacion; 
     Habilitar_Comunicacion = 1;
-    
-    while(1) {
 
+    while(1) {
+        
     }
     return (EXIT_SUCCESS);
 }

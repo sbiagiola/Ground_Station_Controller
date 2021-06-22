@@ -19,7 +19,7 @@ void disableUART1(void);
 void disableUART2(void);
 void disableADC1(void);
 void disableTIMER1(void);
-
+void disableCN(void);
 #ifdef	__cplusplus
 }
 #endif

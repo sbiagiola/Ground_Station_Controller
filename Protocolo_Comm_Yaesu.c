@@ -92,8 +92,12 @@ typedef struct{
     char Ultimo_Comando_Almacenado[MAX_SIZE_COMMAND_AVALIBLE];
     char Char_Acimut[MAX_LONG_DATA_ANGLE];     //123.4\0
     char Char_Elevacion[MAX_LONG_DATA_ANGLE];  //160.8\0
-    float Ang_Acimut;
-    float Ang_Elevacion;
+    float Cero_Acimut;
+    float Target_Acimut;
+    float Ultimo_Ang_Acimut;
+    float Cero_Elevacion;
+    float Target_Elevacion;
+    float Ultimo_Ang_Elevacion;
 }Data_Control;
 
 /*===================== [Variables Internas (Globales)] =====================*/
@@ -120,21 +124,26 @@ esta solo divide la cadema ingresada.
 
 Para el uso se debe pasar la dirección de memoria del string a partir de la cual se 
 comenzara a filtra los datos, una vez detectado un espacio o un 'CR' se copiara dicha cadena
-y se devolveran los datos a traves de Out_Data_1 y Out_Data_2, si no se detecto el final del string.
+y se devolveran los datos a traves de Out_Data_Ac y Out_Data_El, si no se detecto el final del string.
 En caso de querer un único segmento de salida, repetir el dato de salida en los dos campos anteriores.
   
     char *Dato_No_Filtrada  (IN)        ->  Puntero al string a filtrar
-    char* Out_Data_1        (IN/OUT)    ->  Primer dato de salida
-    char* Out_Data_2        (IN/OUT)    ->  Segundo dato de salida
+    char* Out_Data_Ac        (IN/OUT)    ->  Primer dato de salida
+    char* Out_Data_El        (IN/OUT)    ->  Segundo dato de salida
 */
-void Segmentar_Datos(char *Dato_No_Filtrada, char* Out_Data_1, char* Out_Data_2){
+void Segmentar_Datos(char *Raw_Data, char* Out_Data_Ac, char* Out_Data_El){
+    
+    while(!isdigit(*Raw_Data)){
+        Raw_Data++;     // Sacamos los datos que no son digitos
+    }
+    
     char * token;
     char *Delimitador = " \r";  //Caracteres de a delimitar el string: ' ' (space) y 'CHAR_CR' o '\r' (carriage return))
-    token = strtok(Dato_No_Filtrada, Delimitador);
-    strcpy(Out_Data_1,token);
-    token = strtok(NULL, " ");
+    token = strtok(Raw_Data, Delimitador);
+    strcpy(Out_Data_Ac,token);
+    token = strtok(NULL, Delimitador);
     if( token != NULL){
-        strcpy(Out_Data_2,token);
+        strcpy(Out_Data_El,token);
     }
 }
 
@@ -152,7 +161,7 @@ int Analizando_Datos(char* Segmento){
     
     if(Segmento[1] == 'C'){     //PC123.0 150.9\r
         j=2;
-        while(Segmento[j] != '\0' && Angulo_Num <= 2){
+        while(Segmento[j] != '\r' && Angulo_Num <= 2){
             for( ; Segmento[j] != '.' && !isspace(Segmento[j]); j++){
                 if(!isdigit(Segmento[j])){
                     //Error detectando digitos
@@ -183,7 +192,7 @@ int Analizando_Datos(char* Segmento){
             j++;
             Cant_Dig_Antes = 0;
         }
-        if(Angulo_Num > 3){
+        if(Angulo_Num > 2){
             // Más de dos angulos se detectaron.
             return 0;
         }
@@ -208,7 +217,7 @@ int Analizando_Datos(char* Segmento){
             j++;
         }
         else{
-            printf("Detecte algo raro\n");
+            //Detectamos algo raro
             return 0;
         }
         if(Segmento[j-1] == '.'){
@@ -219,7 +228,6 @@ int Analizando_Datos(char* Segmento){
                 }
             }                
         }
-        j++;
         Cant_Dig_Antes = 0;
     //Dato valido
     return 1;
@@ -227,7 +235,7 @@ int Analizando_Datos(char* Segmento){
     
     if(Segmento[0] == 'W'){
         j=1;
-        while(Segmento[j] != '\0' && Angulo_Num <=2){
+        while(Segmento[j] != '\r' && Angulo_Num <=2){
             for( ; !isspace(Segmento[j]); j++){
                 if(!isdigit(Segmento[j])){
                     // Error detectando digitos
@@ -236,10 +244,10 @@ int Analizando_Datos(char* Segmento){
                 Cant_Dig_Antes++;
             }
             if(Cant_Dig_Antes != 3){
-                //Datos invalidos algún ángulo
+                //Datos invalido. Algún ángulo tiene menos de 3 digitos
                 return 0;
             }
-            if(isspace(Segmento[j]) && Cant_Dig_Antes <= 3){
+            if(isspace(Segmento[j]) && Cant_Dig_Antes == 3){
                 j++;
             }
             else{
@@ -248,6 +256,10 @@ int Analizando_Datos(char* Segmento){
             }
             Angulo_Num++;
             Cant_Dig_Antes = 0;
+        }
+        if(Angulo_Num > 2){
+            // Más de dos angulos se detectaron.
+            return 0;
         }
     //Dato valido
     return 1; 
@@ -278,9 +290,10 @@ uint8_t Verificando_Comando(){
     if(Comando_Recibido[0] == 'A' || Comando_Recibido[0] == 'a'){return Stop_Acimut;}
     
     if(Comando_Recibido[0] == 'M' || Comando_Recibido[0] == 'm'){ // M123'CR'   M123'\r'
-        if(Analizando_Datos(&Comando_Recibido[0])){
-            Segmentar_Datos(&Comando_Recibido[1],Control.Char_Acimut,Control.Char_Acimut);
-            Control.Ang_Acimut = atof(Control.Char_Acimut);
+        if(Analizando_Datos(Comando_Recibido)){
+            Segmentar_Datos(Comando_Recibido,Control.Char_Acimut,Control.Char_Acimut);
+            Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
+            Control.Target_Acimut = atof(Control.Char_Acimut);
         }
         else{
             return Comando_No_Valido;
@@ -299,12 +312,14 @@ uint8_t Verificando_Comando(){
         }
         else return Devolver_Valor_Acimut;
     }
-                                                                    // 0  3 5 7      // 0  3 5 7
-    if(Comando_Recibido[0] == 'W' || Comando_Recibido[0] == 'w'){   // W123 356'CR'     W123 356'\r'
-        if(Analizando_Datos(&Comando_Recibido[0])){
-            Segmentar_Datos(&Comando_Recibido[1],Control.Char_Acimut,Control.Char_Elevacion);
-            Control.Ang_Acimut = atof(Control.Char_Acimut);
-            Control.Ang_Elevacion = atof(Control.Char_Elevacion);
+
+    if(Comando_Recibido[0] == 'W' || Comando_Recibido[0] == 'w'){
+        if(Analizando_Datos(Comando_Recibido)){
+            Segmentar_Datos(Comando_Recibido,Control.Char_Acimut,Control.Char_Elevacion);
+            Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
+            Control.Target_Acimut = atof(Control.Char_Acimut);
+            Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
+            Control.Target_Elevacion = atof(Control.Char_Elevacion);
         }
         else{
             return Comando_No_Valido;
@@ -321,35 +336,38 @@ uint8_t Verificando_Comando(){
         if(Comando_Recibido[1] == '4'){return Velocidad_4_Elevacion;}
     }
                                                                   
-    if(Comando_Recibido[0] == 'P' || Comando_Recibido[0] == 'p'){
-                                                                        //   2   6 
-        if(Comando_Recibido[1] == 'A' || Comando_Recibido[1] == 'a'){   // PA344.1'CR'
-            if(Analizando_Datos(&Comando_Recibido[0])){
-                Segmentar_Datos(&Comando_Recibido[2],Control.Char_Acimut,Control.Char_Acimut);
-                Control.Ang_Acimut = atof(Control.Char_Acimut);
+    if(Comando_Recibido[0] == 'P' || Comando_Recibido[0] == 'p'){                                                                      
+        if(Comando_Recibido[1] == 'A' || Comando_Recibido[1] == 'a'){   
+            if(Analizando_Datos(Comando_Recibido)){
+                Segmentar_Datos(Comando_Recibido,Control.Char_Acimut,Control.Char_Acimut);
+                Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
+                Control.Target_Acimut = atof(Control.Char_Acimut);
             }
             else{
                 return Comando_No_Valido;
             }
         return Mayor_Presicion_a_grados; 
         }
-                                                                        //   2   6
-        if(Comando_Recibido[1] == 'E' || Comando_Recibido[1] == 'e'){   // PE344.1'CR'    
-            if(Analizando_Datos(&Comando_Recibido[0])){
-                Segmentar_Datos( &Comando_Recibido[2],Control.Char_Elevacion,Control.Char_Elevacion);
-                Control.Ang_Elevacion = atof(Control.Char_Elevacion);
+        
+        if(Comando_Recibido[1] == 'E' || Comando_Recibido[1] == 'e'){       
+            if(Analizando_Datos(Comando_Recibido)){
+                Segmentar_Datos(Comando_Recibido,Control.Char_Elevacion,Control.Char_Elevacion);
+                Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
+                Control.Target_Elevacion = atof(Control.Char_Elevacion);
             }
             else{
                 return Comando_No_Valido;
             }   
         return Mayor_Presicione_e_grados;
         }  
-                                                                      //   2     8
-        if(Comando_Recibido[1] == 'C' || Comando_Recibido[1] == 'c'){ // PC344.1 133.1'CR'             
-            if(Analizando_Datos(&Comando_Recibido[0])){
-                Segmentar_Datos(&Comando_Recibido[2],Control.Char_Acimut,Control.Char_Elevacion);
-                Control.Ang_Acimut = atof(Control.Char_Acimut);
-                Control.Ang_Elevacion = atof(Control.Char_Elevacion);
+
+        if(Comando_Recibido[1] == 'C' || Comando_Recibido[1] == 'c'){              
+            if(Analizando_Datos(Comando_Recibido)){
+                Segmentar_Datos(Comando_Recibido,Control.Char_Acimut,Control.Char_Elevacion);
+                Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
+                Control.Target_Acimut = atof(Control.Char_Acimut);
+                Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
+                Control.Target_Elevacion = atof(Control.Char_Elevacion);
             }
             else{
                 return Comando_No_Valido;
@@ -376,7 +394,7 @@ void Comm_PC_Interface(){
             case Estableciendo_Conexion:
                 if( Habilitar_Comunicacion ){
                     Mensaje_Env[0] = ACKNOWLEDGE;
-                    uart_ringBuffer_envDatos_U2(&Mensaje_Env[0],sizeof(char));  // Notificación de que estamos queriendo establecer comunicación
+                    uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));  // Notificación de que estamos queriendo establecer comunicación
                 }
                 
                 if ( FlagRec != 0 && Caracter_Rec == ACKNOWLEDGE){   // Esperas un ACK de la respuesta de la PC
