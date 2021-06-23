@@ -9,13 +9,12 @@
 
 #include "IO_Config.h"
 #include "UART.h"
+
 typedef struct{
     long Encoder_1_Pulsos;
-    long Encoder_1_Vueltas;
-    
+    long Encoder_1_Vueltas;  
     long Encoder_2_Pulsos;
     long Encoder_2_Vueltas;
-    
     int Anemometr0;
 }Contador;
 
@@ -23,12 +22,13 @@ typedef struct{
     uint16_t    Encoder_1_A;
     uint16_t    Encoder_1_B;
     uint16_t    Encoder_1_Z;
-    
     uint16_t    Encoder_2_A;
     uint16_t    Encoder_2_B;
     uint16_t    Encoder_2_Z;
-    
     uint16_t    Anemometr0;
+    uint16_t    End_Stop_1;
+    uint16_t    End_Stop_2;
+    uint16_t    Parad_Emerg;
 }Last_Value;
 /*==================== [Macros y Definiciones] ========================*/  
 #define OUTPUT 0
@@ -179,79 +179,114 @@ IFS1bits.CNIF = 0;      // Reset CN interrupt   (Recomendaban esto)|
 }
 
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
-/*
-uint16_t Valor_Act_Enconder_1_A,Valor_Act_Enconder_1_B,Valor_Act_Enconder_1_Z;
-uint16_t Valor_Act_Enconder_2_A,Valor_Act_Enconder_2_B,Valor_Act_Enconder_2_Z;
-uint16_t Valor_Act_Parada_Emergencia,Valor_Act_Anemometro;
-uint16_t Valor_Act_END_STOP_1,Valor_Act_END_STOP_2;
+    // Máxima RPM, según datasheet: 30.000 rpm
+    
+    static uint8_t Bandera_Encoder_1_A = 1;
+    static uint8_t Bandera_Encoder_1_B = 1;
+    static uint8_t Bandera_Encoder_2_A = 1;
+    static uint8_t Bandera_Encoder_2_B = 1;
 
-Valor_Act_Enconder_1_A = PORTBbits.RB6;
-Valor_Act_Enconder_1_B = PORTBbits.RB7;
-Valor_Act_Enconder_1_Z = PORTBbits.RB8;
-    
-Valor_Act_Enconder_2_A = PORTBbits.RB6;
-Valor_Act_Enconder_2_B = PORTBbits.RB7;
-Valor_Act_Enconder_2_Z = PORTBbits.RB8;
-    
-Valor_Act_Parada_Emergencia = PORTCbits.RC2
-Valor_Act_Anemometro = PORTBbits.RB9
-    
-Valor_Act_END_STOP_2 = PORTBbits.RB5;
-Valor_Act_END_STOP_1 = PORTAbits.RA4;
-*/
-    
-    // Máxima RPM, según datasheet: 30.000 rpm 
-    
-    if( (Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A) || (Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B) || Enconder_1_Fase_Z != Valor_Anterior.Encoder_1_Z){
-        if(Enconder_1_Fase_A == HIGH && Enconder_1_Fase_B == LOW){
-            Valor_Anterior.Encoder_1_A = Enconder_1_Fase_A;
-            Conteo.Encoder_1_Pulsos++;
+    if( (Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A) || (Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B) ){
+
+        if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
+            Bandera_Encoder_1_A = 0;
+            Bandera_Encoder_1_B = 1;
         }
-        if(Enconder_1_Fase_B == HIGH && Enconder_1_Fase_A == LOW){
-            Valor_Anterior.Encoder_1_B = Enconder_1_Fase_B;
+        
+        if(Enconder_2_Fase_A == HIGH && Enconder_1_Fase_B == LOW && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_A == 1){
+            Bandera_Encoder_1_A = 1;
+            Bandera_Encoder_1_B = 0;
+        }
+        
+        if(Enconder_1_Fase_A == HIGH && Enconder_1_Fase_B == LOW && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_A == 1){
+                Conteo.Encoder_1_Pulsos++;
+        }
+
+        if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
             Conteo.Encoder_1_Pulsos--;
         }
+        
+        if(Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A){
+            Enconder_1_Fase_A = Valor_Anterior.Encoder_1_A;
+        }
+        
+        if(Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B){
+            Enconder_1_Fase_B = Valor_Anterior.Encoder_1_B;
+        } 
+    }
+    
+    if(Enconder_1_Fase_Z != Valor_Anterior.Encoder_1_Z){
+        
         if(Enconder_1_Fase_Z == HIGH){
             Conteo.Encoder_1_Vueltas++;
             Conteo.Encoder_1_Pulsos = 0;
-         }
-    } 
+        }
+        Enconder_1_Fase_Z = Valor_Anterior.Encoder_1_Z;
+    }
 
-    if( (Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A) || (Enconder_2_Fase_B != Valor_Anterior.Encoder_2_B) || Enconder_2_Fase_Z != Valor_Anterior.Encoder_2_Z){
-        if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == HIGH){
-            Valor_Anterior.Encoder_2_A = Enconder_2_Fase_A;
+    if((Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A) || (Enconder_2_Fase_B != Valor_Anterior.Encoder_2_B)){
+        
+        if(Enconder_2_Fase_A == LOW && Enconder_2_Fase_B == HIGH && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_B == 1){
+            Bandera_Encoder_2_A = 0;
+            Bandera_Encoder_2_B = 1;
+        }
+        
+        if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_A == 1){
+            Bandera_Encoder_2_A = 1;
+            Bandera_Encoder_2_B = 0;
+        }
+        
+        if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_A == 1){
             Conteo.Encoder_2_Pulsos++;
         }
-        if(Enconder_2_Fase_A == LOW){
-            Valor_Anterior.Encoder_2_A = Enconder_2_Fase_A;
-        }
-        if(Enconder_2_Fase_B == HIGH && Enconder_2_Fase_A == LOW && Enconder_2_Fase_Z == HIGH){
-            Valor_Anterior.Encoder_2_B = Enconder_2_Fase_B;
+
+        if(Enconder_2_Fase_A == LOW && Enconder_2_Fase_B == HIGH && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_B == 1){
             Conteo.Encoder_2_Pulsos--;
-        }else{
-            Valor_Anterior.Encoder_2_B = Enconder_2_Fase_B;
         }
-        if(Enconder_2_Fase_Z == LOW){
+        
+        if(Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A){
+            Enconder_2_Fase_A = Valor_Anterior.Encoder_2_A;
+        }
+        
+        if(Enconder_2_Fase_B != Valor_Anterior.Encoder_2_B){
+            Enconder_2_Fase_B = Valor_Anterior.Encoder_2_B;
+        } 
+    }
+    
+    if(Enconder_2_Fase_Z != Valor_Anterior.Encoder_2_Z){
+        
+        if(Enconder_2_Fase_Z == HIGH){
             Conteo.Encoder_2_Vueltas++;
             Conteo.Encoder_2_Pulsos = 0;
         }
-    }
-
-    if(Anemometro == HIGH){
-        Conteo.Anemometr0++;
-        //Falta tener el anemometro y definir un número máximo
+        Enconder_2_Fase_Z = Valor_Anterior.Encoder_2_Z;
     }
     
-    if(END_STOP_1 == HIGH){
-        //Definir acciones
+    if(Anemometro != Valor_Anterior.Anemometr0){
+        if(Anemometro == HIGH){
+            Conteo.Anemometr0++;
+            //Falta tener el anemometro y definir un número máximo
+        }
+        Anemometro = Valor_Anterior.Anemometr0;
+    }
+    if(END_STOP_1 != Valor_Anterior.End_Stop_1){
+        if(END_STOP_1 == HIGH){
+            //Definir acciones
+        }
+        END_STOP_1 = Valor_Anterior.End_Stop_1;
     }
     
-    if(END_STOP_2 == HIGH){
-        //Definir acciones
+    if(END_STOP_2 != Valor_Anterior.End_Stop_2){
+        if(END_STOP_2 == HIGH){
+            //Definir acciones
+        }
+        END_STOP_2 = Valor_Anterior.End_Stop_2;
     }
-    
-    if(Parada_Emergencia == HIGH){
-        //Definir acciones
+    if(Parada_Emergencia != Valor_Anterior.Parad_Emerg){
+        if(Parada_Emergencia == HIGH){
+            //Definir acciones
+        }
+        Parada_Emergencia = Valor_Anterior.Parad_Emerg;
     }
     
 IFS1bits.CNIF = 0; // Clear CN interrupt
