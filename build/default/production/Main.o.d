@@ -7,4 +7,6 @@ UART.h  \
  ADC.h  \
 RingBuffer.h  \
 Protocolo_Comm_Yaesu.h  \
-interrupts.h 
+interrupts.h  \
+Entradas.h  \
+ Salidas_Motores.h 

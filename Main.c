@@ -17,7 +17,8 @@
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
 #include "interrupts.h"
-
+#include "Entradas.h"
+#include "Salidas_Motores.h"
 /*==================== [macros and definitions] ==========================*/
 
 /*========================================================================*/
@@ -31,15 +32,16 @@ int main(){
     Config_IO();
     Config_UART();
     Config_ADC();
+
     initInterrupts();
     /*====================================================================*/
     
-    // Change_Config_UART1();
+    // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
     extern volatile int Habilitar_Comunicacion; 
     Habilitar_Comunicacion = 1;
 
     while(1) {
-        
+
     }
     return (EXIT_SUCCESS);
 }

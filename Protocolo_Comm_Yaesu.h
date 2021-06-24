@@ -29,6 +29,21 @@ extern "C" {
 #define MAX_LONG_DATA_ANGLE 6           // Máxima longitud de datos asociada al ángulo
 /*========================================================================*/
     
+/*===================== [Macros y Definiciones] ==========================*/
+typedef struct{
+    char Ultimo_Comando_Almacenado[MAX_SIZE_COMMAND_AVALIBLE];
+    char Char_Acimut[MAX_LONG_DATA_ANGLE];     //123.4\0
+    char Char_Elevacion[MAX_LONG_DATA_ANGLE];  //160.8\0
+}Comando_Almacenado;
+
+typedef enum {
+    Estableciendo_Conexion = 0, 
+    Esperando_Datos,
+    Recopilando_Datos,
+    Validando_Comando,
+    Comando_No_Reconocido,
+}Estado_Comunicacion;
+
 typedef enum{
 Comando_No_Valido = 0,
                          /*============ Acimut ============*/
@@ -58,11 +73,12 @@ Mayor_Presicion_a_grados,       // Formato de mayor precisión para acimut
 Mayor_Presicione_e_grados,      // Formato de mayor precisión para elevación
 Mayor_Presicion_a_e_grados,     // Formato de mayor precisión para combinación
 }Comandos_Habilitados;
+/*===========================================================================*/
 
-/*========================== [Funciones] =================================*/
+/*============================ [Funciones] ==================================*/
 void Comm_PC_Interface(void);
 uint8_t Verificando_Comando(void);
-/*========================================================================*/
+/*===========================================================================*/
  
 #ifdef	__cplusplus
 }

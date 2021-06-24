@@ -16,6 +16,8 @@
       <itemPath>Protocolo_Comm_Yaesu.h</itemPath>
       <itemPath>dac1.h</itemPath>
       <itemPath>timer.h</itemPath>
+      <itemPath>Salidas_Motores.h</itemPath>
+      <itemPath>Entradas.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -35,6 +37,8 @@
       <itemPath>timer.c</itemPath>
       <itemPath>GPS.c</itemPath>
       <itemPath>Protocolo_Comm_Yaesu.c</itemPath>
+      <itemPath>Salidas_Motores.c</itemPath>
+      <itemPath>Entradas.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

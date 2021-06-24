@@ -1,6 +1,8 @@
 #include "UART.h"
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
+#include "Entradas.h"
+#include "Salidas_Motores.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -72,34 +74,6 @@ PC          // Formato de mayor precisión para combinación
 */
 /*===========================================================================*/
 
-typedef enum {
-    Estableciendo_Conexion = 0, 
-    Esperando_Datos,
-    Recopilando_Datos,
-    Validando_Comando,
-    Error_Recibiendo_Datos,
-}Estado_Comm;
-
-typedef struct{
-    uint8_t Comando_Actual;
-    uint8_t Proximo_Comando;
-    uint8_t Comando_Acimut;
-    uint8_t Comando_Elevacion;
-    uint8_t Velocidad_E;
-}Comandos_Procesados;
-
-typedef struct{
-    char Ultimo_Comando_Almacenado[MAX_SIZE_COMMAND_AVALIBLE];
-    char Char_Acimut[MAX_LONG_DATA_ANGLE];     //123.4\0
-    char Char_Elevacion[MAX_LONG_DATA_ANGLE];  //160.8\0
-    float Cero_Acimut;
-    float Target_Acimut;
-    float Ultimo_Ang_Acimut;
-    float Cero_Elevacion;
-    float Target_Elevacion;
-    float Ultimo_Ang_Elevacion;
-}Data_Control;
-
 /*===================== [Variables Internas (Globales)] =====================*/
 uint8_t Mensaje_Env[MAX_SIZE_DATA_SEND];
 uint8_t Caracter_Rec;
@@ -108,12 +82,15 @@ uint8_t Mensaje_Error[] = "?>";
 uint32_t FlagRec;
 uint32_t Indice_Rec = 0;
 
-Data_Control Control;
-Comandos_Procesados Situacion_Actual;
+Comando_Almacenado Comando;
+
 
 char Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
 volatile int Habilitar_Comunicacion;       // Inicialización luego de la configuración del micro en main.c
+
 extern volatile int Error_UART_U2;
+extern Data_Control Control;
+extern Comandos_Procesados Situacion_Actual;
 /*===========================================================================*/
 
 /*
@@ -291,9 +268,9 @@ uint8_t Verificando_Comando(){
     
     if(Comando_Recibido[0] == 'M' || Comando_Recibido[0] == 'm'){ // M123'CR'   M123'\r'
         if(Analizando_Datos(Comando_Recibido)){
-            Segmentar_Datos(Comando_Recibido,Control.Char_Acimut,Control.Char_Acimut);
+            Segmentar_Datos(Comando_Recibido,Comando.Char_Acimut,Comando.Char_Acimut);
             Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
-            Control.Target_Acimut = atof(Control.Char_Acimut);
+            Control.Target_Acimut = atof(Comando.Char_Acimut);
         }
         else{
             return Comando_No_Valido;
@@ -315,11 +292,11 @@ uint8_t Verificando_Comando(){
 
     if(Comando_Recibido[0] == 'W' || Comando_Recibido[0] == 'w'){
         if(Analizando_Datos(Comando_Recibido)){
-            Segmentar_Datos(Comando_Recibido,Control.Char_Acimut,Control.Char_Elevacion);
+            Segmentar_Datos(Comando_Recibido,Comando.Char_Acimut,Comando.Char_Elevacion);
             Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
-            Control.Target_Acimut = atof(Control.Char_Acimut);
+            Control.Target_Acimut = atof(Comando.Char_Acimut);
             Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
-            Control.Target_Elevacion = atof(Control.Char_Elevacion);
+            Control.Target_Elevacion = atof(Comando.Char_Elevacion);
         }
         else{
             return Comando_No_Valido;
@@ -339,9 +316,9 @@ uint8_t Verificando_Comando(){
     if(Comando_Recibido[0] == 'P' || Comando_Recibido[0] == 'p'){                                                                      
         if(Comando_Recibido[1] == 'A' || Comando_Recibido[1] == 'a'){   
             if(Analizando_Datos(Comando_Recibido)){
-                Segmentar_Datos(Comando_Recibido,Control.Char_Acimut,Control.Char_Acimut);
+                Segmentar_Datos(Comando_Recibido,Comando.Char_Acimut,Comando.Char_Acimut);
                 Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
-                Control.Target_Acimut = atof(Control.Char_Acimut);
+                Control.Target_Acimut = atof(Comando.Char_Acimut);
             }
             else{
                 return Comando_No_Valido;
@@ -351,9 +328,9 @@ uint8_t Verificando_Comando(){
         
         if(Comando_Recibido[1] == 'E' || Comando_Recibido[1] == 'e'){       
             if(Analizando_Datos(Comando_Recibido)){
-                Segmentar_Datos(Comando_Recibido,Control.Char_Elevacion,Control.Char_Elevacion);
+                Segmentar_Datos(Comando_Recibido,Comando.Char_Elevacion,Comando.Char_Elevacion);
                 Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
-                Control.Target_Elevacion = atof(Control.Char_Elevacion);
+                Control.Target_Elevacion = atof(Comando.Char_Elevacion);
             }
             else{
                 return Comando_No_Valido;
@@ -363,11 +340,11 @@ uint8_t Verificando_Comando(){
 
         if(Comando_Recibido[1] == 'C' || Comando_Recibido[1] == 'c'){              
             if(Analizando_Datos(Comando_Recibido)){
-                Segmentar_Datos(Comando_Recibido,Control.Char_Acimut,Control.Char_Elevacion);
+                Segmentar_Datos(Comando_Recibido,Comando.Char_Acimut,Comando.Char_Elevacion);
                 Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
-                Control.Target_Acimut = atof(Control.Char_Acimut);
+                Control.Target_Acimut = atof(Comando.Char_Acimut);
                 Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
-                Control.Target_Elevacion = atof(Control.Char_Elevacion);
+                Control.Target_Elevacion = atof(Comando.Char_Elevacion);
             }
             else{
                 return Comando_No_Valido;
@@ -379,14 +356,7 @@ return Comando_No_Valido;
 }
 
 void Comm_PC_Interface(){
-    /*====================== Inicialización por seguridad ======================*/
-                Situacion_Actual.Comando_Actual = Parar_Todo;
-                Situacion_Actual.Comando_Acimut = Stop_Acimut;
-                Situacion_Actual.Comando_Elevacion = Stop_Elevacion;
-                Situacion_Actual.Velocidad_E = Velocidad_1_Elevacion;
-   /*===========================================================================*/
-                
-    static Estado_Comm Estado_Actual = Estableciendo_Conexion;      
+    static Estado_Comunicacion Estado_Actual = Estableciendo_Conexion;      
     FlagRec = uart_ringBuffer_recDatos_U2(&Caracter_Rec, sizeof(Caracter_Rec));
     
         switch (Estado_Actual) {
@@ -431,7 +401,7 @@ void Comm_PC_Interface(){
                     else{
                         Indice_Rec = 0;
                         Clean_RingBufferRx_U2();
-                        Estado_Actual = Error_Recibiendo_Datos;
+                        Estado_Actual = Comando_No_Reconocido;
                         break;
                     }
                 }
@@ -449,96 +419,22 @@ void Comm_PC_Interface(){
                 nos ayudaria aca. No debe afectar a los comandos de posicionamiento. 
             */
                 Situacion_Actual.Proximo_Comando = Verificando_Comando();
-                    
-                if(Situacion_Actual.Proximo_Comando != Comando_No_Valido){
-                    strcpy(Control.Ultimo_Comando_Almacenado,Comando_Recibido);
-                }
-                    
-                switch(Situacion_Actual.Proximo_Comando){
-                    case Parar_Todo:
 
-                    break;
-
-                    case Giro_Horario:
-
-                    break;
-
-                    case Giro_Antihorario:
-
-                    break;
-
-                    case Stop_Acimut:
-
-                    break;
-
-                    case Devolver_Valor_Acimut:
-
-                    break;
-
-                    case Hacia_aaa_grados:
-
-                    break;
-
-                    case Arriba:
-
-                    break;
-
-                    case Abajo:
-
-                    break;
-
-                    case Stop_Elevacion:
-
-                    break;
-
-                    case Devolver_Valor_Elevacion:
-
-                    break;
-
-                    case Velocidad_1_Elevacion:
-
-                    break;
-
-                    case Velocidad_2_Elevacion:
-
-                    break;
-
-                    case Velocidad_3_Elevacion:
-
-                    break;
-
-                    case Velocidad_4_Elevacion:
-
-                    break;
-
-                    case Hacia_aaa_eee_grados:
-
-                    break;
-
-                    case Devolver_Valor_A_E:
-
-                    break;
-
-                    case Mayor_Presicion_a_grados:
-
-                    break;
-
-                    case Mayor_Presicione_e_grados:
-
-                    break;
-
-                    case Mayor_Presicion_a_e_grados:
-
-                    break;
-
-                    case Comando_No_Valido:
-                        uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
-                        Estado_Actual = Esperando_Datos;
-                    break;
+                if(Situacion_Actual.Proximo_Comando != Situacion_Actual.Comando_Actual){
+                    if(Situacion_Actual.Proximo_Comando != Comando_No_Valido){
+                        strcpy(Comando.Ultimo_Comando_Almacenado,Comando_Recibido);
+                        Situacion_Actual.Comando_Actual = Situacion_Actual.Proximo_Comando;
                     }
+                }
+                
+                if(Situacion_Actual.Proximo_Comando == Comando_No_Valido){
+                    Estado_Actual = Comando_No_Reconocido;
+                }
+                
+                Estado_Actual = Esperando_Datos;
             break;
                 
-            case Error_Recibiendo_Datos:
+            case Comando_No_Reconocido:
                 uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
                 Estado_Actual = Esperando_Datos;
             break;

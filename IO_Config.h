@@ -12,39 +12,12 @@
 extern "C" {
 #endif
 
-/*==================== [Macros y Definiciones] ========================*/  
-#define Enconder_1_Fase_A   PORTBbits.RB6
-#define Enconder_1_Fase_B   PORTBbits.RB7
-#define Enconder_1_Fase_Z   PORTBbits.RB8
-    
-#define Enconder_2_Fase_A   PORTCbits.RC3
-#define Enconder_2_Fase_B   PORTCbits.RC4
-#define Enconder_2_Fase_Z   PORTCbits.RC5
-    
-#define Parada_Emergencia   PORTCbits.RC2
-#define Anemometro          PORTBbits.RB9
-    
-#define END_STOP_2          PORTBbits.RB5
-#define END_STOP_1          PORTAbits.RA4
-    
-#define LI1_Variador        PORTBbits.RB15
-#define LI2_Variador        PORTBbits.RB14
-#define LI3_Variador        PORTAbits.RA7
-#define LI4_Variador        PORTAbits.RA10
-    
-#define Out_Rele_1          PORTCbits.RC9
-#define Out_Rele_2          PORTCbits.RC8
-#define Out_Rele_3          PORTCbits.RC7
-#define Out_Rele_4          PORTCbits.RC6
-/*========================================================================*/
-    
 /*===========================  Funciones   ==============================*/   
 void Config_IO(void);
 void Define_IO_Pins(void);
 void Remappeable_Pins(void);
 void Change_Config_UART1(void);
 void Set_Pin_As_A_or_D(void);
-void Config_CN_Pins(void);
 /*========================================================================*/
 
 /************************       Info de Registros       ***********************
