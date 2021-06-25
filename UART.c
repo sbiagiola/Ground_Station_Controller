@@ -6,7 +6,7 @@
 #include "Protocolo_Comm_Yaesu.h"
 
 /*==================== [Macros y definiciones] ===========================*/
-#define RING_BUFFER_SIZE MAX_SIZE_COMMAND_AVALIBLE   
+#define RING_BUFFER_SIZE MAX_SIZE_DATA_SEND
 /*========================================================================*/
 
 /*======================= [Variables Internas] ===========================*/

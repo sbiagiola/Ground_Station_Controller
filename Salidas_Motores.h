@@ -35,11 +35,18 @@ typedef struct{
 typedef struct{
     uint8_t Comando_Actual;
     uint8_t Proximo_Comando;
-}Comandos_Procesados;
+}Info_Comandos_Procesados;
+
+#define OFFSET_ANGULAR 0.1
+#define REDUCCION_ACIMUT   7/90000
+#define PULSOS_POR_VUELTA_ENCODER  360
+#define RELACION_POR_VUELTA_ACIMUT  1/REDUCCION_ACIMUT
+#define PULSOS_POR_VUELTA_ACIMUT RELACION_POR_VUELTA_ACIMUT*PULSOS_POR_VUELTA_ENCODER
 /*========================================================================*/
     
 /*===========================  Funciones   ===============================*/
-void Accionando_Salidas(void);
+void Generar_Formato_Mensaje(uint8_t* data,uint8_t Id_Comando);
+void Calculando_Posicion(void);
 /*========================================================================*/
 #ifdef	__cplusplus
 }

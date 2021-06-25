@@ -48,10 +48,13 @@ typedef struct{
     uint16_t    Parad_Emerg;
 }Last_Value;
 
+#define HIGH 1
+#define LOW 0
 /*========================================================================*/
     
 /*===========================  Funciones   ===============================*/
 void Config_CN_Pins(void);
+void Obtener_Pulsos(const _Contador Data);
 /*========================================================================*/
 #ifdef	__cplusplus
 }

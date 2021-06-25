@@ -9,9 +9,6 @@
 #include "stdint.h"
 
 /*==================== [Macros y Definiciones] ========================*/  
-#define HIGH 1
-#define LOW 0
-
 Last_Value Valor_Anterior;
 _Contador Contador;
 
@@ -154,4 +151,8 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     }
     
 IFS1bits.CNIF = 0; // Clear CN interrupt
+}
+
+void Obtener_Pulsos(const _Contador Data){
+    
 }

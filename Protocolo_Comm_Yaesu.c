@@ -84,13 +84,13 @@ uint32_t Indice_Rec = 0;
 
 Comando_Almacenado Comando;
 
-
 char Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
 volatile int Habilitar_Comunicacion;       // Inicialización luego de la configuración del micro en main.c
 
+/*===================== [Variables Externas (Globales)] =====================*/
 extern volatile int Error_UART_U2;
 extern Data_Control Control;
-extern Comandos_Procesados Situacion_Actual;
+extern Info_Comandos_Procesados Comando_Procesado;
 /*===========================================================================*/
 
 /*
@@ -356,10 +356,10 @@ return Comando_No_Valido;
 }
 
 void Comm_PC_Interface(){
-    static Estado_Comunicacion Estado_Actual = Estableciendo_Conexion;      
+    static Estado_Comunicacion Estado_Comm = Estableciendo_Conexion;      
     FlagRec = uart_ringBuffer_recDatos_U2(&Caracter_Rec, sizeof(Caracter_Rec));
     
-        switch (Estado_Actual) {
+        switch (Estado_Comm) {
             
             case Estableciendo_Conexion:
                 if( Habilitar_Comunicacion ){
@@ -368,7 +368,8 @@ void Comm_PC_Interface(){
                 }
                 
                 if ( FlagRec != 0 && Caracter_Rec == ACKNOWLEDGE){   // Esperas un ACK de la respuesta de la PC
-                    Estado_Actual = Esperando_Datos;
+                    Estado_Comm = Esperando_Datos;
+                    break;
                 }
                 /* Se puede poner un timer en la PC para que al cabo de tantos seg tire un error en al comunicacion*/
             break;
@@ -389,7 +390,7 @@ void Comm_PC_Interface(){
                     Clean_RingBufferRx_U2();
                     Mensaje_Env[0] = ACKNOWLEDGE;
                     uart_ringBuffer_envDatos_U2(&Mensaje_Env[0],sizeof(char));
-                    Estado_Actual = Esperando_Datos;
+                    Estado_Comm = Esperando_Datos;
                     break;
                 }
                 
@@ -401,14 +402,15 @@ void Comm_PC_Interface(){
                     else{
                         Indice_Rec = 0;
                         Clean_RingBufferRx_U2();
-                        Estado_Actual = Comando_No_Reconocido;
+                        Estado_Comm = Comando_No_Reconocido;
                         break;
                     }
                 }
             
                 if( (FlagRec != 0) && (Caracter_Rec == CHAR_CR) ){
                     Comando_Recibido[Indice_Rec] = Caracter_Rec; 
-                    Estado_Actual = Validando_Comando;
+                    Estado_Comm = Validando_Comando;
+                    break;
                 }
             break;
             
@@ -418,27 +420,28 @@ void Comm_PC_Interface(){
                 girando, o moviendose indefinidamente según ese comando recibido. Creo que un polling de 10 ms
                 nos ayudaria aca. No debe afectar a los comandos de posicionamiento. 
             */
-                Situacion_Actual.Proximo_Comando = Verificando_Comando();
+                Comando_Procesado.Proximo_Comando = Verificando_Comando();
 
-                if(Situacion_Actual.Proximo_Comando != Situacion_Actual.Comando_Actual){
-                    if(Situacion_Actual.Proximo_Comando != Comando_No_Valido){
+                if(Comando_Procesado.Proximo_Comando != Comando_Procesado.Comando_Actual){
+                    if(Comando_Procesado.Proximo_Comando != Comando_No_Valido){
                         strcpy(Comando.Ultimo_Comando_Almacenado,Comando_Recibido);
-                        Situacion_Actual.Comando_Actual = Situacion_Actual.Proximo_Comando;
+                        Comando_Procesado.Comando_Actual = Comando_Procesado.Proximo_Comando;
                     }
                 }
                 
-                if(Situacion_Actual.Proximo_Comando == Comando_No_Valido){
-                    Estado_Actual = Comando_No_Reconocido;
+                if(Comando_Procesado.Proximo_Comando == Comando_No_Valido){
+                    Estado_Comm = Comando_No_Reconocido;
+                    break;
                 }
                 
-                Estado_Actual = Esperando_Datos;
+                Estado_Comm = Esperando_Datos;
             break;
                 
             case Comando_No_Reconocido:
                 uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
-                Estado_Actual = Esperando_Datos;
+                Estado_Comm = Esperando_Datos;
             break;
             
-            default: Estado_Actual = Esperando_Datos;
+            default: Estado_Comm = Esperando_Datos;
         }
 }

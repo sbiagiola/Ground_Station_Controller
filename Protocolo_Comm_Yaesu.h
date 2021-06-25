@@ -24,7 +24,7 @@ extern "C" {
 #define CHAR_CR  13             // Retorno del carro
 #define NEGATIVE_ACKNOWLEDGE 21 // Dato recibido incorrectamente
 
-#define MAX_SIZE_COMMAND_AVALIBLE 13    // Máximo dado por PC344.1 133.1'CR'
+#define MAX_SIZE_COMMAND_AVALIBLE 14    // Máximo dado por PC344.1 133.1'CR'
 #define MAX_SIZE_DATA_SEND  16          // 'LF'+0344.1+0133.1'CR'
 #define MAX_LONG_DATA_ANGLE 6           // Máxima longitud de datos asociada al ángulo
 /*========================================================================*/

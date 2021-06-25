@@ -5,9 +5,9 @@
         <group>
             <file>file:/D:/Ground%20Station%20Controller%20(GitHub)/Sofware-Micro/Entradas.h</file>
             <file>file:/D:/Ground%20Station%20Controller%20(GitHub)/Sofware-Micro/Salidas_Motores.h</file>
+            <file>file:/D:/Ground%20Station%20Controller%20(GitHub)/Sofware-Micro/Protocolo_Comm_Yaesu.c</file>
             <file>file:/D:/Ground%20Station%20Controller%20(GitHub)/Sofware-Micro/Salidas_Motores.c</file>
             <file>file:/D:/Ground%20Station%20Controller%20(GitHub)/Sofware-Micro/Entradas.c</file>
-            <file>file:/D:/Ground%20Station%20Controller%20(GitHub)/Sofware-Micro/Main.c</file>
         </group>
     </open-files>
 </project-private>
