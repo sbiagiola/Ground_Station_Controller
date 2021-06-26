@@ -7,6 +7,7 @@
 
 #include <xc.h>
 #include <string.h>
+#include <stdio.h>
 #include "Salidas_Motores.h"
 #include "stdint.h"
 #include "Protocolo_Comm_Yaesu.h"
@@ -16,22 +17,45 @@
 /*===================== [Variables Internas (Globales)] =====================*/
 Data_Control Control;
 Info_Comandos_Procesados Comando_Procesado;
-uint8_t Datos_Enviados[MAX_SIZE_DATA_SEND];
+char Datos_A_Enviados[MAX_SIZE_DATA_SEND];
 /*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
-
+extern _Contador Contador;
 /*===========================================================================*/
 
-void Generar_Formato_Mensaje(uint8_t* data,uint8_t Id_Comando){
-    /*fprint del código pero necesitamos primero el valor actual en función
+void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
+    /*sprint del código pero necesitamos primero el valor actual en función
      de los pulsos detectados por el momento*/
-    /* Generar un codigo para cada caso de comando*/
+    /*Actualizar el valor de acimut o elevación y enviar datos*/
+    
+    Calculando_Posicion(Contador);
+    
+    // Esta parte de abajo genera un 5% de código de programa y 1% de data, capaz
+    // hay otra forma más liviana de hacer esto. Un solo sprintf genera 2.000 lineals de código assembler
+    switch(Id_Comando){
+        
+        case Devolver_Valor_Acimut:
+            sprintf(Data_A_Enviar,"\n+0%.1f\r",Control.Valor_Actual_Acimut);
+        break;
+        
+        case Devolver_Valor_Elevacion:
+            sprintf(Data_A_Enviar,"\n+0%.1f\r",Control.Valor_Actual_Elevacion);
+        break;
+        
+        case Devolver_Valor_A_E:
+            sprintf(Data_A_Enviar,"\n+0%.1f+0%.1f\r",Control.Valor_Actual_Acimut,Control.Valor_Actual_Elevacion);
+        break;
+        
+        default: ;
+    }
 }
-void Calculando_Posicion(void){
-    extern _Contador Contador;
-/*Con la cantidad de pulsos y eso convertimso a un valor angular*/
-    Obtener_Pulsos(Contador);
+
+void Calculando_Posicion(const _Contador Data){
+    
+/*Con la cantidad de pulsos y eso convertimso a un valor angular y actualizar 
+  Control.Valor_Actual_Acimut o Control.Valor_Actual_Elevacion*/
+    
 }
 
 void MEF_Accionamiento(void){
@@ -77,12 +101,12 @@ void MEF_Accionamiento(void){
         break;
 
         case Devolver_Valor_Acimut:
-            Generar_Formato_Mensaje(Datos_Enviados,Devolver_Valor_Acimut);
-            uart_ringBuffer_envDatos_U1(Datos_Enviados,sizeof(Datos_Enviados));
+            Generar_Formato_Mensaje(Datos_A_Enviados,Devolver_Valor_Acimut);
+            uart_ringBuffer_envDatos_U1((uint8_t*)Datos_A_Enviados,sizeof(Datos_A_Enviados));
         break;
 
         case Hacia_aaa_grados:
-            
+            Calculando_Posicion(Contador);
         break;
 
         case Arriba: 
@@ -119,8 +143,8 @@ void MEF_Accionamiento(void){
         break;
 
         case Devolver_Valor_Elevacion:
-            Generar_Formato_Mensaje(Datos_Enviados,Devolver_Valor_Elevacion);
-            uart_ringBuffer_envDatos_U1(Datos_Enviados,sizeof(Datos_Enviados));
+            Generar_Formato_Mensaje(Datos_A_Enviados,Devolver_Valor_Elevacion);
+            uart_ringBuffer_envDatos_U1((uint8_t*)Datos_A_Enviados,sizeof(Datos_A_Enviados));
         break;
 
         case Velocidad_1_Elevacion:
@@ -150,24 +174,24 @@ void MEF_Accionamiento(void){
         break;
 
         case Hacia_aaa_eee_grados:
-            
+            Calculando_Posicion(Contador);
         break;
 
         case Devolver_Valor_A_E:
-            Generar_Formato_Mensaje(Datos_Enviados,Devolver_Valor_A_E);
-            uart_ringBuffer_envDatos_U1(Datos_Enviados,sizeof(Datos_Enviados));
+            Generar_Formato_Mensaje(Datos_A_Enviados,Devolver_Valor_A_E);
+            uart_ringBuffer_envDatos_U1((uint8_t*)Datos_A_Enviados,sizeof(Datos_A_Enviados));
         break;
 
         case Mayor_Presicion_a_grados:
-            
+            Calculando_Posicion(Contador);
         break;
 
         case Mayor_Presicione_e_grados:
-            
+            Calculando_Posicion(Contador);
         break;
 
         case Mayor_Presicion_a_e_grados:
-
+            Calculando_Posicion(Contador);
         break;
         
         default: Comando_Procesado.Comando_Actual = Parar_Todo;

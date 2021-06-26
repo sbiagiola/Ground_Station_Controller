@@ -54,7 +54,6 @@ typedef struct{
     
 /*===========================  Funciones   ===============================*/
 void Config_CN_Pins(void);
-void Obtener_Pulsos(const _Contador Data);
 /*========================================================================*/
 #ifdef	__cplusplus
 }

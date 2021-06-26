@@ -78,7 +78,7 @@ PC          // Formato de mayor precisión para combinación
 uint8_t Mensaje_Env[MAX_SIZE_DATA_SEND];
 uint8_t Caracter_Rec;
 uint8_t Mensaje_Error[] = "?>";
-
+uint8_t Mensaje_Recibido_Correcto[] = "\r";
 uint32_t FlagRec;
 uint32_t Indice_Rec = 0;
 
@@ -422,14 +422,11 @@ void Comm_PC_Interface(){
             */
                 Comando_Procesado.Proximo_Comando = Verificando_Comando();
 
-                if(Comando_Procesado.Proximo_Comando != Comando_Procesado.Comando_Actual){
-                    if(Comando_Procesado.Proximo_Comando != Comando_No_Valido){
-                        strcpy(Comando.Ultimo_Comando_Almacenado,Comando_Recibido);
-                        Comando_Procesado.Comando_Actual = Comando_Procesado.Proximo_Comando;
-                    }
-                }
-                
-                if(Comando_Procesado.Proximo_Comando == Comando_No_Valido){
+                if(Comando_Procesado.Proximo_Comando != Comando_No_Valido){
+                    uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
+                    strcpy(Comando.Ultimo_Comando_Almacenado,Comando_Recibido);
+                    Comando_Procesado.Comando_Actual = Comando_Procesado.Proximo_Comando;
+                }else{
                     Estado_Comm = Comando_No_Reconocido;
                     break;
                 }

@@ -4,6 +4,7 @@
  *
  * Created on 24 de junio de 2021, 10:31
  */
+#include "Entradas.h"   // Necesita saber el formato de _Contador
 
 #ifndef SALIDAS_MOTORES_H
 #define	SALIDAS_MOTORES_H
@@ -24,12 +25,14 @@ extern "C" {
 #define OUT_RELE_4          PORTCbits.RC6
     
 typedef struct{
-    float Cero_Acimut;
-    float Target_Acimut;
-    float Ultimo_Ang_Acimut;
-    float Cero_Elevacion;
-    float Target_Elevacion;
-    float Ultimo_Ang_Elevacion;
+    double Cero_Acimut;
+    double Valor_Actual_Acimut;
+    double Target_Acimut;
+    double Ultimo_Ang_Acimut;
+    double Cero_Elevacion;
+    double Valor_Actual_Elevacion;
+    double Target_Elevacion;
+    double Ultimo_Ang_Elevacion;
 }Data_Control;
 
 typedef struct{
@@ -37,16 +40,22 @@ typedef struct{
     uint8_t Proximo_Comando;
 }Info_Comandos_Procesados;
 
-#define OFFSET_ANGULAR 0.1
-#define REDUCCION_ACIMUT   7/90000
+#define OFFSET_ANGULAR_ACIMUT 0.1
+#define REDUCCION_ACIMUT_ENCODER   ((double)1/25)   // No modificar el (double) si se pierde el valor pequeño de relacion
+#define REDUCCION_ACIMUT_COMPLETA ((double)7/90000) // No modificar el (double) si se pierde el valor pequeño de relacion
 #define PULSOS_POR_VUELTA_ENCODER  360
-#define RELACION_POR_VUELTA_ACIMUT  1/REDUCCION_ACIMUT
-#define PULSOS_POR_VUELTA_ACIMUT RELACION_POR_VUELTA_ACIMUT*PULSOS_POR_VUELTA_ENCODER
+#define RELACION_POR_VUELTA_ENCODER_ACIMUT  1/REDUCCION_ACIMUT_ENCODER
+#define PULSOS_POR_VUELTA_ACIMUT RELACION_POR_VUELTA_ENCODER*PULSOS_POR_VUELTA_ENCODER
+
+#define OFFSET_ANGULAR_ELEVACION 1
+#define PULSOS_POR_VUELTA_ENCODER  360
+#define RELACION_POR_VUELTA_ENCODER_ELEVACION  1
+#define PULSOS_POR_VUELTA_ELEVACION RELACION_POR_VUELTA_ENCODER*PULSOS_POR_VUELTA_ENCODER
 /*========================================================================*/
     
 /*===========================  Funciones   ===============================*/
-void Generar_Formato_Mensaje(uint8_t* data,uint8_t Id_Comando);
-void Calculando_Posicion(void);
+void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando);
+void Calculando_Posicion(const _Contador Data);
 /*========================================================================*/
 #ifdef	__cplusplus
 }
