@@ -21,6 +21,7 @@
 #define CHAR_CR  13     // Retorno del carro
 #define CHAR_LF  10     // Fin de linea
 #define BUFFER_SIZE 8   // Tamaño del buffer de caracteres a utilizar
+
 /*========================================================================*/
 
 int main(){

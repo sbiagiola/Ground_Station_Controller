@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 void init_timer1();
-
+uint16_t temporizador();
 
 
 #ifdef	__cplusplus

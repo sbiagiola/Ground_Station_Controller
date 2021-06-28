@@ -12,6 +12,10 @@
       <itemPath>RingBuffer.h</itemPath>
       <itemPath>DAC.h</itemPath>
       <itemPath>timer1.h</itemPath>
+      <itemPath>GPS.h</itemPath>
+      <itemPath>Protocolo_Comm_Yaesu.h</itemPath>
+      <itemPath>timer.h</itemPath>
+      <itemPath>dac1.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -29,6 +33,8 @@
       <itemPath>RingBuffer.c</itemPath>
       <itemPath>DAC.c</itemPath>
       <itemPath>timer.c</itemPath>
+      <itemPath>GPS.c</itemPath>
+      <itemPath>Protocolo_Comm_Yaesu.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -36,6 +42,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">

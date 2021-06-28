@@ -48,6 +48,7 @@ void initInterrupts(void){
     IPC16bits.U1EIP = 4;        /* Set UART2 Error interupt priority to 4*/
     IPC16bits.U2EIP = 4;        /* Set UART2 Error interupt priority to 4*/
     IPC19bits.DAC1RIP = 3;	   /* Right Channel DAC Interrupt Priority Set */  
+   
     //IPC3bits.AD1IP = 1;         /* Set priority ADC1 interrupt priority to 1 */
 }
 

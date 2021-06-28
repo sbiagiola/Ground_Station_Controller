@@ -125,6 +125,10 @@ uint32_t Indice_Rec = 0;
 Comandos_Procesados Situacion_Actual;
 volatile uint8_t Micro_Ready;       // Config. del microcontrolador terminada
 extern volatile int Error_UART_U2;
+extern void* pRingBufferTx_U1;     
+extern void* pRingBufferRx_U1;  
+extern void* pRingBufferTx_U2;  
+extern void* pRingBufferRx_U2;
 /*===========================================================================*/
 
 
