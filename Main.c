@@ -16,24 +16,30 @@
 #include "ADC.h"
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
-
+#include "interrupts.h"
+#include "Entradas.h"
+#include "Salidas_Motores.h"
 /*==================== [macros and definitions] ==========================*/
-#define CHAR_CR  13     // Retorno del carro
-#define CHAR_LF  10     // Fin de linea
-#define BUFFER_SIZE 8   // Tamaño del buffer de caracteres a utilizar
+
 
 /*========================================================================*/
 
 int main(){
-  
-    /* Configuración interna del microcontrolador*/
+    
+    Create_RingBuffer();    // Ponerlo antes de habilitar el uso de UART
+    
+    /*============ Configuración interna del microcontrolador ============*/
     Config_Clock();
     Config_IO();
     Config_UART();
     Config_ADC();
-    Create_RingBuffer();
-    extern volatile uint8_t Micro_Ready;  
-    Micro_Ready = 1;
+
+    initInterrupts();
+    /*====================================================================*/
+    
+    // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
+    extern volatile int Habilitar_Comunicacion; 
+    Habilitar_Comunicacion = 1;
 
     while(1) {
 

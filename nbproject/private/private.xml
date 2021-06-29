@@ -2,6 +2,7 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
             <file>file:/C:/Users/biagi/Documents/Proyecto%20final%20Fceia-UNR/Software-micro/Sofware-Micro/UART.c</file>
             <file>file:/C:/Users/biagi/Documents/Proyecto%20final%20Fceia-UNR/Software-micro/Sofware-Micro/dac1.h</file>
             <file>file:/C:/Users/biagi/Documents/Proyecto%20final%20Fceia-UNR/Software-micro/Sofware-Micro/RingBuffer.c</file>
@@ -15,6 +16,10 @@
             <file>file:/C:/Users/biagi/Documents/Proyecto%20final%20Fceia-UNR/Software-micro/Sofware-Micro/Protocolo_Comm_Yaesu.c</file>
             <file>file:/C:/Users/biagi/Documents/Proyecto%20final%20Fceia-UNR/Software-micro/Sofware-Micro/nbproject/Makefile-default.mk</file>
             <file>file:/C:/Users/biagi/Documents/Proyecto%20final%20Fceia-UNR/Software-micro/Sofware-Micro/interupts.c</file>
+=======
+            <file>file:/C:/Users/User/Desktop/Jeremías/Proyecto%20Final/GitHub/Sofware-Micro/Salidas_Motores.c</file>
+            <file>file:/C:/Users/User/Desktop/Jeremías/Proyecto%20Final/GitHub/Sofware-Micro/Salidas_Motores.h</file>
+>>>>>>> 81a9f201ec96d3a7f665e746e78b945d91b2067a
         </group>
     </open-files>
 </project-private>

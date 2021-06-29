@@ -9,16 +9,24 @@
 
 #include "IO_Config.h"
 #include "UART.h"
+#include "Entradas.h"
 
-int Config_IO(void){
+/*==================== [Macros y Definiciones] ========================*/  
+#define OUTPUT 0
+#define INPUT 1
+#define ANALOGIC 0
+#define DIGITAL 1
+/*========================================================================*/
+
+void Config_IO(void){
     //Podemos poner una verificación con los retornos de cada función
     Set_Pin_As_A_or_D();
     Define_IO_Pins();
     Remappeable_Pins();
-return(11);
+    Config_CN_Pins();
 }
 
-int Change_Config_UART1(void){
+void Change_Config_UART1(void){
     
     Disable_UART1();
     
@@ -27,10 +35,9 @@ int Change_Config_UART1(void){
     RPOR1bits.RP3R =  0b00011;      /***** UART1 Transmit connected to RP3 *****/
     
     Enable_UART1();
-return(12);
 }
 
-int Remappeable_Pins(void){ 
+void Remappeable_Pins(void){ 
     
     /********* Input *********/
 //   Vienen tiradas a VSS por defecto luego del reset. La configuración debajo la dejo por que ya habia escrito todo esto.
@@ -59,36 +66,39 @@ int Remappeable_Pins(void){
     
     RPOR0bits.RP1R =  0b00011;      /***** UART1 Transmit connected to RP1 *****/
     RPOR8bits.RP17R = 0b00101;      /***** UART2 Transmit connected to RP17 *****/
-return(13);
 }
 
-int Define_IO_Pins(void){
+void Define_IO_Pins(void){
     
     //Port A
-    TRISAbits.TRISA4 = 0;  // Salida al led. Pin34
-    TRISAbits.TRISA7 = 0;  // Salida a motor. Pin13
-    TRISAbits.TRISA9 = 1;  // Entrada de encoder. Pin 35.
-    TRISAbits.TRISA10 = 0; // Salida a motor. Pin12
+    TRISAbits.TRISA4 = OUTPUT;  // Salida al led.           Pin 34.
+    TRISAbits.TRISA7 = OUTPUT;  // Salida a motor.          Pin 13.
+    TRISAbits.TRISA8 = OUTPUT;  // Salida HMI_S/L           Pin 32.
+    TRISAbits.TRISA9 = INPUT;   // Entrada de END/STOP 1.   Pin 35.
+    TRISAbits.TRISA10 = OUTPUT; // Salida a motor.          Pin 12.
     
     //Port B
-    TRISBbits.TRISB9 = 1;  // Entrada de encoder. Pin 1.
-    TRISBbits.TRISB5 = 1;  // Entrada de encoder. Pin 41.
-    TRISBbits.TRISB6 = 1;  // Entrada de encoder. Pin 42.
-    TRISBbits.TRISB7 = 1;  // Entrada de encoder. Pin 43.
-    TRISBbits.TRISB8 = 1;  // Entrada de encoder. Pin 44.
-    TRISBbits.TRISB14 = 0; // Salida a motor. Pin14
-    TRISBbits.TRISB15 = 0; // Salida a motor. Pin15
+    
+    TRISBbits.TRISB5 = INPUT;   // Entrada de END/STOP 2.       Pin 41.
+    TRISBbits.TRISB6 = INPUT;   // Entrada de encoder1 FASE A.  Pin 42.
+    TRISBbits.TRISB7 = INPUT;   // Entrada de encoder1 FASE B.  Pin 43.
+    TRISBbits.TRISB8 = INPUT;   // Entrada de encoder1 FASE Z.  Pin 44.
+    TRISBbits.TRISB9 = INPUT;   // Entrada de Anemometro.       Pin 1.
+    TRISBbits.TRISB12 = OUTPUT; // Salida DACRP.                Pin 10.
+    TRISBbits.TRISB13 = OUTPUT; // Salida DACRN.                Pin 11.
+    TRISBbits.TRISB14 = OUTPUT; // Salida a motor.              Pin 14.
+    TRISBbits.TRISB15 = OUTPUT; // Salida a motor.              Pin 15.
     
     //Port C
     
-    TRISCbits.TRISC2 = 1;  // Entrada de parada de emergencia. Pin25
-    TRISCbits.TRISC3 = 1;  // Entrada de encoder. Pin 36.
-    TRISCbits.TRISC4 = 1;  // Entrada de encoder. Pin 37.
-    TRISCbits.TRISC5 = 1;  // Entrada de encoder. Pin 38.
-    TRISCbits.TRISC6 = 0;  // Salida a motor. Pin2
-    TRISCbits.TRISC7 = 0;  // Salida a motor. Pin3
-    TRISCbits.TRISC8 = 0;  // Salida a motor. Pin4
-    TRISCbits.TRISC9 = 0;  // Salida a motor. Pin5
+    TRISCbits.TRISC2 = INPUT;   // Entrada de parada de emergencia. Pin 27.
+    TRISCbits.TRISC3 = INPUT;   // Entrada de encoder2 FASE A.      Pin 36.
+    TRISCbits.TRISC4 = INPUT;   // Entrada de encoder2 FASE B.      Pin 37.
+    TRISCbits.TRISC5 = INPUT;   // Entrada de encoder2 FASE Z.      Pin 38.
+    TRISCbits.TRISC6 = OUTPUT;  // Salida a motor.                  Pin 2.
+    TRISCbits.TRISC7 = OUTPUT;  // Salida a motor.                  Pin 3.
+    TRISCbits.TRISC8 = OUTPUT;  // Salida a motor.                  Pin 4.
+    TRISCbits.TRISC9 = OUTPUT;  // Salida a motor.                  Pin 5.
     
     //Pines tolerantes de 5V
     //Por seguridad pusimos todos en 5V y no quemar un pin por descuido.
@@ -97,36 +107,35 @@ int Define_IO_Pins(void){
     ODCBbits.ODCB0 = 0b1;   //Receptor Rx del GPS
     ODCBbits.ODCB2 = 0b1;   //Receptor Rx del USB 
     ODCBbits.ODCB4 = 0b1;   //Receptor Rx del MAX232
-    ODCBbits.ODCB5 = 0b1;   //Entrada de Encoder
-    ODCBbits.ODCB6 = 0b1;   //Entrada de Encoder
-    ODCBbits.ODCB7 = 0b1;   //Entrada de Encoder
-    ODCBbits.ODCB8 = 0b1;   //Entrada de Encoder
-    ODCBbits.ODCB9 = 0b1;   //Entrada de Encoder
+    ODCBbits.ODCB5 = 0b1;   //Entrada de Encoder    (END/STOP 2)
+    ODCBbits.ODCB6 = 0b1;   //Entrada de Encoder    (FASE Z ENCODER 1)
+    ODCBbits.ODCB7 = 0b1;   //Entrada de Encoder    (FASE B ENCODER 1)
+    ODCBbits.ODCB8 = 0b1;   //Entrada de Encoder    (FASE A ENCODER 1)
+    ODCBbits.ODCB9 = 0b1;   //Entrada de Anemometro   
     
-    ODCCbits.ODCC0 = 0b1;   //Entrada de analógica AN6
-    ODCCbits.ODCC3 = 0b1;   //Entrada de Encoder
-    ODCCbits.ODCC4 = 0b1;   //Entrada de Encoder
-    ODCCbits.ODCC5 = 0b1;   //Entrada de Encoder
-    
-return(14);
+  //ODCCbits.ODCC0 = 0b1;   //Entrada de analógica  AN6 (ODC solo nos sirve para I/O digital)
+    ODCCbits.ODCC3 = 0b1;   //Entrada de Encoder    (FASE A ENCODER 2)
+    ODCCbits.ODCC4 = 0b1;   //Entrada de Encoder    (FASE B ENCODER 2)
+    ODCCbits.ODCC5 = 0b1;   //Entrada de Encoder    (FASE Z ENCODER 2)
 }
 
-int Set_Pin_As_A_or_D(void){
+void Set_Pin_As_A_or_D(void){
     AD1PCFGL = 0xFFFF;          // Seteo todas como Digital
     
-    AD1PCFGLbits.PCFG0 = 0b0;   // Analog Mode
-    AD1PCFGLbits.PCFG1 = 0b1;   // Digital Mode
-    AD1PCFGLbits.PCFG2 = 0b1;   // Digital Mode
-    AD1PCFGLbits.PCFG3 = 0b1;   // Digital Mode   
-    AD1PCFGLbits.PCFG4 = 0b1;   // Digital Mode   
-    AD1PCFGLbits.PCFG5 = 0b1;   // Digital Mode
-    AD1PCFGLbits.PCFG6 = 0b0;   // Analog Mode
-    AD1PCFGLbits.PCFG7 = 0b1;   // Digital Mode
-    AD1PCFGLbits.PCFG8 = 0b1;   // Digital Mode
-    AD1PCFGLbits.PCFG9 = 0b1;   // Digital Mode
-    AD1PCFGLbits.PCFG10 = 0b1;  // Digital Mode
-//    AD1PCFGLbits.PCFG11 = ;   //Preguntar sobre configuración de PIN
-//    AD1PCFGLbits.PCFG12 = ;   //Preguntar sobre configuración de PIN
-            
-return(15);
+    AD1PCFGLbits.PCFG0 = ANALOGIC;  
+    AD1PCFGLbits.PCFG1 = DIGITAL;   
+    AD1PCFGLbits.PCFG2 = DIGITAL;   
+    AD1PCFGLbits.PCFG3 = DIGITAL;      
+    AD1PCFGLbits.PCFG4 = DIGITAL;      
+    AD1PCFGLbits.PCFG5 = DIGITAL;   
+    AD1PCFGLbits.PCFG6 = ANALOGIC;  
+    AD1PCFGLbits.PCFG7 = DIGITAL;   
+    AD1PCFGLbits.PCFG8 = DIGITAL;   
+    AD1PCFGLbits.PCFG9 = DIGITAL;   
+    AD1PCFGLbits.PCFG10 = DIGITAL;  
+    AD1PCFGLbits.PCFG11 = ANALOGIC;  
+    AD1PCFGLbits.PCFG12 = ANALOGIC;           
 }
+
+
+

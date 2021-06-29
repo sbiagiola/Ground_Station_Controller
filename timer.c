@@ -6,6 +6,7 @@
  */
 
 
+
 #include "xc.h"
 #include "stdint.h"
 #include "timer1.h"
@@ -55,3 +56,4 @@ uint16_t temporizador()
 {
     return count_seg;           
 }
+

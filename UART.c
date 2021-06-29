@@ -3,11 +3,10 @@
 #include "Clock.h"
 #include "libpic30.h"
 #include "RingBuffer.h"
-#include "stdint.h"
 #include "Protocolo_Comm_Yaesu.h"
 
 /*==================== [Macros y definiciones] ===========================*/
-#define RING_BUFFER_SIZE 16   // Tamaño del Ring Buffer
+#define RING_BUFFER_SIZE MAX_SIZE_DATA_SEND
 /*========================================================================*/
 
 /*======================= [Variables Internas] ===========================*/
@@ -31,13 +30,18 @@ void Config_UART(void){
     U1MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
     
     //Register U1STA
-    U1STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita al registro TSR un caracter y el buffer de transmisión este vacío
-    U1STAbits.UTXISEL1 = 0b1;      
-    U1STAbits.URXISEL = 0b00;       // Interrupciones cuando un caracter es transferido de RSR al RXREG
+    U1STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita hay lugar en TXREG o TSR esta vacio
+    U1STAbits.UTXISEL1 = 0b0;      
+    U1STAbits.URXISEL = 0b10;       // Interrupciones cuando hay la menos 3 caracter en RXREG
       
     // Con este valor de BRG obtengo un Baud Rate de 9615 y un error del 0.125% respecto al buscado de 9600 */
     U1BRG = 259;                    //Valor del Baud Rate Generator Register de la UART1
-
+    
+    U1MODEbits.UARTEN = 0b1;        // Habilito la UART1
+    __delay_us(60);
+    U1STAbits.UTXEN = 0b1;          // Habilito el transmisor de la UART1
+    __delay_us(150);                // Se recomienda este delay luego de habilitar el transmisor UART
+    
     /*******************        Configuración UART 2        *******************/
       
     //Register U2MODE
@@ -47,11 +51,16 @@ void Config_UART(void){
     U2MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
     
     //Register U2STA
-    U2STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita al registro TSR un caracter y el buffer de transmisión
-    U2STAbits.UTXISEL1 = 0b1;       
-    U2STAbits.URXISEL = 0b00;       // Interrupciones cuando un caracter es transferido de RSR al RXREG
+    U2STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita hay lugar en TXREG o TSR esta vacio
+    U2STAbits.UTXISEL1 = 0b0;       
+    U2STAbits.URXISEL = 0b10;       // Interrupciones cuando hay la menos 3 caracter en RXREG
     
     U2BRG = U1BRG;                  // Valor del Baud Rate Generator de la UART2
+    
+    U2MODEbits.UARTEN = 0b1;        // Habilito la UART2
+    __delay_us(60);
+    U2STAbits.UTXEN = 0b1;          // Habilito el transmisor de la UART2
+    __delay_us(150);                // Se recomienda este delay luego de habilitar el transmisor UART
 }
 
 void Create_RingBuffer(void){
@@ -184,7 +193,7 @@ unsigned int Rx_Shift_Reg_U2_State(void){
 }
 
 void Get_Char_Rx_Reg_U2(uint8_t *data){
-     *data = U2RXREG;
+     *data = U2RXREG;  
 }
 
 void Send_Char_Tx_Reg_U2(uint8_t *data){
@@ -282,7 +291,10 @@ int32_t uart_ringBuffer_envDatos_U1(uint8_t *pBuf, int32_t size){
     /*================== Sección critica de código ==================*/
     
     /* si el buffer estaba vacío hay que habilitar la int TX */
-    if (ringBuffer_isEmpty(pRingBufferTx_U1))
+    if (ringBuffer_isEmpty(pRingBufferTx_U1)){
+        U1STAbits.UTXISEL0 = 0b0;       // Interrupciones por TSR vacio o hay lugar en TXREG
+        U1STAbits.UTXISEL1 = 0b0;
+    }
 
     while (!ringBuffer_isFull(pRingBufferTx_U1) && ret < size)
     {
@@ -346,8 +358,12 @@ int32_t uart_ringBuffer_envDatos_U2(uint8_t *pBuf, int32_t size){
     /*================== Sección critica de código ==================*/
     
     /* si el buffer estaba vacío hay que habilitar la int TX */
-    if (ringBuffer_isEmpty(pRingBufferTx_U2))
-
+    if (ringBuffer_isEmpty(pRingBufferTx_U2)){
+        U2STAbits.UTXISEL0 = 0b0;       // Interrupciones por TSR vacio o hay lugar en TXREG
+        U2STAbits.UTXISEL1 = 0b0;
+        IEC1bits.U2TXIE = 0b1;          // Habilito interrupciones de TX
+    }
+    
     while (!ringBuffer_isFull(pRingBufferTx_U2) && ret < size)
     {
         ringBuffer_putData(pRingBufferTx_U2, pBuf[ret]);
@@ -363,8 +379,13 @@ return ret;
 
 void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
-
-    if(!Tx_Reg_U1_State() && ringBuffer_getData(pRingBufferTx_U1, &data)){      //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
+    
+    if(!ringBuffer_isEmpty(pRingBufferTx_U1)){
+        U1STAbits.UTXISEL0 = 0b0;    // Interrupción cuando transmito de FIFO a TSR y generas que se vacie la FIFO
+        U1STAbits.UTXISEL1 = 0b1;
+    }
+    
+    if(!Tx_Reg_U1_State() && !ringBuffer_isEmpty(pRingBufferTx_U1)){      //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
         while( !Tx_Reg_U1_State() && ringBuffer_getData(pRingBufferTx_U1, &data) ){     //Hasta que no se llene el registro de transmisión
             Send_Char_Tx_Reg_U1(&data);
         }
@@ -377,9 +398,9 @@ void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
 void __attribute__((interrupt,no_auto_psv)) _U1RXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
    
-        while( !Rx_Reg_U1_State() ){        // Hay al menos 1 dato en la FIFO de RXREG, vaciamos el registro
-            Get_Char_Rx_Reg_U1(&data);      // Saco un dato x iteración
-            ringBuffer_putData(pRingBufferRx_U2, data);
+        while( !Rx_Reg_U1_State() ){        
+            Get_Char_Rx_Reg_U1(&data);      
+            ringBuffer_putData(pRingBufferRx_U1, data);
         }
     
     IFS0bits.U1RXIF = 0;    // Clear RX Interrupt flag
@@ -389,8 +410,8 @@ void __attribute__((interrupt,no_auto_psv)) _U1ErrInterrupt(void){
     uint8_t data;
     Error_UART_U1 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
     Respuesta = NEGATIVE_ACKNOWLEDGE;
-    Send_Char_Tx_Reg_U1(&Respuesta);
-
+    uart_ringBuffer_envDatos_U1(&Respuesta,sizeof(char));
+    
     if(U1STAbits.OERR && !U1STAbits.FERR){ // Overflow 
         U1STAbits.OERR = 0b0; // Clear del overrun para permitir recepción de más datos
     }
@@ -412,18 +433,18 @@ void __attribute__((interrupt,no_auto_psv)) _U1ErrInterrupt(void){
 void __attribute__((interrupt,no_auto_psv)) _U2TXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
     
-    if(!Tx_Reg_U1_State() && ringBuffer_getData(pRingBufferTx_U1, &data)){
-        
-        //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
-        
-        while( !Tx_Reg_U2_State() && ringBuffer_getData(pRingBufferTx_U2, &data) ){
-            Send_Char_Tx_Reg_U2(&data);
-        }
-        
+    if(!ringBuffer_isEmpty(pRingBufferTx_U2)){
+        // Registro TSR vacio y hay datos en RB
+        U2STAbits.UTXISEL0 = 0b0;    // Interrupción cuando transmito de FIFO a TSR y generas que se vacie la FIFO
+        U2STAbits.UTXISEL1 = 0b1;
     }
-    else
-        // No hay datos en RB, se limpia solo la bandera seteada.
-        
+    
+    if(!Tx_Reg_U2_State() && !ringBuffer_isEmpty(pRingBufferTx_U2)){
+        //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
+        while( !Tx_Reg_U2_State() && ringBuffer_getData(pRingBufferTx_U2, &data) ){
+                Send_Char_Tx_Reg_U2(&data);
+        }
+    }
     IFS1bits.U2TXIF = 0;    // Clear TX Interrupt flag
 }
 
@@ -443,11 +464,10 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     
     Error_UART_U2 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
     Respuesta = NEGATIVE_ACKNOWLEDGE;
-    Send_Char_Tx_Reg_U2(&Respuesta);
+    uart_ringBuffer_envDatos_U2(&Respuesta,sizeof(char));
 
-    
     if(U2STAbits.OERR && !U2STAbits.FERR){     
-        U2STAbits.OERR = 0b0;       // Clear del permitir recepción de más datosverrun para permitir recepción de más datos.
+        U2STAbits.OERR = 0b0;       // Clear del overrun para permitir recepción de más datos. Vaciamos la FIFO
     }
     
     if(U2STAbits.FERR && !U2STAbits.OERR){
@@ -455,8 +475,8 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
             if(!U2STAbits.FERR){ 
                 Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, solo vacio la FIFO
             }
-            if(U2STAbits.FERR){             // el char en la FIFO contiene falla en el bit de STOP
-                Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, solo vacio la FIFO
+            if(U2STAbits.FERR){             // El char en la FIFO contiene falla en el bit de STOP
+                Get_Char_Rx_Reg_U2(&data);  
                 break;
             }
         }
@@ -464,3 +484,16 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     IFS4bits.U2EIF = 0;     // Clear Error Interrupt flag 
 }
 
+void Clean_RingBufferRx_U2(void){
+    uint8_t data;
+    while(!ringBuffer_isEmpty(pRingBufferRx_U2)){
+        ringBuffer_getData(pRingBufferRx_U2, &data); 
+    }
+}
+
+void Clean_RingBufferRx_U1(void){
+    uint8_t data;
+    while(!ringBuffer_isEmpty(pRingBufferRx_U1)){
+        ringBuffer_getData(pRingBufferRx_U1, &data); 
+    }
+}

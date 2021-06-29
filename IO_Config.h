@@ -12,18 +12,13 @@
 extern "C" {
 #endif
 
-/***************  Definiciones   **************/   
-#define CONFIG_IO_SUCCESS  11;      //Variab. para verificación de configuración
-#define CHANGE_UART1_SUCCESS 12;    //Variab. para verificación de configuración
-/**********************************************/
-    
-/****************  Funciones   ****************/  
-int Config_IO(void);
-int Define_IO_Pins(void);
-int Remappeable_Pins(void);
-int Change_Config_UART1(void);
-int Set_Pin_As_A_or_D(void);
-/**********************************************/
+/*===========================  Funciones   ==============================*/   
+void Config_IO(void);
+void Define_IO_Pins(void);
+void Remappeable_Pins(void);
+void Change_Config_UART1(void);
+void Set_Pin_As_A_or_D(void);
+/*========================================================================*/
 
 /************************       Info de Registros       ***********************
  - TRISx (READ/WRITE):
