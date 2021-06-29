@@ -7,18 +7,31 @@
 #include <xc.h>
 #include "Entradas.h"
 #include "stdint.h"
+#include "Salidas_Motores.h"
+#include "Protocolo_Comm_Yaesu.h"
 
-/*==================== [Macros y Definiciones] ========================*/  
+typedef enum{
+    Resta = 0,
+    Suma,
+}Operacion_Pulsos;  //No es triunfo pero paso cerca...
+
+/*===================== [Variables Internas (Globales)] =====================*/ 
 Last_Value Valor_Anterior;
 _Contador Contador;
 
+static Operacion_Pulsos Estado_Operacion;
 static uint8_t Bandera_Encoder_1_A = 1;
 static uint8_t Bandera_Encoder_1_B = 1;
 static uint8_t Bandera_Encoder_2_A = 1;
 static uint8_t Bandera_Encoder_2_B = 1;
 static uint8_t Bandera_Home_Stop_1 = 1;
 static uint8_t Bandera_Home_Stop_2 = 1;
-/*========================================================================*/
+static uint8_t Bandera_Parad_Emerg = 1;
+/*===========================================================================*/
+
+/*===================== [Variables Externas (Globales)] =====================*/
+extern Info_Comandos_Procesados Comando_Procesado;
+/*===========================================================================*/
 
 void Config_CN_Pins(){
 CNEN1bits.CN10IE = 1;   // Enable CN10 pin for interrupt detection  RC2 (PARADA EMERG)
@@ -38,6 +51,7 @@ IFS1bits.CNIF = 0;      // Reset CN interrupt   (Recomendaban esto)|
 }
 
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
+    
     if( (Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A) || (Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B) ){
 
         if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
@@ -52,10 +66,12 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         
         if(Enconder_1_Fase_A == HIGH && Enconder_1_Fase_B == LOW && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_A == 1){
             Contador.Encoder_1_Pulsos++;
+            Estado_Operacion = Suma;
         }
 
         if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
             Contador.Encoder_1_Pulsos--;
+            Estado_Operacion = Resta;
         }
         
         if(Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A){
@@ -70,7 +86,12 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     if(Enconder_1_Fase_Z != Valor_Anterior.Encoder_1_Z){
         
         if(Enconder_1_Fase_Z == HIGH){
-            Contador.Encoder_1_Vueltas++;
+            if(Estado_Operacion == Suma){
+                Contador.Encoder_1_Vueltas++;
+            }
+            if(Estado_Operacion == Resta){
+                Contador.Encoder_1_Vueltas--;
+            }
             Contador.Encoder_1_Pulsos = 0;
         }
         Enconder_1_Fase_Z = Valor_Anterior.Encoder_1_Z;
@@ -90,10 +111,12 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         
         if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_A == 1){
             Contador.Encoder_2_Pulsos++;
+            Estado_Operacion = Suma;
         }
 
         if(Enconder_2_Fase_A == LOW && Enconder_2_Fase_B == HIGH && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_B == 1){
             Contador.Encoder_2_Pulsos--;
+            Estado_Operacion = Resta;
         }
         
         if(Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A){
@@ -108,7 +131,13 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     if(Enconder_2_Fase_Z != Valor_Anterior.Encoder_2_Z){
         
         if(Enconder_2_Fase_Z == HIGH){
-            Contador.Encoder_2_Vueltas++;
+            
+            if(Estado_Operacion == Suma){
+                Contador.Encoder_2_Vueltas++;
+            }
+            if(Estado_Operacion == Resta){
+                Contador.Encoder_2_Vueltas--;
+            }
             Contador.Encoder_2_Pulsos = 0;
         }
         Enconder_2_Fase_Z = Valor_Anterior.Encoder_2_Z;
@@ -123,7 +152,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     }
     if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
         if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
-            //Seteo de posicion de reposo
+            //Seteo de posicion de reposo de alguna manera
             Bandera_Home_Stop_1 = 0;
         }
         if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0){
@@ -134,7 +163,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     
     if(Home_Stop_2 != Valor_Anterior.Home_St0p_2){
         if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 1){
-            //Seteo de posicion de reposo
+            //Seteo de posicion de reposo de alguna manera
             Bandera_Home_Stop_2 = 0;
         }
         if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 0){
@@ -144,8 +173,14 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     }
     
     if(Parada_Emergencia != Valor_Anterior.Parad_Emerg){
-        if(Parada_Emergencia == HIGH){
-            //Definir acciones
+        if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 1){
+            Comando_Procesado.Proximo_Comando = Comando_Procesado.Comando_Actual;
+            Comando_Procesado.Comando_Actual = Parar_Todo;
+        }
+        
+        if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 0){
+            Bandera_Parad_Emerg = 1;    
+            Comando_Procesado.Comando_Actual = Comando_Procesado.Proximo_Comando;
         }
         Parada_Emergencia = Valor_Anterior.Parad_Emerg;
     }

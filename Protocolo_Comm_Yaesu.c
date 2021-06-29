@@ -389,7 +389,7 @@ void Comm_PC_Interface(){
                     Indice_Rec = 0;
                     Clean_RingBufferRx_U2();
                     Mensaje_Env[0] = ACKNOWLEDGE;
-                    uart_ringBuffer_envDatos_U2(&Mensaje_Env[0],sizeof(char));
+                    uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));
                     Estado_Comm = Esperando_Datos;
                     break;
                 }

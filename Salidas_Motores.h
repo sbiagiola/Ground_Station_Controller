@@ -40,17 +40,26 @@ typedef struct{
     uint8_t Proximo_Comando;
 }Info_Comandos_Procesados;
 
-#define OFFSET_ANGULAR_ACIMUT 0.1
-#define REDUCCION_ACIMUT_ENCODER   ((double)1/25)   // No modificar el (double) si se pierde el valor pequeño de relacion
-#define REDUCCION_ACIMUT_COMPLETA ((double)7/90000) // No modificar el (double) si se pierde el valor pequeño de relacion
-#define PULSOS_POR_VUELTA_ENCODER  360
-#define RELACION_POR_VUELTA_ENCODER_ACIMUT  1/REDUCCION_ACIMUT_ENCODER
-#define PULSOS_POR_VUELTA_ACIMUT RELACION_POR_VUELTA_ENCODER*PULSOS_POR_VUELTA_ENCODER
+#define GRADOS_POR_VUELTA                       360
 
-#define OFFSET_ANGULAR_ELEVACION 1
-#define PULSOS_POR_VUELTA_ENCODER  360
-#define RELACION_POR_VUELTA_ENCODER_ELEVACION  1
-#define PULSOS_POR_VUELTA_ELEVACION RELACION_POR_VUELTA_ENCODER*PULSOS_POR_VUELTA_ENCODER
+#define RESOLUCION_ENCODER_ACIMUT               360
+#define RELACION_CAJA_1                         (double)25/1      // No modificar el (double) sino se pierde el valor pequeño de la relación
+#define RELACION_CAJA_2                         (double)60/1      // No modificar el (double) sino se pierde el valor pequeño de la relación
+#define RELACION_CAJA_3                         (double)60/7      // No modificar el (double) sino se pierde el valor pequeño de la relación
+#define REDUCCION_ACIMUT_COMPLETA               (1/(RELACION_CAJA_1*RELACION_CAJA_2*RELACION_CAJA_3))
+#define REDUCCION_ENCODER_ANTENA_ACIMUT         (1/(RELACION_CAJA_2*RELACION_CAJA_3))
+
+#define OFFSET_ANGULAR_ENCODER_ACIMUT           (REDUCCION_ENCODER_ANTENA_ACIMUT*(GRADOS_POR_VUELTA/RESOLUCION_ENCODER_ACIMUT))
+#define CANT_PULSOS_VUELTA_ENCODER              ((1/OFFSET_ANGULAR_ENCODER_ACIMUT))
+#define RESOLUCION_POR_PULSO_ACIMUT             (int)(1/OFFSET_ANGULAR_ENCODER_ACIMUT)
+
+/* Hay que definir el valor de reducción de elevación para determinar el mínimo ángulo de giro*/
+#define RESOLUCION_ENCODER_ELEVACION            360
+//#define REDUCCION_CAJA_4                      (double)            // Determinar por ensayos
+#define REDUCCION_CAJA_5                        (double)7/60        // No modificar el (double) sino se pierde el valor pequeño de la relación
+
+#define OFFSET_ANGULO_ELEVACION                 1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
+#define RESOLUCION_POR_PULSO_ELEVACION          1
 /*========================================================================*/
     
 /*===========================  Funciones   ===============================*/

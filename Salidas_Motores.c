@@ -8,8 +8,9 @@
 #include <xc.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
+
 #include "Salidas_Motores.h"
-#include "stdint.h"
 #include "Protocolo_Comm_Yaesu.h"
 #include "Entradas.h"
 #include "RingBuffer.h"
@@ -25,10 +26,7 @@ extern _Contador Contador;
 /*===========================================================================*/
 
 void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
-    /*sprint del código pero necesitamos primero el valor actual en función
-     de los pulsos detectados por el momento*/
-    /*Actualizar el valor de acimut o elevación y enviar datos*/
-    
+
     Calculando_Posicion(Contador);
     
     // Esta parte de abajo genera un 5% de código de programa y 1% de data, capaz
@@ -51,11 +49,18 @@ void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
     }
 }
 
+/* Esta funcion se encarga de actualizar los valores actuales de los ángulos de acimut y
+   elevación en cada llamado de la misma en función de la cantidad de pulsos enviados por cada
+   encoder.
+ * 
+    const _Contador Data (IN) (Solo lectura) -> Cantidad de pulsos y vueltas de cada encoder
+ */
 void Calculando_Posicion(const _Contador Data){
-    
+
 /*Con la cantidad de pulsos y eso convertimso a un valor angular y actualizar 
   Control.Valor_Actual_Acimut o Control.Valor_Actual_Elevacion*/
-    
+    Control.Valor_Actual_Acimut = (360*Data.Encoder_1_Vueltas+Data.Encoder_1_Pulsos)*RESOLUCION_POR_PULSO_ACIMUT;
+    Control.Valor_Actual_Elevacion = (360*Data.Encoder_2_Vueltas+Data.Encoder_2_Pulsos)*RESOLUCION_POR_PULSO_ELEVACION;
 }
 
 void MEF_Accionamiento(void){
@@ -107,6 +112,7 @@ void MEF_Accionamiento(void){
 
         case Hacia_aaa_grados:
             Calculando_Posicion(Contador);
+            //Comparar de alguna manera no con target
         break;
 
         case Arriba: 
@@ -125,17 +131,15 @@ void MEF_Accionamiento(void){
             /*Analizar cual de toda*/
             
             /*Sentido uno, arriba o abajo  */
-            LI1_Variador = HIGH;     
-            LI2_Variador = LOW;
-            
-            /*Sentido dos, arriba o abajo */ 
             LI1_Variador = LOW;     
             LI2_Variador = HIGH;
+            
+            /*Sentido dos, arriba o abajo */ 
+            LI1_Variador = HIGH;     
+            LI2_Variador = LOW;
         break;
 
         case Stop_Elevacion:
-            /*Bajando solo la terminal de sentido se corta el movimiento pero bajamos todo 
-             para evitar problemas en el próximo accionamiento*/
             LI1_Variador = LOW;     
             LI2_Variador = LOW;
             LI3_Variador = LOW;     
@@ -175,6 +179,7 @@ void MEF_Accionamiento(void){
 
         case Hacia_aaa_eee_grados:
             Calculando_Posicion(Contador);
+            //Comparar de alguna manera no con target
         break;
 
         case Devolver_Valor_A_E:
@@ -184,14 +189,17 @@ void MEF_Accionamiento(void){
 
         case Mayor_Presicion_a_grados:
             Calculando_Posicion(Contador);
+            //Comparar de alguna manera no con target
         break;
 
         case Mayor_Presicione_e_grados:
             Calculando_Posicion(Contador);
+            //Comparar de alguna manera no con target
         break;
 
         case Mayor_Presicion_a_e_grados:
             Calculando_Posicion(Contador);
+            //Comparar de alguna manera no con target
         break;
         
         default: Comando_Procesado.Comando_Actual = Parar_Todo;
