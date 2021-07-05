@@ -23,7 +23,17 @@ extern "C" {
 #define OUT_RELE_2          PORTCbits.RC8
 #define OUT_RELE_3          PORTCbits.RC7
 #define OUT_RELE_4          PORTCbits.RC6
-    
+
+typedef enum{
+    Movimiento_Manual=0,
+    Envio_Datos,
+    Seguimiento,
+    Stop_A,
+    Stop_E,
+    Stop,
+    Cambio_Veloc_Elev,
+}Tipo_Comando;
+
 typedef struct{
     double Cero_Acimut;
     double Valor_Actual_Acimut;
@@ -33,11 +43,12 @@ typedef struct{
     double Valor_Actual_Elevacion;
     double Target_Elevacion;
     double Ultimo_Ang_Elevacion;
-}Data_Control;
+}Struct_Data_Control;
 
 typedef struct{
     uint8_t Comando_Actual;
     uint8_t Proximo_Comando;
+    uint8_t Ultimo_Comando;
 }Info_Comandos_Procesados;
 
 #define GRADOS_POR_VUELTA                       360
@@ -64,7 +75,8 @@ typedef struct{
     
 /*===========================  Funciones   ===============================*/
 void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando);
-void Calculando_Posicion(const _Contador Data);
+void Calcular_Posicion_Actual(const _Contador* Data);
+//void MEF_Accionamiento(void);
 /*========================================================================*/
 #ifdef	__cplusplus
 }

@@ -14,15 +14,12 @@
       <itemPath>timer1.h</itemPath>
       <itemPath>GPS.h</itemPath>
       <itemPath>Protocolo_Comm_Yaesu.h</itemPath>
-<<<<<<< HEAD
-      <itemPath>timer.h</itemPath>
-      <itemPath>dac1.h</itemPath>
-=======
+
       <itemPath>dac1.h</itemPath>
       <itemPath>timer.h</itemPath>
       <itemPath>Salidas_Motores.h</itemPath>
       <itemPath>Entradas.h</itemPath>
->>>>>>> 81a9f201ec96d3a7f665e746e78b945d91b2067a
+
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -42,11 +39,10 @@
       <itemPath>timer.c</itemPath>
       <itemPath>GPS.c</itemPath>
       <itemPath>Protocolo_Comm_Yaesu.c</itemPath>
-<<<<<<< HEAD
-=======
+
       <itemPath>Salidas_Motores.c</itemPath>
       <itemPath>Entradas.c</itemPath>
->>>>>>> 81a9f201ec96d3a7f665e746e78b945d91b2067a
+
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -248,7 +244,7 @@
         <property key="periphComp6.gte" value="gt"/>
         <property key="reset.scl" value="false"/>
         <property key="reset.type" value="MCLR"/>
-<<<<<<< HEAD
+
         <property key="toolpack.updateoptions"
                   value="toolpack.updateoptions.uselatestoolpack"/>
         <property key="toolpack.updateoptions.packversion"
@@ -720,8 +716,7 @@
                   value="toolpack.updateoptions.uselatestoolpack"/>
         <property key="toolpack.updateoptions.packversion"
                   value="Press to select which tool pack to use"/>
-=======
->>>>>>> 81a9f201ec96d3a7f665e746e78b945d91b2067a
+
         <property key="tracecontrol.include.timestamp" value="summarydataenabled"/>
         <property key="tracecontrol.select" value="0"/>
         <property key="tracecontrol.stallontracebufferfull" value="false"/>
@@ -750,7 +745,7 @@
         <property key="uart6io.output" value="window"/>
         <property key="uart6io.outputfile" value=""/>
         <property key="uart6io.uartioenabled" value="false"/>
-<<<<<<< HEAD
+
         <property key="usart0io.output" value="window"/>
         <property key="usart0io.outputfile" value=""/>
         <property key="usart0io.uartioenabled" value="false"/>
@@ -793,17 +788,7 @@
         <property key="usartf1io.output" value="window"/>
         <property key="usartf1io.outputfile" value=""/>
         <property key="usartf1io.uartioenabled" value="false"/>
-=======
-        <property key="uart7io.output" value="window"/>
-        <property key="uart7io.outputfile" value=""/>
-        <property key="uart7io.uartioenabled" value="false"/>
-        <property key="uart8io.output" value="window"/>
-        <property key="uart8io.outputfile" value=""/>
-        <property key="uart8io.uartioenabled" value="false"/>
-        <property key="uart9io.output" value="window"/>
-        <property key="uart9io.outputfile" value=""/>
-        <property key="uart9io.uartioenabled" value="false"/>
->>>>>>> 81a9f201ec96d3a7f665e746e78b945d91b2067a
+
         <property key="warningmessagebreakoptions.W0001_CORE_BITREV_MODULO_EN"
                   value="report"/>
         <property key="warningmessagebreakoptions.W0002_CORE_SECURE_MEMORYACCESS"
@@ -1170,7 +1155,7 @@
         <property key="warningmessagebreakoptions.displaywarningmessagesoption"
                   value=""/>
         <property key="warningmessagebreakoptions.warningmessages" value="holdstate"/>
-      </Simulator>
+      </Tool>
     </conf>
   </confs>
 </configurationDescriptor>

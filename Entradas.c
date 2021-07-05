@@ -24,13 +24,13 @@ static uint8_t Bandera_Encoder_1_A = 1;
 static uint8_t Bandera_Encoder_1_B = 1;
 static uint8_t Bandera_Encoder_2_A = 1;
 static uint8_t Bandera_Encoder_2_B = 1;
-static uint8_t Bandera_Home_Stop_1 = 1;
 static uint8_t Bandera_Home_Stop_2 = 1;
 static uint8_t Bandera_Parad_Emerg = 1;
 /*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
 extern Info_Comandos_Procesados Comando_Procesado;
+extern uint8_t Flag_Bloqueo_Actualizacion;
 /*===========================================================================*/
 
 void Config_CN_Pins(){
@@ -150,6 +150,8 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         }
         Anemometro = Valor_Anterior.Anemometr0;
     }
+    /*  Esta parte nunca va a darse dado que el puerto A no tiene la capacidad de CN.
+    
     if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
         if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
             //Seteo de posicion de reposo de alguna manera
@@ -160,7 +162,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         }
         Home_Stop_1 = Valor_Anterior.Home_St0p_1;
     }
-    
+    */
     if(Home_Stop_2 != Valor_Anterior.Home_St0p_2){
         if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 1){
             //Seteo de posicion de reposo de alguna manera
@@ -174,20 +176,17 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     
     if(Parada_Emergencia != Valor_Anterior.Parad_Emerg){
         if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 1){
+            Bandera_Parad_Emerg = 0;
+            Flag_Bloqueo_Actualizacion = Bandera_Parad_Emerg;
             Comando_Procesado.Proximo_Comando = Comando_Procesado.Comando_Actual;
             Comando_Procesado.Comando_Actual = Parar_Todo;
         }
-        
         if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 0){
-            Bandera_Parad_Emerg = 1;    
-            Comando_Procesado.Comando_Actual = Comando_Procesado.Proximo_Comando;
+            Bandera_Parad_Emerg = 1;
+            Flag_Bloqueo_Actualizacion = Bandera_Parad_Emerg;
         }
         Parada_Emergencia = Valor_Anterior.Parad_Emerg;
     }
     
 IFS1bits.CNIF = 0; // Clear CN interrupt
-}
-
-void Obtener_Pulsos(const _Contador Data){
-    
 }

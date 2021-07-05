@@ -76,23 +76,24 @@ PC          // Formato de mayor precisión para combinación
 
 /*===================== [Variables Internas (Globales)] =====================*/
 uint8_t Mensaje_Env[MAX_SIZE_DATA_SEND];
-uint8_t Caracter_Rec;
 uint8_t Mensaje_Error[] = "?>";
 uint8_t Mensaje_Recibido_Correcto[] = "\r";
+
+uint8_t Caracter_Rec;
 uint32_t FlagRec;
 uint32_t Indice_Rec = 0;
+char Buffer_Recepcion[MAX_SIZE_COMMAND_AVALIBLE];
 
-Comando_Almacenado Comando;
-
-char Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
-volatile int Habilitar_Comunicacion;       // Inicialización luego de la configuración del micro en main.c
+uint8_t Flag_Bloqueo_Actualizacion = 1;     // Cambia valor su valor de 1 a 0 ante el evento de parada de emergencia
+Comando_Almacenado Char_Comando;
+/*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
 extern volatile int Error_UART_U2;
 
-extern Data_Control Control;
+extern Struct_Data_Control Data_Control;
 extern Info_Comandos_Procesados Comando_Procesado;
-
+extern _Contador Contador;
 /*===========================================================================*/
 
 /*
@@ -262,17 +263,29 @@ int Analizando_Datos(char* Segmento){
     
 return 0;
 }
+void Actualizar_Objetivos(uint8_t ID_Comando){
+    
+    if(ID_Comando == Hacia_aaa_grados || ID_Comando == Mayor_Presicion_a_grados){
+        Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
+    }
+    if(ID_Comando == Mayor_Presicion_e_grados){
+        Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
+    }
+    if(ID_Comando == Mayor_Presicion_a_e_grados || ID_Comando == Hacia_aaa_eee_grados){
+        Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
+        Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
+    }
+
+}
 
 uint8_t Verificando_Comando(){
-    if(Comando_Recibido[0] == 'R' || Comando_Recibido[0] == 'r'){return Giro_Horario;}
-    if(Comando_Recibido[0] == 'L' || Comando_Recibido[0] == 'l'){return Giro_Antihorario;}
-    if(Comando_Recibido[0] == 'A' || Comando_Recibido[0] == 'a'){return Stop_Acimut;}
+    if(Buffer_Recepcion[0] == 'R' || Buffer_Recepcion[0] == 'r'){return Giro_Horario;}
+    if(Buffer_Recepcion[0] == 'L' || Buffer_Recepcion[0] == 'l'){return Giro_Antihorario;}
+    if(Buffer_Recepcion[0] == 'A' || Buffer_Recepcion[0] == 'a'){return Stop_Acimut;}
     
-    if(Comando_Recibido[0] == 'M' || Comando_Recibido[0] == 'm'){ // M123'CR'   M123'\r'
-        if(Analizando_Datos(Comando_Recibido)){
-            Segmentar_Datos(Comando_Recibido,Comando.Char_Acimut,Comando.Char_Acimut);
-            Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
-            Control.Target_Acimut = atof(Comando.Char_Acimut);
+    if(Buffer_Recepcion[0] == 'M' || Buffer_Recepcion[0] == 'm'){ // M123'CR'   M123'\r'
+        if(Analizando_Datos(Buffer_Recepcion)){
+            Segmentar_Datos(Buffer_Recepcion,Char_Comando.Char_Acimut,Char_Comando.Char_Acimut);
         }
         else{
             return Comando_No_Valido;
@@ -280,25 +293,21 @@ uint8_t Verificando_Comando(){
     return Hacia_aaa_grados;
     }
     
-    if(Comando_Recibido[0] == 'U' || Comando_Recibido[0] == 'u'){return Arriba;}
-    if(Comando_Recibido[0] == 'D' || Comando_Recibido[0] == 'd'){return Abajo;}
-    if(Comando_Recibido[0] == 'E' || Comando_Recibido[0] == 'e'){return Stop_Elevacion;}
-    if(Comando_Recibido[0] == 'B' || Comando_Recibido[0] == 'b'){return Devolver_Valor_Elevacion;}
+    if(Buffer_Recepcion[0] == 'U' || Buffer_Recepcion[0] == 'u'){return Arriba;}
+    if(Buffer_Recepcion[0] == 'D' || Buffer_Recepcion[0] == 'd'){return Abajo;}
+    if(Buffer_Recepcion[0] == 'E' || Buffer_Recepcion[0] == 'e'){return Stop_Elevacion;}
+    if(Buffer_Recepcion[0] == 'B' || Buffer_Recepcion[0] == 'b'){return Devolver_Valor_Elevacion;}
     
-    if(Comando_Recibido[0] == 'C' || Comando_Recibido[0] == 'c'){
-        if(Comando_Recibido[1] == '2'){
+    if(Buffer_Recepcion[0] == 'C' || Buffer_Recepcion[0] == 'c'){
+        if(Buffer_Recepcion[1] == '2'){
             return Devolver_Valor_A_E;
         }
         else return Devolver_Valor_Acimut;
     }
 
-    if(Comando_Recibido[0] == 'W' || Comando_Recibido[0] == 'w'){
-        if(Analizando_Datos(Comando_Recibido)){
-            Segmentar_Datos(Comando_Recibido,Comando.Char_Acimut,Comando.Char_Elevacion);
-            Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
-            Control.Target_Acimut = atof(Comando.Char_Acimut);
-            Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
-            Control.Target_Elevacion = atof(Comando.Char_Elevacion);
+    if(Buffer_Recepcion[0] == 'W' || Buffer_Recepcion[0] == 'w'){
+        if(Analizando_Datos(Buffer_Recepcion)){
+            Segmentar_Datos(Buffer_Recepcion,Char_Comando.Char_Acimut,Char_Comando.Char_Elevacion);
         }
         else{
             return Comando_No_Valido;
@@ -306,21 +315,19 @@ uint8_t Verificando_Comando(){
     return Hacia_aaa_eee_grados;
     }
     
-    if(Comando_Recibido[0] == 'S' || Comando_Recibido[0] == 's'){return Parar_Todo;}
+    if(Buffer_Recepcion[0] == 'S' || Buffer_Recepcion[0] == 's'){return Parar_Todo;}
     
-    if(Comando_Recibido[0] == 'Z' || Comando_Recibido[0] == 'z'){
-        if(Comando_Recibido[1] == '1'){return Velocidad_1_Elevacion;}
-        if(Comando_Recibido[1] == '2'){return Velocidad_2_Elevacion;}
-        if(Comando_Recibido[1] == '3'){return Velocidad_3_Elevacion;}
-        if(Comando_Recibido[1] == '4'){return Velocidad_4_Elevacion;}
+    if(Buffer_Recepcion[0] == 'Z' || Buffer_Recepcion[0] == 'z'){
+        if(Buffer_Recepcion[1] == '1'){return Velocidad_1_Elevacion;}
+        if(Buffer_Recepcion[1] == '2'){return Velocidad_2_Elevacion;}
+        if(Buffer_Recepcion[1] == '3'){return Velocidad_3_Elevacion;}
+        if(Buffer_Recepcion[1] == '4'){return Velocidad_4_Elevacion;}
     }
                                                                   
-    if(Comando_Recibido[0] == 'P' || Comando_Recibido[0] == 'p'){                                                                      
-        if(Comando_Recibido[1] == 'A' || Comando_Recibido[1] == 'a'){   
-            if(Analizando_Datos(Comando_Recibido)){
-                Segmentar_Datos(Comando_Recibido,Comando.Char_Acimut,Comando.Char_Acimut);
-                Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
-                Control.Target_Acimut = atof(Comando.Char_Acimut);
+    if(Buffer_Recepcion[0] == 'P' || Buffer_Recepcion[0] == 'p'){                                                                      
+        if(Buffer_Recepcion[1] == 'A' || Buffer_Recepcion[1] == 'a'){   
+            if(Analizando_Datos(Buffer_Recepcion)){
+                Segmentar_Datos(Buffer_Recepcion,Char_Comando.Char_Acimut,Char_Comando.Char_Acimut);
             }
             else{
                 return Comando_No_Valido;
@@ -328,25 +335,19 @@ uint8_t Verificando_Comando(){
         return Mayor_Presicion_a_grados; 
         }
         
-        if(Comando_Recibido[1] == 'E' || Comando_Recibido[1] == 'e'){       
-            if(Analizando_Datos(Comando_Recibido)){
-                Segmentar_Datos(Comando_Recibido,Comando.Char_Elevacion,Comando.Char_Elevacion);
-                Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
-                Control.Target_Elevacion = atof(Comando.Char_Elevacion);
+        if(Buffer_Recepcion[1] == 'E' || Buffer_Recepcion[1] == 'e'){       
+            if(Analizando_Datos(Buffer_Recepcion)){
+                Segmentar_Datos(Buffer_Recepcion,Char_Comando.Char_Elevacion,Char_Comando.Char_Elevacion);
             }
             else{
                 return Comando_No_Valido;
             }   
-        return Mayor_Presicione_e_grados;
+        return Mayor_Presicion_e_grados;
         }  
 
-        if(Comando_Recibido[1] == 'C' || Comando_Recibido[1] == 'c'){              
-            if(Analizando_Datos(Comando_Recibido)){
-                Segmentar_Datos(Comando_Recibido,Comando.Char_Acimut,Comando.Char_Elevacion);
-                Control.Ultimo_Ang_Acimut = Control.Target_Acimut;
-                Control.Target_Acimut = atof(Comando.Char_Acimut);
-                Control.Ultimo_Ang_Elevacion = Control.Target_Elevacion;
-                Control.Target_Elevacion = atof(Comando.Char_Elevacion);
+        if(Buffer_Recepcion[1] == 'C' || Buffer_Recepcion[1] == 'c'){              
+            if(Analizando_Datos(Buffer_Recepcion)){
+                Segmentar_Datos(Buffer_Recepcion,Char_Comando.Char_Acimut,Char_Comando.Char_Elevacion);
             }
             else{
                 return Comando_No_Valido;
@@ -358,28 +359,15 @@ return Comando_No_Valido;
 }
 
 void Comm_PC_Interface(){
-    static Estado_Comunicacion Estado_Comm = Estableciendo_Conexion;      
+    static Estado_Comunicacion Estado_Comm = Esperando_Datos;      
     FlagRec = uart_ringBuffer_recDatos_U2(&Caracter_Rec, sizeof(Caracter_Rec));
-    
+
         switch (Estado_Comm) {
             
-            case Estableciendo_Conexion:
-                if( Habilitar_Comunicacion ){
-                    Mensaje_Env[0] = ACKNOWLEDGE;
-                    uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));  // Notificación de que estamos queriendo establecer comunicación
-                }
-                
-                if ( FlagRec != 0 && Caracter_Rec == ACKNOWLEDGE){   // Esperas un ACK de la respuesta de la PC
-                    Estado_Comm = Esperando_Datos;
-                    break;
-                }
-                /* Se puede poner un timer en la PC para que al cabo de tantos seg tire un error en al comunicacion*/
-            break;
-                
             case Esperando_Datos:
                 
                 if( FlagRec != 0 ){
-                    Comando_Recibido[Indice_Rec] = Caracter_Rec;
+                    Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
                     Indice_Rec++; 
                 }      
                 
@@ -398,7 +386,7 @@ void Comm_PC_Interface(){
                 
                 if( (FlagRec != 0) && (Caracter_Rec != CHAR_CR) ){
                     if(Indice_Rec <= MAX_SIZE_COMMAND_AVALIBLE){
-                        Comando_Recibido[Indice_Rec] = Caracter_Rec;
+                        Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
                         Indice_Rec++;
                     }
                     else{
@@ -410,7 +398,7 @@ void Comm_PC_Interface(){
                 }
             
                 if( (FlagRec != 0) && (Caracter_Rec == CHAR_CR) ){
-                    Comando_Recibido[Indice_Rec] = Caracter_Rec; 
+                    Buffer_Recepcion[Indice_Rec] = Caracter_Rec; 
                     Estado_Comm = Validando_Comando;
                     break;
                 }
@@ -426,8 +414,13 @@ void Comm_PC_Interface(){
 
                 if(Comando_Procesado.Proximo_Comando != Comando_No_Valido){
                     uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
-                    strcpy(Comando.Ultimo_Comando_Almacenado,Comando_Recibido);
-                    Comando_Procesado.Comando_Actual = Comando_Procesado.Proximo_Comando;
+                    strcpy(Char_Comando.Ultimo_Comando_Recibido,Buffer_Recepcion);
+                    
+                    if(Flag_Bloqueo_Actualizacion){ 
+                        Actualizar_Objetivos(Comando_Procesado.Proximo_Comando);
+                        Comando_Procesado.Ultimo_Comando = Comando_Procesado.Comando_Actual;
+                        Comando_Procesado.Comando_Actual = Comando_Procesado.Proximo_Comando;
+                    }
                 }else{
                     Estado_Comm = Comando_No_Reconocido;
                     break;

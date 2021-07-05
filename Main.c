@@ -19,10 +19,27 @@
 #include "interrupts.h"
 #include "Entradas.h"
 #include "Salidas_Motores.h"
-/*==================== [macros and definitions] ==========================*/
 
+/*===================== [Variables Internas (Estáticas)] =====================*/
+static uint8_t Bandera_Home_Stop_1 = 1;
+/*===========================================================================*/
 
-/*========================================================================*/
+/*===================== [Variables Externas (Globales)] =====================*/
+extern Last_Value Valor_Anterior;
+/*===========================================================================*/
+
+void Chequear_Home_Stop_1(void){
+    if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
+        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
+            //Seteo de posicion de reposo de alguna manera
+            Bandera_Home_Stop_1 = 0;
+        }
+        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0){
+            //Definir acciones
+        }
+        Home_Stop_1 = Valor_Anterior.Home_St0p_1;
+    }
+}
 
 int main(){
     
@@ -38,11 +55,11 @@ int main(){
     /*====================================================================*/
     
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
-    extern volatile int Habilitar_Comunicacion; 
-    Habilitar_Comunicacion = 1;
 
     while(1) {
-
+        Comm_PC_Interface();
+        //MEF_Accionamiento();
+        Chequear_Home_Stop_1();
     }
     return (EXIT_SUCCESS);
 }

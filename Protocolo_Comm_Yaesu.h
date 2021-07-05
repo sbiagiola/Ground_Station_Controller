@@ -31,14 +31,13 @@ extern "C" {
     
 /*===================== [Macros y Definiciones] ==========================*/
 typedef struct{
-    char Ultimo_Comando_Almacenado[MAX_SIZE_COMMAND_AVALIBLE];
+    char Ultimo_Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
     char Char_Acimut[MAX_LONG_DATA_ANGLE];     //123.4\0
     char Char_Elevacion[MAX_LONG_DATA_ANGLE];  //160.8\0
 }Comando_Almacenado;
 
 typedef enum {
-    Estableciendo_Conexion = 0, 
-    Esperando_Datos,
+    Esperando_Datos= 0,
     Recopilando_Datos,
     Validando_Comando,
     Comando_No_Reconocido,
@@ -70,9 +69,9 @@ Velocidad_2_Elevacion,          // Velocidad media 1 de giro de elevación
 Velocidad_3_Elevacion,          // Velocidad media 2 de giro de elevación
 Velocidad_4_Elevacion,          // Velocidad más rápida de giro de elevación
 Mayor_Presicion_a_grados,       // Formato de mayor precisión para acimut
-Mayor_Presicione_e_grados,      // Formato de mayor precisión para elevación
+Mayor_Presicion_e_grados,      // Formato de mayor precisión para elevación
 Mayor_Presicion_a_e_grados,     // Formato de mayor precisión para combinación
-}Comandos_Habilitados;
+}ID_Comandos;
 /*===========================================================================*/
 
 /*============================ [Funciones] ==================================*/

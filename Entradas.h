@@ -24,8 +24,8 @@ extern "C" {
 #define Parada_Emergencia   PORTCbits.RC2
 #define Anemometro          PORTBbits.RB9
     
-#define Home_Stop_2          PORTBbits.RB5
-#define Home_Stop_1          PORTAbits.RA4
+#define Home_Stop_2         PORTBbits.RB5
+#define Home_Stop_1         PORTAbits.RA4
     
 typedef struct{
     long Encoder_1_Pulsos;
