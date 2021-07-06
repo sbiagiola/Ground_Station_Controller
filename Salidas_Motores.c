@@ -228,11 +228,17 @@ void MEF_Accionamiento(void){
 
         case Arriba:
             // Disparo un temporizador que en X mSeg cambie el estado a parar elevacion.
-            Set_Temporizador(1,20);
+            Set_Temporizador(Temporizador_1,5);
+            
         break;
 
         case Abajo:
             // Disparo un temporizador que en X mSeg cambie el estado a parar elevacion.
+            Set_Temporizador(Temporizador_1,5);
+            Mov_Abajo();
+            if(Temporizar_X_ms() == Temporizador_1){
+                Parar_Elevacion();
+            }
             
         break;
 
@@ -373,11 +379,11 @@ void Accionamiento(uint8_t ID_Comando, uint8_t Tipo_Comando){
 void Control_Posicion_Acimut(void){
     //if(){   //Mientras no sale el HOME_STOP_X podemos mover
         if(Data_Control.Target_Acimut > (Data_Control.Valor_Actual_Acimut + OFFSET_ANGULAR_ENCODER_ACIMUT)){
-            // Logica de control
+            // Lógica de control
             //Girar_Horario();
         }else{
             if(Data_Control.Target_Acimut < (Data_Control.Valor_Actual_Acimut + OFFSET_ANGULAR_ENCODER_ACIMUT)){
-                // Logica de control
+                // Lógica de control
                 //Girar_Antihorario();
             }
             else{   //Estamos dentro de la zona muerta que no podemos detectar

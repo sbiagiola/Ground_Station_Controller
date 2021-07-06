@@ -107,7 +107,7 @@ comenzara a filtra los datos, una vez detectado un espacio o un 'CR' se copiara 
 y se devolveran los datos a traves de Out_Data_Ac y Out_Data_El, si no se detecto el final del string.
 En caso de querer un único segmento de salida, repetir el dato de salida en los dos campos anteriores.
   
-    char *Dato_No_Filtrada  (IN)        ->  Puntero al string a filtrar
+    char *Dato_No_Filtrada   (IN)        ->  Puntero al string a filtrar
     char* Out_Data_Ac        (IN/OUT)    ->  Primer dato de salida
     char* Out_Data_El        (IN/OUT)    ->  Segundo dato de salida
 */
@@ -364,7 +364,7 @@ void Comm_PC_Interface(){
     static Estado_Comunicacion Estado_Comm = Esperando_Datos;      
     FlagRec = uart_ringBuffer_recDatos_U2(&Caracter_Rec, sizeof(Caracter_Rec));
 
-        switch (Estado_Comm) {
+        switch (Estado_Comm){
             
             case Esperando_Datos:
                 
