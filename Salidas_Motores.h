@@ -46,9 +46,9 @@ typedef struct{
 }Struct_Data_Control;
 
 typedef struct{
-    uint8_t Comando_Actual;
-    uint8_t Proximo_Comando;
-    uint8_t Ultimo_Comando;
+    uint8_t Actual;
+    uint8_t Proximo;
+    uint8_t Ultimo;
 }Info_Comandos_Procesados;
 
 #define GRADOS_POR_VUELTA                       360
@@ -69,14 +69,16 @@ typedef struct{
 //#define REDUCCION_CAJA_4                      (double)            // Determinar por ensayos
 #define REDUCCION_CAJA_5                        (double)7/60        // No modificar el (double) sino se pierde el valor pequeño de la relación
 
-#define OFFSET_ANGULO_ELEVACION                 1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
+#define OFFSET_ANGULAR_ELEVACION                 1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
 #define RESOLUCION_POR_PULSO_ELEVACION          1
 /*========================================================================*/
     
 /*===========================  Funciones   ===============================*/
 void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando);
 void Calcular_Posicion_Actual(const _Contador* Data);
-//void MEF_Accionamiento(void);
+void MEF_Accionamiento(void);
+void Control_Posicion_Acimut(void);
+void Control_Posicion_Elevacion(void);
 /*========================================================================*/
 #ifdef	__cplusplus
 }

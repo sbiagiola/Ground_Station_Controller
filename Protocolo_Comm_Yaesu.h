@@ -31,7 +31,7 @@ extern "C" {
     
 /*===================== [Macros y Definiciones] ==========================*/
 typedef struct{
-    char Ultimo_Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
+    char Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
     char Char_Acimut[MAX_LONG_DATA_ANGLE];     //123.4\0
     char Char_Elevacion[MAX_LONG_DATA_ANGLE];  //160.8\0
 }Comando_Almacenado;

@@ -268,9 +268,11 @@ void Actualizar_Objetivos(uint8_t ID_Comando){
     if(ID_Comando == Hacia_aaa_grados || ID_Comando == Mayor_Presicion_a_grados){
         Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
     }
+    
     if(ID_Comando == Mayor_Presicion_e_grados){
         Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
     }
+    
     if(ID_Comando == Mayor_Presicion_a_e_grados || ID_Comando == Hacia_aaa_eee_grados){
         Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
         Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
@@ -410,17 +412,18 @@ void Comm_PC_Interface(){
                 girando, o moviendose indefinidamente según ese comando recibido. Creo que un polling de 10 ms
                 nos ayudaria aca. No debe afectar a los comandos de posicionamiento. 
             */
-                Comando_Procesado.Proximo_Comando = Verificando_Comando();
+                Comando_Procesado.Proximo = Verificando_Comando();
 
-                if(Comando_Procesado.Proximo_Comando != Comando_No_Valido){
+                if(Comando_Procesado.Proximo != Comando_No_Valido){
                     uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
-                    strcpy(Char_Comando.Ultimo_Comando_Recibido,Buffer_Recepcion);
+                    strcpy(Char_Comando.Comando_Recibido,Buffer_Recepcion);
                     
                     if(Flag_Bloqueo_Actualizacion){ 
-                        Actualizar_Objetivos(Comando_Procesado.Proximo_Comando);
-                        Comando_Procesado.Ultimo_Comando = Comando_Procesado.Comando_Actual;
-                        Comando_Procesado.Comando_Actual = Comando_Procesado.Proximo_Comando;
+                        Comando_Procesado.Ultimo = Comando_Procesado.Actual;
+                        Comando_Procesado.Actual = Comando_Procesado.Proximo;
+                        Actualizar_Objetivos(Comando_Procesado.Proximo);
                     }
+                    
                 }else{
                     Estado_Comm = Comando_No_Reconocido;
                     break;

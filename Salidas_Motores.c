@@ -19,6 +19,7 @@
 /*===================== [Variables Internas (Globales)] =====================*/
 Struct_Data_Control Data_Control;
 Info_Comandos_Procesados Comando_Procesado;
+
 char Datos_A_Enviados[MAX_SIZE_DATA_SEND];
 uint32_t Cant_Carac_A_Enviar;
 /*===========================================================================*/
@@ -185,12 +186,14 @@ void Girar_Antihorario(void){
 
 void MEF_Accionamiento(void){
            
-    switch(Comando_Procesado.Comando_Actual){
+    switch(Comando_Procesado.Actual){
         case Parar_Todo:
             Parar();
         break;
 
         case Giro_Horario:
+            // Disparo un temporizador que en X mSeg cambie el estado a parar acimut.
+            
             // Hay que ver cual salida a relé genera el giro horario y bajar los que no 
             //OUT_RELE_1 = HIGH;       
             //OUT_RELE_2 = HIGH;
@@ -199,6 +202,8 @@ void MEF_Accionamiento(void){
         break;
 
         case Giro_Antihorario:
+            // Disparo un temporizador que en X mSeg cambie el estado a parar acimut.
+            
             // Hay que ver cual salida a relé genera el giro antihorario y bajar los que no 
             //OUT_RELE_1 = HIGH;       
             //OUT_RELE_2 = HIGH;
@@ -213,36 +218,22 @@ void MEF_Accionamiento(void){
         case Devolver_Valor_Acimut:
             Generar_Formato_Mensaje(Datos_A_Enviados,Devolver_Valor_Acimut);
             uart_ringBuffer_envDatos_U2((uint8_t*)Datos_A_Enviados,Cant_Carac_A_Enviar);
-            Comando_Procesado.Comando_Actual = Comando_Procesado.Ultimo_Comando;
+            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
         case Hacia_aaa_grados:
-            Calcular_Posicion_Actual(&Contador);
-            //Comparar de alguna manera no con target
+             Calcular_Posicion_Actual(&Contador);
+             Control_Posicion_Acimut();
         break;
 
-        case Arriba: 
-            //Analizar cual de toda
-            
-            //Sentido uno, arriba o abajo  
-            LI1_Variador = HIGH;     
-            LI2_Variador = LOW;
-
-            //Sentido dos, arriba o abajo 
-            LI1_Variador = LOW;     
-            LI2_Variador = HIGH;
+        case Arriba:
+            // Disparo un temporizador que en X mSeg cambie el estado a parar elevacion.
+            Temporizador_X_ms(16);
         break;
 
         case Abajo:
-            //Analizar cual de toda
+            // Disparo un temporizador que en X mSeg cambie el estado a parar elevacion.
             
-            //Sentido uno, arriba o abajo  
-            LI1_Variador = LOW;     
-            LI2_Variador = HIGH;
-            
-            //Sentido dos, arriba o abajo  
-            LI1_Variador = HIGH;     
-            LI2_Variador = LOW;
         break;
 
         case Stop_Elevacion:
@@ -252,56 +243,58 @@ void MEF_Accionamiento(void){
         case Devolver_Valor_Elevacion:
             Generar_Formato_Mensaje(Datos_A_Enviados,Devolver_Valor_Elevacion);
             uart_ringBuffer_envDatos_U2((uint8_t*)Datos_A_Enviados,Cant_Carac_A_Enviar);
-            Comando_Procesado.Comando_Actual = Comando_Procesado.Ultimo_Comando;
+            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
         case Velocidad_1_Elevacion:
             Velocidad_1_El();
-            Comando_Procesado.Comando_Actual = Comando_Procesado.Ultimo_Comando;
+            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
         case Velocidad_2_Elevacion:
             Velocidad_2_El();
-            Comando_Procesado.Comando_Actual = Comando_Procesado.Ultimo_Comando;
+            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
         case Velocidad_3_Elevacion:   
             Velocidad_3_El();
-            Comando_Procesado.Comando_Actual = Comando_Procesado.Ultimo_Comando;
+            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
         case Velocidad_4_Elevacion:    
             Velocidad_4_El();
-            Comando_Procesado.Comando_Actual = Comando_Procesado.Ultimo_Comando;
+            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
         case Hacia_aaa_eee_grados:
             Calcular_Posicion_Actual(&Contador);
-            //Comparar de alguna manera no con target
+            Control_Posicion_Acimut();
+            Control_Posicion_Elevacion();
         break;
 
         case Devolver_Valor_A_E:
             Generar_Formato_Mensaje(Datos_A_Enviados,Devolver_Valor_A_E);
             uart_ringBuffer_envDatos_U2((uint8_t*)Datos_A_Enviados,Cant_Carac_A_Enviar);
-            Comando_Procesado.Comando_Actual = Comando_Procesado.Ultimo_Comando;
+            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
         case Mayor_Presicion_a_grados:
             Calcular_Posicion_Actual(&Contador);
-            //Comparar de alguna manera no con target
+            Control_Posicion_Acimut();
         break;
 
         case Mayor_Presicion_e_grados:
             Calcular_Posicion_Actual(&Contador);
-            //Comparar de alguna manera no con target
+            Control_Posicion_Elevacion();
         break;
 
         case Mayor_Presicion_a_e_grados:
             Calcular_Posicion_Actual(&Contador);
-            //Comparar de alguna manera no con target
+            Control_Posicion_Acimut();
+            Control_Posicion_Elevacion();
         break;
         
-        default: Comando_Procesado.Comando_Actual = Parar_Todo;
+        default: Comando_Procesado.Actual = Parar_Todo;
         }
  }
 
@@ -376,4 +369,36 @@ void Accionamiento(uint8_t ID_Comando, uint8_t Tipo_Comando){
         Seteo_Velocidad_Elev(ID_Comando);
     }
 }
- 
+
+void Control_Posicion_Acimut(void){
+    //if(){   //Mientras no sale el HOME_STOP_X podemos mover
+        if(Data_Control.Target_Acimut > (Data_Control.Valor_Actual_Acimut + OFFSET_ANGULAR_ENCODER_ACIMUT)){
+            // Logica de control
+            //Girar_Horario();
+        }else{
+            if(Data_Control.Target_Acimut < (Data_Control.Valor_Actual_Acimut + OFFSET_ANGULAR_ENCODER_ACIMUT)){
+                // Logica de control
+                //Girar_Antihorario();
+            }
+            else{   //Estamos dentro de la zona muerta que no podemos detectar
+                Parar_Acimut();
+            }
+        }
+    //}
+}
+void Control_Posicion_Elevacion(void){
+    //if(){   //Mientras no sale el HOME_STOP_X podemos mover
+        if(Data_Control.Target_Elevacion > (Data_Control.Valor_Actual_Elevacion + OFFSET_ANGULAR_ELEVACION)){
+            // Logica de control
+            // Mov_Arriba();
+        }else{
+            if(Data_Control.Target_Elevacion < (Data_Control.Valor_Actual_Elevacion + OFFSET_ANGULAR_ELEVACION)){
+            // Logica de control
+            // Mov_Abajo();
+            }
+            else{   //Estamos dentro de la zona muerta que no podemos detectar
+                Parar_Elevacion();
+            }
+        }
+    // }
+}

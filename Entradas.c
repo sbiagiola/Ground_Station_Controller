@@ -178,8 +178,8 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 1){
             Bandera_Parad_Emerg = 0;
             Flag_Bloqueo_Actualizacion = Bandera_Parad_Emerg;
-            Comando_Procesado.Proximo_Comando = Comando_Procesado.Comando_Actual;
-            Comando_Procesado.Comando_Actual = Parar_Todo;
+            Comando_Procesado.Proximo = Comando_Procesado.Actual;
+            Comando_Procesado.Actual = Parar_Todo;
         }
         if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 0){
             Bandera_Parad_Emerg = 1;

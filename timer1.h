@@ -11,9 +11,13 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+/*============================ [Funciones] ==================================*/   
 void init_timer1();
 uint16_t temporizador();
-
+int Temporizador_X_ms(uint16_t Cant_ms);
+void Function_Events_1ms();
+/*===========================================================================*/
 
 #ifdef	__cplusplus
 }
