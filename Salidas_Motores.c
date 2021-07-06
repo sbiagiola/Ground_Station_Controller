@@ -228,7 +228,7 @@ void MEF_Accionamiento(void){
 
         case Arriba:
             // Disparo un temporizador que en X mSeg cambie el estado a parar elevacion.
-            Temporizador_X_ms(16);
+            Set_Temporizador(1,20);
         break;
 
         case Abajo:

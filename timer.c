@@ -12,10 +12,19 @@
 /*===================== [Variables Internas (Globales)] =====================*/ 
 static uint16_t count_seg = 0;
 static uint16_t count_timer = 0;
+
+static uint8_t Contador_Tiempo_ms_1 = 0;
+static uint8_t Contador_Tiempo_ms_2 = 0;
+static uint8_t Contador_Tiempo_ms_3 = 0;
+
+uint8_t Temporizador_1_Habilitado = 0;
+uint8_t Temporizador_2_Habilitado = 0;
+uint8_t Temporizador_3_Habilitado = 0;
+
 /*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
-static uint8_t Event_1ms;
+
 /*===========================================================================*/
 void init_timer1(){
     T1CONbits.TON = 0;// Disable Timer
@@ -33,22 +42,59 @@ void init_timer1(){
 /*
  * accedo al valor de contador que se incrementa cada 1ms
  */
-uint16_t temporizador()
+uint16_t temporizador(void)
 {
     return count_seg;           
 }
 
-void Function_Events_1ms(){
-
+/*No extender demasiado esta función ya que se ejecuta en la rutina de interrupciones*/
+void Function_Events_1ms(){ 
+    Temporizar_X_ms();
 }
 
-int Temporizador_X_ms(uint16_t Cant_ms){
-    if(Cant_ms == 0){
-        return 1;
+void Set_Temporizador(int Contador_Num,uint16_t Cant_ms){
+    
+    if(Contador_Num == Temporizador_1 && !Temporizador_1_Habilitado){
+        Temporizador_1_Habilitado = 1;
+        Contador_Tiempo_ms_1 = Cant_ms;
     }
-    if(Event_1ms){
-        Cant_ms--;
+    
+    if(Contador_Num == Temporizador_2 && !Temporizador_2_Habilitado){
+        Temporizador_2_Habilitado = 1;
+        Contador_Tiempo_ms_2 = Cant_ms;
     }
+    
+    if(Contador_Num == Temporizador_3 && !Temporizador_3_Habilitado){
+        Temporizador_3_Habilitado = 1;
+        Contador_Tiempo_ms_3 = Cant_ms;
+    }
+}
+
+int Temporizar_X_ms(void){
+    
+    if(Temporizador_1_Habilitado){
+        Contador_Tiempo_ms_1--;
+    }
+    if(Temporizador_2_Habilitado){
+        Contador_Tiempo_ms_2--;
+    }
+    if(Temporizador_3_Habilitado){
+        Contador_Tiempo_ms_3--;
+    }
+    
+    if(Contador_Tiempo_ms_1 == 0){
+        Temporizador_1_Habilitado = 0;
+        return Temporizador_1;
+    }
+    if(Contador_Tiempo_ms_2 == 0){
+        Temporizador_2_Habilitado = 0;
+        return Temporizador_2;
+    }
+     if(Contador_Tiempo_ms_3 == 0){
+        Temporizador_3_Habilitado = 0;
+        return Temporizador_3;
+    }
+    
 return 0;
 }
 
@@ -65,10 +111,9 @@ void __attribute__((interrupt,no_auto_psv)) _T1Interrupt(void){
         {
             count_seg=0;
         }
-    Event_1ms = 1;
+    Function_Events_1ms();
     }
     
-Event_1ms = 0;
 count_timer++;
    
 IFS0bits.T1IF = 0; // Clear Timer1 Interrupt Flag 

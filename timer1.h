@@ -11,12 +11,19 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
+
+typedef enum{
+    Temporizador_1=1,
+    Temporizador_2,
+    Temporizador_3,
+}Temporizadores;
+
 /*============================ [Funciones] ==================================*/   
-void init_timer1();
-uint16_t temporizador();
-int Temporizador_X_ms(uint16_t Cant_ms);
-void Function_Events_1ms();
+void init_timer1(void);
+uint16_t temporizador(void);
+int Temporizar_X_ms(void);
+void Set_Temporizador(int Contador_Num,uint16_t Cant_ms);
+void Function_Events_1ms(void);
 /*===========================================================================*/
 
 #ifdef	__cplusplus
