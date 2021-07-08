@@ -25,12 +25,12 @@ static uint8_t Bandera_Encoder_1_B = 1;
 static uint8_t Bandera_Encoder_2_A = 1;
 static uint8_t Bandera_Encoder_2_B = 1;
 static uint8_t Bandera_Home_Stop_2 = 1;
-static uint8_t Bandera_Parad_Emerg = 1;
+static uint8_t Bandera_Parad_Emerg = 0;
 /*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
 extern Info_Comandos_Procesados Comando_Procesado;
-extern uint8_t Flag_Bloqueo_Actualizacion;
+extern uint8_t Flag_Parada_Emergencia;
 /*===========================================================================*/
 
 void Config_CN_Pins(){
@@ -175,15 +175,15 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     }
     
     if(Parada_Emergencia != Valor_Anterior.Parad_Emerg){
-        if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 1){
-            Bandera_Parad_Emerg = 0;
-            Flag_Bloqueo_Actualizacion = Bandera_Parad_Emerg;
+        if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 0){
+            Bandera_Parad_Emerg = 1;
+            Flag_Parada_Emergencia = Bandera_Parad_Emerg;
             Comando_Procesado.Proximo = Comando_Procesado.Actual;
             Comando_Procesado.Actual = Parar_Todo;
         }
-        if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 0){
-            Bandera_Parad_Emerg = 1;
-            Flag_Bloqueo_Actualizacion = Bandera_Parad_Emerg;
+        if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 1){
+            Bandera_Parad_Emerg = 0;
+            Flag_Parada_Emergencia = Bandera_Parad_Emerg;
         }
         Parada_Emergencia = Valor_Anterior.Parad_Emerg;
     }

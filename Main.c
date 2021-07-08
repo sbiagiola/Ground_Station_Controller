@@ -59,6 +59,7 @@ int main(){
     while(1) {
         Comm_PC_Interface();
         //MEF_Accionamiento();
+        //MEF_Principal();
         Chequear_Home_Stop_1();
     }
     return (EXIT_SUCCESS);

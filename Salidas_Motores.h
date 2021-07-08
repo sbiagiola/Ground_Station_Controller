@@ -4,7 +4,8 @@
  *
  * Created on 24 de junio de 2021, 10:31
  */
-#include "Entradas.h"   // Necesita saber el formato de _Contador
+#include "Entradas.h"
+#include "Protocolo_Comm_Yaesu.h"   // Necesita saber el formato de _Contador
 
 #ifndef SALIDAS_MOTORES_H
 #define	SALIDAS_MOTORES_H
@@ -24,16 +25,6 @@ extern "C" {
 #define OUT_RELE_3          PORTCbits.RC7
 #define OUT_RELE_4          PORTCbits.RC6
 
-typedef enum{
-    Movimiento_Manual=0,
-    Envio_Datos,
-    Seguimiento,
-    Stop_A,
-    Stop_E,
-    Stop,
-    Cambio_Veloc_Elev,
-}Tipo_Comando;
-
 typedef struct{
     double Cero_Acimut;
     double Valor_Actual_Acimut;
@@ -50,6 +41,14 @@ typedef struct{
     uint8_t Proximo;
     uint8_t Ultimo;
 }Info_Comandos_Procesados;
+
+typedef enum{
+    Stop = 1,
+    Tracking,
+    Movimiento_Manual,
+    Enviar_Posicion,
+    Cambio_Veloc_Elevacion,
+}Estado_MEF_Principal;
 
 #define GRADOS_POR_VUELTA                       360
 
@@ -69,7 +68,7 @@ typedef struct{
 //#define REDUCCION_CAJA_4                      (double)            // Determinar por ensayos
 #define REDUCCION_CAJA_5                        (double)7/60        // No modificar el (double) sino se pierde el valor pequeño de la relación
 
-#define OFFSET_ANGULAR_ELEVACION                 1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
+#define OFFSET_ANGULAR_ELEVACION                1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
 #define RESOLUCION_POR_PULSO_ELEVACION          1
 /*========================================================================*/
     
@@ -79,6 +78,8 @@ void Calcular_Posicion_Actual(const _Contador* Data);
 void MEF_Accionamiento(void);
 void Control_Posicion_Acimut(void);
 void Control_Posicion_Elevacion(void);
+void MEF_Movimiento_Manual(void);
+void Actualizar_Objetivos(uint8_t ID_Comando);
 /*========================================================================*/
 #ifdef	__cplusplus
 }

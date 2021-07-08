@@ -17,10 +17,13 @@ static uint8_t Contador_Tiempo_ms_1 = 0;
 static uint8_t Contador_Tiempo_ms_2 = 0;
 static uint8_t Contador_Tiempo_ms_3 = 0;
 
-uint8_t Temporizador_1_Habilitado = 0;
-uint8_t Temporizador_2_Habilitado = 0;
-uint8_t Temporizador_3_Habilitado = 0;
+static uint8_t Temporizador_1_Habilitado = 0;
+static uint8_t Temporizador_2_Habilitado = 0;
+static uint8_t Temporizador_3_Habilitado = 0;
 
+static uint8_t Temporizador_1_Estado_Conteo = 0;
+static uint8_t Temporizador_2_Estado_Conteo = 0;
+static uint8_t Temporizador_3_Estado_Conteo = 0;
 /*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
@@ -48,29 +51,44 @@ uint16_t temporizador(void)
 }
 
 /*No extender demasiado esta función ya que se ejecuta en la rutina de interrupciones*/
-void Function_Events_1ms(){ 
+void Function_Events_ms(){ 
     Temporizar_X_ms();
 }
-
-void Set_Temporizador(int Contador_Num,uint16_t Cant_ms){
+/*Set_Temporizador es una función que permite el seteo de hasta 3 temporizadores independientes
+entre sí. Una vez asignado un valor al temporizador a utilizar se bloquea y no se permiten actualizaciones
+hasta terminar el conteo anterior.
+Retorna un valor no nulo si pudo setear el temporizador.
+  
+ Parametros:
+    int Contador_Num   ->   Número de timer a utilizar
+    uint16_t Cant_ms   ->   Cantidad de mili-segundos a contar en el mismo
+*/
+int Set_Temporizador(int Contador_Num,uint16_t Cant_ms){
     
-    if(Contador_Num == Temporizador_1 && !Temporizador_1_Habilitado){
+    if(Contador_Num == Temporizador_1 && !Temporizador_1_Habilitado && Temporizador_1_Estado_Conteo == 0){
         Temporizador_1_Habilitado = 1;
         Contador_Tiempo_ms_1 = Cant_ms;
+        return 1;
     }
     
-    if(Contador_Num == Temporizador_2 && !Temporizador_2_Habilitado){
+    if(Contador_Num == Temporizador_2 && !Temporizador_2_Habilitado && Temporizador_2_Estado_Conteo == 0){
         Temporizador_2_Habilitado = 1;
         Contador_Tiempo_ms_2 = Cant_ms;
+        return 1;
     }
     
-    if(Contador_Num == Temporizador_3 && !Temporizador_3_Habilitado){
+    if(Contador_Num == Temporizador_3 && !Temporizador_3_Habilitado && Temporizador_3_Estado_Conteo == 0){
         Temporizador_3_Habilitado = 1;
         Contador_Tiempo_ms_3 = Cant_ms;
+        return 1;
     }
+return 0;
 }
 
-int Temporizar_X_ms(void){
+/*Temporizador que lleva al cabo el conteo de tiempo. Se ejecutara dentro función Function_Events_ms() 
+en la rutina de interrupciones del timer1  cada 1 mSeg, según sea la configuración de este último.
+ */
+void Temporizar_X_ms(void){
     
     if(Temporizador_1_Habilitado){
         Contador_Tiempo_ms_1--;
@@ -82,19 +100,37 @@ int Temporizar_X_ms(void){
         Contador_Tiempo_ms_3--;
     }
     
-    if(Contador_Tiempo_ms_1 == 0){
+    if(Contador_Tiempo_ms_1 == 0 && Temporizador_1_Habilitado == 1){
         Temporizador_1_Habilitado = 0;
-        return Temporizador_1;
+        Temporizador_1_Estado_Conteo = Temporizador_1;
     }
-    if(Contador_Tiempo_ms_2 == 0){
+    if(Contador_Tiempo_ms_2 == 0 && Temporizador_2_Habilitado == 1){
         Temporizador_2_Habilitado = 0;
-        return Temporizador_2;
+        Temporizador_2_Estado_Conteo = Temporizador_2;
     }
-     if(Contador_Tiempo_ms_3 == 0){
+     if(Contador_Tiempo_ms_3 == 0 && Temporizador_3_Habilitado == 1){
         Temporizador_3_Habilitado = 0;
-        return Temporizador_3;
+        Temporizador_3_Estado_Conteo = Temporizador_3;
     }
     
+}
+/*Retorna un valor correspondiente al temporizador que a alcanzado la condición de 
+cuenta o cero si ninguno aún a alcanzado dicha condición.
+ */
+int Get_Estado_Temporizadores(void){
+    
+    if(Temporizador_1_Estado_Conteo == Temporizador_1){
+        Temporizador_1_Estado_Conteo = 0;
+        return Temporizador_1;
+    }
+    if(Temporizador_2_Estado_Conteo == Temporizador_2){
+        Temporizador_2_Estado_Conteo = 0;
+        return Temporizador_2;
+    }
+     if(Temporizador_3_Estado_Conteo == Temporizador_3){
+        Temporizador_3_Estado_Conteo = 0;
+        return Temporizador_3;
+    }
 return 0;
 }
 
@@ -111,7 +147,7 @@ void __attribute__((interrupt,no_auto_psv)) _T1Interrupt(void){
         {
             count_seg=0;
         }
-    Function_Events_1ms();
+    Function_Events_ms();
     }
     
 count_timer++;

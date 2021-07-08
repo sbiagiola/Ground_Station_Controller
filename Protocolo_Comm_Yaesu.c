@@ -84,7 +84,7 @@ uint32_t FlagRec;
 uint32_t Indice_Rec = 0;
 char Buffer_Recepcion[MAX_SIZE_COMMAND_AVALIBLE];
 
-uint8_t Flag_Bloqueo_Actualizacion = 1;     // Cambia valor su valor de 1 a 0 ante el evento de parada de emergencia
+uint8_t Flag_Parada_Emergencia = 1;     // Cambia valor su valor de 1 a 0 ante el evento de parada de emergencia
 Comando_Almacenado Char_Comando;
 /*===========================================================================*/
 
@@ -263,22 +263,6 @@ int Analizando_Datos(char* Segmento){
     
 return 0;
 }
-void Actualizar_Objetivos(uint8_t ID_Comando){
-    
-    if(ID_Comando == Hacia_aaa_grados || ID_Comando == Mayor_Presicion_a_grados){
-        Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
-    }
-    
-    if(ID_Comando == Mayor_Presicion_e_grados){
-        Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
-    }
-    
-    if(ID_Comando == Mayor_Presicion_a_e_grados || ID_Comando == Hacia_aaa_eee_grados){
-        Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
-        Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
-    }
-
-}
 
 uint8_t Verificando_Comando(){
     if(Buffer_Recepcion[0] == 'R' || Buffer_Recepcion[0] == 'r'){return Giro_Horario;}
@@ -304,7 +288,9 @@ uint8_t Verificando_Comando(){
         if(Buffer_Recepcion[1] == '2'){
             return Devolver_Valor_A_E;
         }
-        else return Devolver_Valor_Acimut;
+        else{
+            return Devolver_Valor_Acimut;
+        }
     }
 
     if(Buffer_Recepcion[0] == 'W' || Buffer_Recepcion[0] == 'w'){
@@ -418,10 +404,10 @@ void Comm_PC_Interface(){
                     uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
                     strcpy(Char_Comando.Comando_Recibido,Buffer_Recepcion);
                     
-                    if(Flag_Bloqueo_Actualizacion){ 
+                    if(Flag_Parada_Emergencia){ 
                         Comando_Procesado.Ultimo = Comando_Procesado.Actual;
                         Comando_Procesado.Actual = Comando_Procesado.Proximo;
-                        Actualizar_Objetivos(Comando_Procesado.Proximo);
+                        //Actualizar_Objetivos(Comando_Procesado.Proximo);
                     }
                     
                 }else{

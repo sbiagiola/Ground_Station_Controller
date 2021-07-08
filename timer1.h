@@ -21,9 +21,10 @@ typedef enum{
 /*============================ [Funciones] ==================================*/   
 void init_timer1(void);
 uint16_t temporizador(void);
-int Temporizar_X_ms(void);
-void Set_Temporizador(int Contador_Num,uint16_t Cant_ms);
-void Function_Events_1ms(void);
+void Temporizar_X_ms(void);
+int Set_Temporizador(int Contador_Num,uint16_t Cant_ms);
+int Get_Estado_Temporizadores(void);
+void Function_Events_ms(void);
 /*===========================================================================*/
 
 #ifdef	__cplusplus
