@@ -84,7 +84,9 @@ uint32_t FlagRec;
 uint32_t Indice_Rec = 0;
 char Buffer_Recepcion[MAX_SIZE_COMMAND_AVALIBLE];
 
-uint8_t Flag_Parada_Emergencia = 1;     // Cambia valor su valor de 1 a 0 ante el evento de parada de emergencia
+Info_Comandos_Procesados Comando_Procesado;
+
+uint8_t Flag_Parada_Emergencia = 0;     
 Comando_Almacenado Char_Comando;
 /*===========================================================================*/
 
@@ -92,7 +94,6 @@ Comando_Almacenado Char_Comando;
 extern volatile int Error_UART_U2;
 
 extern Struct_Data_Control Data_Control;
-extern Info_Comandos_Procesados Comando_Procesado;
 extern _Contador Contador;
 /*===========================================================================*/
 
@@ -404,10 +405,9 @@ void Comm_PC_Interface(){
                     uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
                     strcpy(Char_Comando.Comando_Recibido,Buffer_Recepcion);
                     
-                    if(Flag_Parada_Emergencia){ 
+                    if(!Flag_Parada_Emergencia){ 
                         Comando_Procesado.Ultimo = Comando_Procesado.Actual;
                         Comando_Procesado.Actual = Comando_Procesado.Proximo;
-                        //Actualizar_Objetivos(Comando_Procesado.Proximo);
                     }
                     
                 }else{

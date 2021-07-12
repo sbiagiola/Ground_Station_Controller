@@ -19,7 +19,8 @@ typedef enum{
 Last_Value Valor_Anterior;
 _Contador Contador;
 
-static Operacion_Pulsos Estado_Operacion;
+static Operacion_Pulsos Estado_Operacion_Encoder_1;
+static Operacion_Pulsos Estado_Operacion_Encoder_2;
 static uint8_t Bandera_Encoder_1_A = 1;
 static uint8_t Bandera_Encoder_1_B = 1;
 static uint8_t Bandera_Encoder_2_A = 1;
@@ -66,12 +67,12 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         
         if(Enconder_1_Fase_A == HIGH && Enconder_1_Fase_B == LOW && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_A == 1){
             Contador.Encoder_1_Pulsos++;
-            Estado_Operacion = Suma;
+            Estado_Operacion_Encoder_1 = Suma;
         }
 
         if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
             Contador.Encoder_1_Pulsos--;
-            Estado_Operacion = Resta;
+            Estado_Operacion_Encoder_1 = Resta;
         }
         
         if(Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A){
@@ -86,10 +87,10 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     if(Enconder_1_Fase_Z != Valor_Anterior.Encoder_1_Z){
         
         if(Enconder_1_Fase_Z == HIGH){
-            if(Estado_Operacion == Suma){
+            if(Estado_Operacion_Encoder_1 == Suma){
                 Contador.Encoder_1_Vueltas++;
             }
-            if(Estado_Operacion == Resta){
+            if(Estado_Operacion_Encoder_1 == Resta){
                 Contador.Encoder_1_Vueltas--;
             }
             Contador.Encoder_1_Pulsos = 0;
@@ -111,12 +112,12 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         
         if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_A == 1){
             Contador.Encoder_2_Pulsos++;
-            Estado_Operacion = Suma;
+            Estado_Operacion_Encoder_2 = Suma;
         }
 
         if(Enconder_2_Fase_A == LOW && Enconder_2_Fase_B == HIGH && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_B == 1){
             Contador.Encoder_2_Pulsos--;
-            Estado_Operacion = Resta;
+            Estado_Operacion_Encoder_2 = Resta;
         }
         
         if(Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A){
@@ -132,10 +133,10 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         
         if(Enconder_2_Fase_Z == HIGH){
             
-            if(Estado_Operacion == Suma){
+            if(Estado_Operacion_Encoder_2 == Suma){
                 Contador.Encoder_2_Vueltas++;
             }
-            if(Estado_Operacion == Resta){
+            if(Estado_Operacion_Encoder_2 == Resta){
                 Contador.Encoder_2_Vueltas--;
             }
             Contador.Encoder_2_Pulsos = 0;

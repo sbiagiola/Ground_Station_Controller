@@ -19,7 +19,7 @@
 
 /*===================== [Variables Internas (Globales)] =====================*/
 Struct_Data_Control Data_Control;
-Info_Comandos_Procesados Comando_Procesado;
+
 
 char Datos_A_Enviados[MAX_SIZE_DATA_SEND];
 uint32_t Cant_Carac_A_Enviar;
@@ -27,8 +27,11 @@ uint32_t Cant_Carac_A_Enviar;
 
 /*===================== [Variables Externas (Globales)] =====================*/
 extern _Contador Contador;
+
 extern uint8_t Flag_Parada_Emergencia; 
+
 extern Comando_Almacenado Char_Comando;
+extern Info_Comandos_Procesados Comando_Procesado;
 /*===========================================================================*/
 
 void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
