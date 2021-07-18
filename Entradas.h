@@ -54,6 +54,8 @@ typedef struct{
     
 /*===========================  Funciones   ===============================*/
 void Config_CN_Pins(void);
+long posicion_actual_acimut(void);
+long posicion_actual_elevacion(void);
 /*========================================================================*/
 #ifdef	__cplusplus
 }

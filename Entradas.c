@@ -191,3 +191,17 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     
 IFS1bits.CNIF = 0; // Clear CN interrupt
 }
+
+/*
+ * Considero enconder 1 acimut
+ */
+long posicion_actual_acimut(void){
+    return Contador.Encoder_1_Pulsos;
+}
+
+/*
+ * Considero enconder 2 elevacion y la relax}cion lineal
+ */
+long posicion_actual_elevacion(void){
+    return  Contador.Encoder_2_Pulsos;
+}
