@@ -13,12 +13,11 @@
 #endif
 
 /***************  Definiciones   **************/   
-#define CLOCK_SUCCESS   10            //Variab. para verificación de configuración
 #define FCY 40000000      //Frecuencia de trabajo de 40 MHz. Necesaria para utilizar _delay
 /**********************************************/
         
 /****************  Funciones   ****************/         
-int Config_Clock(void);
+void Config_Clock(void);
 /**********************************************/
 
 /*  

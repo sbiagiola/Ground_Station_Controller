@@ -1,3 +1,3 @@
-build/default/production/interupts.o: interupts.c interrupts.h
-
-interrupts.h:
+build/default/production/interupts.o:  \
+interupts.c  \
+interrupts.h 

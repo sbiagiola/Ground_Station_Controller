@@ -1,1 +1,2 @@
-build/default/production/GPS.o: GPS.c
+build/default/production/GPS.o:  \
+GPS.c 

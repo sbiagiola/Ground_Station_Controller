@@ -7,7 +7,7 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_ON & POSCMD_XT)       // Clock switch enabled, OSC
 _FPOR(FPWRT_PWR64)                                  // TPWRT de 64ms      
 //_FWDT(FWDTEN_OFF);                                // Watchdog Timer disabled
     
-int Config_Clock(void){
+void Config_Clock(void){
     // Inicializa con el clock FRC interno divided by n (1 por defecto) hasta 
     // que el cristal y PLL se estabilizen, luego modificamos y permitimos el switcheo de clock.
     
@@ -32,5 +32,4 @@ int Config_Clock(void){
         //Esperamos que se cambie la configuración del clock
     }
     
-  return (10);
 }

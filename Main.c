@@ -57,10 +57,10 @@ int main(){
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
 
     while(1) {
-        Comm_PC_Interface();
+        //Comm_PC_Interface();
         //MEF_Accionamiento();
         //MEF_Principal();
-        Chequear_Home_Stop_1();
+        //Chequear_Home_Stop_1();
     }
     return (EXIT_SUCCESS);
 }
