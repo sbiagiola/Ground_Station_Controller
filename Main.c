@@ -43,6 +43,9 @@ void Chequear_Home_Stop_1(void){
 
 int main(){
     
+    LATAbits.LATA4 = !PORTAbits.RA4;
+    __delay_ms(100);
+        
     Create_RingBuffer();    // Ponerlo antes de habilitar el uso de UART
     
     /*============ Configuración interna del microcontrolador ============*/

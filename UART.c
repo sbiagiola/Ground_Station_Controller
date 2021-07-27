@@ -32,6 +32,8 @@ void Config_UART(void){
     U1MODEbits.STSEL = 0b0;         // 1-stop bit
     U1MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
     
+    IFS0bits.U1RXIF = 0;            // Clear RX Interrupt flag
+    
     //Register U1STA
     U1STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita hay lugar en TXREG o TSR esta vacio
     U1STAbits.UTXISEL1 = 0b0;      
@@ -52,6 +54,8 @@ void Config_UART(void){
     U2MODEbits.BRGH = 0b0;          // Baud Rate Generator genera 16 clock por bit
     U2MODEbits.STSEL = 0b0;         // 1-stop bit
     U2MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
+    
+    IFS1bits.U2RXIF = 0;            // Clear RX Interrupt flag
     
     //Register U2STA
     U2STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita hay lugar en TXREG o TSR esta vacio
@@ -413,7 +417,7 @@ void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
 void __attribute__((interrupt,no_auto_psv)) _U1RXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
    
-        while( !Rx_Reg_U1_State() ){    // Existe al menos un dato para leer en la FIFO de recepción    
+        while( Rx_Reg_U1_State() ){    // Existe al menos un dato para leer en la FIFO de recepción    
             Get_Char_Rx_Reg_U1(&data);      
             ringBuffer_putData(pRingBufferRx_U1, data);
         }
@@ -469,7 +473,7 @@ void __attribute__((interrupt,no_auto_psv)) _U2TXInterrupt(void){
 void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
   
-    while( !Rx_Reg_U2_State() ){        // Existe al menos un dato para leer en la FIFO de recepción
+    while( Rx_Reg_U2_State() ){        // Existe al menos un dato para leer en la FIFO de recepción
         Get_Char_Rx_Reg_U2(&data);      // Saco un dato x iteración, lo guardo dentro de data
         ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
     }
