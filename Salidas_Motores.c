@@ -16,7 +16,7 @@
 #include "Entradas.h"
 #include "RingBuffer.h"
 #include "timer1.h"
-
+#include "UART.h"
 /*===================== [Variables Internas (Globales)] =====================*/
 Struct_Data_Control Data_Control;
 

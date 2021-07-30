@@ -11,23 +11,13 @@
 #include "stdlib.h"
 #include "stdint.h"
 
-#define CIRC_BBUF_DEF(x,y)                \
-    uint8_t x##_data_space[y];            \
-    ringBufferData_struct_TEST x = {                     \
-        .pBuf = x##_data_space,         \
-        .indexRead = 0,                        \
-        .indexWrite = 0,                        \
-        .size = y                       \
-    }
 
-typedef struct{
-    int32_t indexRead;      // Ubicación/posición del indice de lectura
-    int32_t indexWrite;     // Ubicación/posición del indice de escritura
-    int32_t count;          // Cantidad de elementos en el mismo
-    int32_t size;           // Tamaño del RingBuffer
-    uint8_t *pBuf;          // Dato a almacenar en la posición determinada por indexRead o indexWrite del RingBuffer
-}ringBufferData_struct;
-
+/*======================= [Variables Externas] ===========================*/
+extern void* pRingBufferRx_U1;
+extern void* pRingBufferRx_U2;
+extern ringBufferData_struct_TEST pRingBufferRx_U1_TEST;
+extern ringBufferData_struct_TEST pRingBufferRx_U2_TEST;
+/*========================================================================*/
 void* ringBuffer_init(int32_t size){
     ringBufferData_struct *pRingBuffer;
     pRingBuffer = malloc(sizeof(ringBufferData_struct));
@@ -103,6 +93,19 @@ unsigned int ringBuffer_isEmpty(void *pRingBuffer){
     return rb->count == 0;              // Devuelve un "true" si el RingBuffer esta vacío
 }
 
+void Clean_RingBufferRx_U2(void){
+    uint8_t data;
+    while(!ringBuffer_isEmpty(pRingBufferRx_U2)){
+        ringBuffer_getData(pRingBufferRx_U2, &data); 
+    }
+}
+
+void Clean_RingBufferRx_U1(void){
+    uint8_t data;
+    while(!ringBuffer_isEmpty(pRingBufferRx_U1)){
+        ringBuffer_getData(pRingBufferRx_U1, &data); 
+    }
+}
 unsigned int ringBuffer_putData_TEST(ringBufferData_struct_TEST *pRingBuffer, uint8_t data){
     unsigned int ret = 1;
     
@@ -156,4 +159,18 @@ unsigned int ringBuffer_isFull_TEST(ringBufferData_struct_TEST *pRingBuffer){
 
 unsigned int ringBuffer_isEmpty_TEST(ringBufferData_struct_TEST *pRingBuffer){
     return pRingBuffer->count == 0;              // Devuelve un "true" si el RingBuffer esta vacío
+}
+
+void Clean_RingBufferRx_U2_TEST(void){
+    uint8_t data;
+    while(!ringBuffer_isEmpty_TEST(&pRingBufferRx_U2_TEST)){
+        ringBuffer_getData_TEST(&pRingBufferRx_U2_TEST, &data); 
+    }
+}
+
+void Clean_RingBufferRx_U1_TEST(void){
+    uint8_t data;
+    while(!ringBuffer_isEmpty_TEST(&pRingBufferRx_U1_TEST)){
+        ringBuffer_getData(&pRingBufferRx_U1_TEST, &data); 
+    }
 }

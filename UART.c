@@ -18,10 +18,51 @@ void* pRingBufferRx_U1;
 void* pRingBufferTx_U2;  
 void* pRingBufferRx_U2;
 
-ringBufferData_struct_TEST pRingBufferTx_U1_TEST;     
-ringBufferData_struct_TEST pRingBufferRx_U1_TEST;  
-ringBufferData_struct_TEST pRingBufferTx_U2_TEST;  
-ringBufferData_struct_TEST pRingBufferRx_U2_TEST;
+// NO BORRAR LAS \ QUE ESTAN ACA O SE ROMPE TODA LA INICIALIZACION
+#define Create_RingBuffer_TX_U1(pRingBuffer)                \
+    static uint8_t pBuf1[MAX_SIZE_COMMAND_AVALIBLE];        \
+    ringBufferData_struct_TEST pRingBuffer = {              \
+        .count = 0,                                         \
+        .indexRead =0,                                      \
+        .indexWrite= 0,                                     \
+        .pBuf = pBuf1,                                      \
+        .size = MAX_SIZE_COMMAND_AVALIBLE                   \
+    }
+
+#define Create_RingBuffer_RX_U1(pRingBuffer)                \
+    static uint8_t pBuf2[MAX_SIZE_COMMAND_AVALIBLE];        \
+    ringBufferData_struct_TEST pRingBuffer = {              \
+        .count = 0,                                         \
+        .indexRead =0,                                      \
+        .indexWrite= 0,                                     \
+        .pBuf = pBuf2,                                      \
+        .size = MAX_SIZE_COMMAND_AVALIBLE                   \
+    }
+
+#define Create_RingBuffer_TX_U2(pRingBuffer)                \
+    static uint8_t pBuf3[MAX_SIZE_COMMAND_AVALIBLE];        \
+    ringBufferData_struct_TEST pRingBuffer = {              \
+        .count = 0,                                         \
+        .indexRead =0,                                      \
+        .indexWrite= 0,                                     \
+        .pBuf = pBuf3,                                      \
+        .size = MAX_SIZE_COMMAND_AVALIBLE                   \
+    }
+
+#define Create_RingBuffer_RX_U2(pRingBuffer)                \
+    static uint8_t pBuf4[MAX_SIZE_COMMAND_AVALIBLE];        \
+    ringBufferData_struct_TEST pRingBuffer = {              \
+        .count = 0,                                         \
+        .indexRead =0,                                      \
+        .indexWrite= 0,                                     \
+        .pBuf = pBuf4,                                      \
+        .size = MAX_SIZE_COMMAND_AVALIBLE                   \
+    }
+
+Create_RingBuffer_TX_U1(pRingBufferTx_U1_TEST);
+Create_RingBuffer_RX_U1(pRingBufferRx_U1_TEST);
+Create_RingBuffer_TX_U2(pRingBufferTx_U2_TEST);
+Create_RingBuffer_RX_U2(pRingBufferRx_U2_TEST);
 
 uint8_t Respuesta;
 int Error_UART_U1;
@@ -486,7 +527,7 @@ void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
         ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
         
         // Testear esto
-        ringBuffer_putData_TEST(pRingBufferRx_U2_TEST,data);
+        ringBuffer_putData_TEST(&pRingBufferRx_U2_TEST,data);
     }
     
     IFS1bits.U2RXIF = 0;    // Clear RX Interrupt flag 
@@ -517,27 +558,142 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     IFS4bits.U2EIF = 0;     // Clear Error Interrupt flag 
 }
 
-void Clean_RingBufferRx_U2(void){
-    uint8_t data;
-    while(!ringBuffer_isEmpty(pRingBufferRx_U2)){
-        ringBuffer_getData(pRingBufferRx_U2, &data); 
+int32_t uart_ringBuffer_recDatos_U1_TEST(uint8_t *pBuf, int32_t size){
+    int32_t ret = 0;
+    
+    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
+    
+     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
+     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
+     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
+     a 0 se vuelven a habilitar las interrupciones. 
+    
+    */
+    
+    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
+    DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
+       
+    /*================== Sección critica de código ==================*/
+    
+    while (!ringBuffer_isEmpty_TEST(&pRingBufferRx_U1_TEST) && ret < size)
+    {
+    	uint8_t dato;
+
+        ringBuffer_getData_TEST(&pRingBufferRx_U1_TEST, &dato);
+        pBuf[ret] = dato;
+        ret++;
+        DISICNT = 16380;        // Recarga del contador
     }
+    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
+    INTCON2bits.DISI = 0b0;     // Habilito todas las interrupciones 
+    /*================== Fin de sección critica de código ==================*/
+return ret;
 }
 
-void Clean_RingBufferRx_U1(void){
-    uint8_t data;
-    while(!ringBuffer_isEmpty(pRingBufferRx_U1)){
-        ringBuffer_getData(pRingBufferRx_U1, &data); 
-    }
+int32_t uart_ringBuffer_envDatos_U1_TEST(uint8_t *pBuf, int32_t size){
+    int32_t ret = 0;
+    
+    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
+    
+     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
+     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
+     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
+     a 0 se vuelven a habilitar las interrupciones. 
+    
+    */ 
+    
+    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
+    DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
+       
+    /*================== Sección critica de código ==================*/
+    
+        /* si el buffer estaba vacío hay que habilitar la interrupción TX */
+        if (ringBuffer_isEmpty_TEST(&pRingBufferTx_U1_TEST)){
+            U1STAbits.UTXISEL0 = 0b0;       // Interrupciones por TSR vacio o hay lugar en TXREG (Entro a la rutina si o si después del DISI))
+            U1STAbits.UTXISEL1 = 0b0;
+            IEC0bits.U1TXIE = 0b1;          // Habilito interrupciones de TX
+        }
+
+        while (!ringBuffer_isFull_TEST(&pRingBufferTx_U1_TEST) && ret < size)
+        {
+            ringBuffer_putData_TEST(&pRingBufferTx_U1_TEST, pBuf[ret]);
+            ret++;
+            DISICNT = 16380;        // Recarga del contador
+        }
+    /*============== Fin de sección critica de código ===============*/
+    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
+    INTCON2bits.DISI = 0b0;     // Habilito todas las interrupciones 
+
+return ret;
 }
 
-void PutCharInBuffer(char* buffer,uint8_t data){
-    static int Indice = 0;
+int32_t uart_ringBuffer_recDatos_U2_TEST(uint8_t *pBuf, int32_t size){
+    int32_t ret = 0;
     
-    buffer[Indice] = data;
-    Indice++;
+    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
     
-    if(data == CHAR_CR){
-        Indice = 0;
-    }
+     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
+     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
+     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
+     a 0 se vuelven a habilitar las interrupciones. 
+    
+     */
+    
+    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
+    DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
+       
+    /*================== Sección critica de código ==================*/
+        while (!ringBuffer_isEmpty_TEST(&pRingBufferRx_U2_TEST) && ret < size)
+        {
+            uint8_t dato;
+
+            ringBuffer_getData_TEST(&pRingBufferRx_U2_TEST, &dato);
+            pBuf[ret] = dato;
+            ret++;
+            DISICNT = 16380;        // Recarga del contador
+        }
+    /*============== Fin de sección critica de código ===============*/
+    
+    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
+    INTCON2bits.DISI = 0b0;     // Habilito todas las interrupciones 
+    
+return ret;
 }
+
+int32_t uart_ringBuffer_envDatos_U2_TEST(uint8_t *pBuf, int32_t size){
+    int32_t ret = 0;
+    
+    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
+    
+     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
+     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
+     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
+     a 0 se vuelven a habilitar las interrupciones. 
+    
+     */
+    
+    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
+    DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
+    
+    /*================== Sección critica de código ==================*/
+    
+    /* si el buffer estaba vacío hay que habilitar la int TX */
+    if (ringBuffer_isEmpty_TEST(&pRingBufferTx_U2_TEST)){
+        U2STAbits.UTXISEL0 = 0b0;       // Interrupciones por TSR vacio o hay lugar en TXREG (Entro a la rutina si o si después del DISI))
+        U2STAbits.UTXISEL1 = 0b0;
+        IEC1bits.U2TXIE = 0b1;          // Habilito interrupciones de TX
+    }
+    
+    while (!ringBuffer_isFull_TEST(&pRingBufferTx_U2_TEST) && ret < size)
+    {
+        ringBuffer_putData_TEST(&pRingBufferTx_U2_TEST, pBuf[ret]);
+        ret++;
+        DISICNT = 16380;        // Recarga del contador
+    }
+    /*============== Fin de sección critica de código ===============*/
+    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
+    INTCON2bits.DISI = 0b0;     // Habilito todas las interrupciones 
+    
+return ret;
+}
+

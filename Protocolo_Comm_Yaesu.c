@@ -427,9 +427,9 @@ void Comm_PC_Interface(){
         }
 }
 
-void Comm_PC_Interface_2(){
+void Comm_PC_Interface_TEST(){
     static Estado_Comunicacion Estado_Comm = Esperando_Datos;      
-    FlagRec = uart_ringBuffer_recDatos_U2(&Caracter_Rec, sizeof(Caracter_Rec));
+    FlagRec = uart_ringBuffer_recDatos_U2_TEST(&Caracter_Rec, sizeof(Caracter_Rec));
 
         switch (Estado_Comm){
             
@@ -446,9 +446,9 @@ void Comm_PC_Interface_2(){
                 
                 if(Error_UART_U2 == 1){ 
                     Indice_Rec = 0;
-                    Clean_RingBufferRx_U2();
+                    Clean_RingBufferRx_U2_TEST();
                     Mensaje_Env[0] = ACKNOWLEDGE;
-                    uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));
+                    uart_ringBuffer_envDatos_U2_TEST(Mensaje_Env,sizeof(char));
                     Estado_Comm = Esperando_Datos;
                     break;
                 }
@@ -460,7 +460,7 @@ void Comm_PC_Interface_2(){
                     }
                     else{
                         Indice_Rec = 0;
-                        Clean_RingBufferRx_U2();
+                        Clean_RingBufferRx_U2_TEST();
                         Estado_Comm = Comando_No_Reconocido;
                         break;
                     }
@@ -482,7 +482,7 @@ void Comm_PC_Interface_2(){
                 Comando_Procesado.Proximo = Verificando_Comando();
 
                 if(Comando_Procesado.Proximo != Comando_No_Valido){
-                    uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
+                    uart_ringBuffer_envDatos_U2_TEST(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
                     strcpy(Char_Comando.Comando_Recibido,Buffer_Recepcion);
                     
                     if(!Flag_Parada_Emergencia){ 
@@ -499,7 +499,7 @@ void Comm_PC_Interface_2(){
             break;
                 
             case Comando_No_Reconocido:
-                uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
+                uart_ringBuffer_envDatos_U2_TEST(Mensaje_Error,sizeof(Mensaje_Error));
                 Estado_Comm = Esperando_Datos;
             break;
             

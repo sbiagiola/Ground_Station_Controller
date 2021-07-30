@@ -4,4 +4,5 @@ Salidas_Motores.c  \
 Entradas.h  \
 Protocolo_Comm_Yaesu.h  \
 RingBuffer.h  \
- timer1.h 
+ timer1.h  \
+UART.h 

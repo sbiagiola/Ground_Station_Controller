@@ -56,9 +56,16 @@ int main(){
 
     initInterrupts();
     /*====================================================================*/
-    
-    // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
 
+    // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
+    extern ringBufferData_struct_TEST pRingBufferTx_U1_TEST;
+    extern ringBufferData_struct_TEST pRingBufferRx_U1_TEST;
+    extern ringBufferData_struct_TEST pRingBufferTx_U2_TEST;
+    extern ringBufferData_struct_TEST pRingBufferRx_U2_TEST;
+    pRingBufferTx_U1_TEST.pBuf[0]='a';
+    pRingBufferRx_U1_TEST.pBuf[0]='b';
+    pRingBufferRx_U2_TEST.pBuf[0]='c';
+    pRingBufferTx_U2_TEST.pBuf[0]='d';
     while(1) {
         //Comm_PC_Interface();
         //MEF_Accionamiento();

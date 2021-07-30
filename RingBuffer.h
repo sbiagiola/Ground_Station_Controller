@@ -18,7 +18,15 @@ typedef struct{
     int32_t indexWrite;     // Ubicación/posición del indice de escritura
     int32_t count;          // Cantidad de elementos en el mismo
     int32_t size;           // Tamaño del RingBuffer
-    uint8_t pBuf[20];       // Dato a almacenar en la posición determinada por indexRead o indexWrite del RingBuffer
+    uint8_t *pBuf;          // Dato a almacenar en la posición determinada por indexRead o indexWrite del RingBuffer
+}ringBufferData_struct;
+
+typedef struct{
+    int32_t indexRead;      // Ubicación/posición del indice de lectura
+    int32_t indexWrite;     // Ubicación/posición del indice de escritura
+    int32_t count;          // Cantidad de elementos en el mismo
+    int32_t size;           // Tamaño del RingBuffer
+    uint8_t *pBuf;       // Dato a almacenar en la posición determinada por indexRead o indexWrite del RingBuffer
 }ringBufferData_struct_TEST;
 
 /** \brief inicializa buffer circular de bytes
@@ -55,38 +63,14 @@ unsigned int ringBuffer_putData(void *pRingBuffer, uint8_t data);
  **/
 unsigned int ringBuffer_getData(void *pRingBuffer, uint8_t *data);
 
-/** \brief recibe datos por puerto serie accediendo al RB
- **
- ** \param[inout] pBuf buffer a donde guardar los datos
- ** \param[in] size tamaño del buffer
- ** \return cantidad de bytes recibidos
- **/
-int32_t uart_ringBuffer_recDatos_U1(uint8_t *pBuf, int32_t size);
+void Clean_RingBufferRx_U1(void);
+void Clean_RingBufferRx_U2(void);
 
-/** \brief envía datos por puerto serie accediendo al RB
- **
- ** \param[inout] pBuf buffer a donde estan los datos a enviar
- ** \param[in] size tamaño del buffer
- ** \return cantidad de bytes enviados
- **/
-int32_t uart_ringBuffer_envDatos_U1(uint8_t *pBuf, int32_t size);
-
-/** \brief recibe datos por puerto serie accediendo al RB
- **
- ** \param[inout] pBuf buffer a donde guardar los datos
- ** \param[in] size tamaño del buffer
- ** \return cantidad de bytes recibidos
- **/
-int32_t uart_ringBuffer_recDatos_U2(uint8_t *pBuf, int32_t size);
-
-/** \brief envía datos por puerto serie accediendo al RB
- **
- ** \param[inout] pBuf buffer a donde estan los datos a enviar
- ** \param[in] size tamaño del buffer
- ** \return cantidad de bytes enviados
- **/
-int32_t uart_ringBuffer_envDatos_U2(uint8_t *pBuf, int32_t size);
-
+// TESTEOS
+unsigned int ringBuffer_putData_TEST(ringBufferData_struct_TEST *pRingBuffer, uint8_t data);
+unsigned int ringBuffer_getData_TEST(ringBufferData_struct_TEST *pRingBuffer, uint8_t *data);
+unsigned int ringBuffer_isFull_TEST(ringBufferData_struct_TEST *pRingBuffer);
+unsigned int ringBuffer_isEmpty_TEST(ringBufferData_struct_TEST *pRingBuffer);
 #ifdef	__cplusplus
 }
 #endif
