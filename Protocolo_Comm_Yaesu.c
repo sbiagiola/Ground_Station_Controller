@@ -426,3 +426,83 @@ void Comm_PC_Interface(){
             default: Estado_Comm = Esperando_Datos;
         }
 }
+
+void Comm_PC_Interface_2(){
+    static Estado_Comunicacion Estado_Comm = Esperando_Datos;      
+    FlagRec = uart_ringBuffer_recDatos_U2(&Caracter_Rec, sizeof(Caracter_Rec));
+
+        switch (Estado_Comm){
+            
+            case Esperando_Datos:
+                
+                if( FlagRec != 0 ){
+                    Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
+                    Indice_Rec++; 
+                }      
+                
+            break;
+            
+            case Recopilando_Datos:
+                
+                if(Error_UART_U2 == 1){ 
+                    Indice_Rec = 0;
+                    Clean_RingBufferRx_U2();
+                    Mensaje_Env[0] = ACKNOWLEDGE;
+                    uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));
+                    Estado_Comm = Esperando_Datos;
+                    break;
+                }
+                
+                if( (FlagRec != 0) && (Caracter_Rec != CHAR_CR) ){
+                    if(Indice_Rec <= MAX_SIZE_COMMAND_AVALIBLE){
+                        Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
+                        Indice_Rec++;
+                    }
+                    else{
+                        Indice_Rec = 0;
+                        Clean_RingBufferRx_U2();
+                        Estado_Comm = Comando_No_Reconocido;
+                        break;
+                    }
+                }
+            
+                if( (FlagRec != 0) && (Caracter_Rec == CHAR_CR) ){
+                    Buffer_Recepcion[Indice_Rec] = Caracter_Rec; 
+                    Estado_Comm = Validando_Comando;
+                    break;
+                }
+            break;
+            
+            case Validando_Comando:
+                    
+            /* Se podría poner que cada cierto tiempo los comandos "manuales se borren, como para que no queden
+                girando, o moviendose indefinidamente según ese comando recibido. Creo que un polling de 10 ms
+                nos ayudaria aca. No debe afectar a los comandos de posicionamiento. 
+            */
+                Comando_Procesado.Proximo = Verificando_Comando();
+
+                if(Comando_Procesado.Proximo != Comando_No_Valido){
+                    uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
+                    strcpy(Char_Comando.Comando_Recibido,Buffer_Recepcion);
+                    
+                    if(!Flag_Parada_Emergencia){ 
+                        Comando_Procesado.Ultimo = Comando_Procesado.Actual;
+                        Comando_Procesado.Actual = Comando_Procesado.Proximo;
+                    }
+                    
+                }else{
+                    Estado_Comm = Comando_No_Reconocido;
+                    break;
+                }
+                
+                Estado_Comm = Esperando_Datos;
+            break;
+                
+            case Comando_No_Reconocido:
+                uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
+                Estado_Comm = Esperando_Datos;
+            break;
+            
+            default: Estado_Comm = Esperando_Datos;
+        }
+}

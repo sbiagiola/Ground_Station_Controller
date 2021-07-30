@@ -12,6 +12,14 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+typedef struct{
+    int32_t indexRead;      // Ubicación/posición del indice de lectura
+    int32_t indexWrite;     // Ubicación/posición del indice de escritura
+    int32_t count;          // Cantidad de elementos en el mismo
+    int32_t size;           // Tamaño del RingBuffer
+    uint8_t pBuf[20];       // Dato a almacenar en la posición determinada por indexRead o indexWrite del RingBuffer
+}ringBufferData_struct_TEST;
 
 /** \brief inicializa buffer circular de bytes
  **

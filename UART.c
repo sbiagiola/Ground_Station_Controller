@@ -17,6 +17,12 @@ void* pRingBufferTx_U1;
 void* pRingBufferRx_U1;  
 void* pRingBufferTx_U2;  
 void* pRingBufferRx_U2;
+
+ringBufferData_struct_TEST pRingBufferTx_U1_TEST;     
+ringBufferData_struct_TEST pRingBufferRx_U1_TEST;  
+ringBufferData_struct_TEST pRingBufferTx_U2_TEST;  
+ringBufferData_struct_TEST pRingBufferRx_U2_TEST;
+
 uint8_t Respuesta;
 int Error_UART_U1;
 volatile int Error_UART_U2;
@@ -33,11 +39,12 @@ void Config_UART(void){
     U1MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
     
     IFS0bits.U1RXIF = 0;            // Clear RX Interrupt flag
+    IFS0bits.U1TXIF = 0;            // Clear TX Interrupt flag
     
     //Register U1STA
     U1STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita hay lugar en TXREG o TSR esta vacio
     U1STAbits.UTXISEL1 = 0b0;      
-    U1STAbits.URXISEL = 0b10;       // Interrupciones cuando hay la menos 3 caracter en RXREG
+    U1STAbits.URXISEL = 0b00;       // Interrupciones cuando hay la menos 3 caracter en RXREG
       
     // Con este valor de BRG obtengo un Baud Rate de 9615 y un error del 0.125% respecto al buscado de 9600 */
     U1BRG = BRGVAL;                    //Valor del Baud Rate Generator Register de la UART1
@@ -56,11 +63,12 @@ void Config_UART(void){
     U2MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
     
     IFS1bits.U2RXIF = 0;            // Clear RX Interrupt flag
+    IFS1bits.U2TXIF = 0;            // Clear TX Interrupt flag
     
     //Register U2STA
     U2STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita hay lugar en TXREG o TSR esta vacio
     U2STAbits.UTXISEL1 = 0b0;       
-    U2STAbits.URXISEL = 0b10;       // Interrupciones cuando hay la menos 3 caracter en RXREG
+    U2STAbits.URXISEL = 0b00;       // Interrupciones cuando hay la menos 3 caracter en RXREG
     
     U2BRG = BRGVAL;                 // Valor del Baud Rate Generator de la UART2
     
@@ -476,6 +484,9 @@ void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
     while( Rx_Reg_U2_State() ){        // Existe al menos un dato para leer en la FIFO de recepción
         Get_Char_Rx_Reg_U2(&data);      // Saco un dato x iteración, lo guardo dentro de data
         ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
+        
+        // Testear esto
+        ringBuffer_putData_TEST(pRingBufferRx_U2_TEST,data);
     }
     
     IFS1bits.U2RXIF = 0;    // Clear RX Interrupt flag 
@@ -517,5 +528,16 @@ void Clean_RingBufferRx_U1(void){
     uint8_t data;
     while(!ringBuffer_isEmpty(pRingBufferRx_U1)){
         ringBuffer_getData(pRingBufferRx_U1, &data); 
+    }
+}
+
+void PutCharInBuffer(char* buffer,uint8_t data){
+    static int Indice = 0;
+    
+    buffer[Indice] = data;
+    Indice++;
+    
+    if(data == CHAR_CR){
+        Indice = 0;
     }
 }
