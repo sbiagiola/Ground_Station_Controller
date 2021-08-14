@@ -42,9 +42,6 @@ void Chequear_Home_Stop_1(void){
 }
 
 int main(){
-    
-    LATAbits.LATA4 = !PORTAbits.RA4;
-    __delay_ms(100);
         
     Create_RingBuffer();    // Ponerlo antes de habilitar el uso de UART
     
@@ -58,16 +55,18 @@ int main(){
     /*====================================================================*/
 
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
-    extern ringBufferData_struct_TEST pRingBufferTx_U1_TEST;
-    extern ringBufferData_struct_TEST pRingBufferRx_U1_TEST;
-    extern ringBufferData_struct_TEST pRingBufferTx_U2_TEST;
-    extern ringBufferData_struct_TEST pRingBufferRx_U2_TEST;
-    pRingBufferTx_U1_TEST.pBuf[0]='a';
-    pRingBufferRx_U1_TEST.pBuf[0]='b';
-    pRingBufferRx_U2_TEST.pBuf[0]='c';
-    pRingBufferTx_U2_TEST.pBuf[0]='d';
+//    extern ringBufferData_struct_TEST pRingBufferTx_U1_TEST;
+//    extern ringBufferData_struct_TEST pRingBufferRx_U1_TEST;
+//    extern ringBufferData_struct_TEST pRingBufferTx_U2_TEST;
+//    extern ringBufferData_struct_TEST pRingBufferRx_U2_TEST;
+//    pRingBufferTx_U1_TEST.pBuf[0]='a';
+//    pRingBufferRx_U1_TEST.pBuf[0]='b';
+//    pRingBufferRx_U2_TEST.pBuf[0]='c';
+//    pRingBufferTx_U2_TEST.pBuf[0]='d';
     while(1) {
-        //Comm_PC_Interface();
+        LATAbits.LATA4 = !PORTAbits.RA4;
+        __delay_ms(100);
+        Comm_PC_Interface_TEST();
         //MEF_Accionamiento();
         //MEF_Principal();
         //Chequear_Home_Stop_1();

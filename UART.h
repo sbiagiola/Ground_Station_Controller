@@ -16,6 +16,9 @@ extern "C" {
 
 /***********************************************/   
     
+void WriteUART2(unsigned int);
+void putrsUART2(const char *);
+    
 /****************  Funciones   *****************/  
 void Config_UART(void);
 void Create_RingBuffer(void);

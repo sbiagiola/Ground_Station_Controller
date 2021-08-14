@@ -29,20 +29,20 @@ void initInterrupts(void){
     /* Habilitación de interrupciones*/
     
     IEC0bits.T1IE   = 0b1;      /* Enable Timer1 interrupt */
-    IEC0bits.U1TXIE = 0b1;      /* Enable UART1 TX interrupt*/
-    IEC0bits.U1RXIE = 0b1;      /* Enable UART1 RX interrupt*/
+//    IEC0bits.U1TXIE = 0b1;      /* Enable UART1 TX interrupt*/
+//    IEC0bits.U1RXIE = 0b1;      /* Enable UART1 RX interrupt*/
     IEC1bits.U2TXIE = 0b1;      /* Enable UART2 TX interrupt*/
     IEC1bits.U2RXIE = 0b1;      /* Enable UART2 RX interrupt*/
-    IEC4bits.U1EIE  = 0b1;      /* Enable UART1 Error interrupt*/
+//    IEC4bits.U1EIE  = 0b1;      /* Enable UART1 Error interrupt*/
     IEC4bits.U2EIE  = 0b1;      /* Enable UART2 Error interrupt*/
     IEC1bits.CNIE = 1;          /* Enable CN interrupts*/
     //IEC4bits.DAC1RIE = 1;      	/* Right Channel DAC Interrupt Enable */
     //IEC0bits.AD1IE  = 0b1;      /* Enable ADC1 interrupt*/
     
     /* Seteo de prioridades */
-    IPC16bits.U1EIP = 5;        /* Set UART2 Error interupt priority to 5*/
-    IPC2bits.U1RXIP = 4;        /* Set UART1 RX interrupt priority to 4*/
-    IPC3bits.U1TXIP = 3;        /* Set UART1 TX interupt priority to 3*/
+//    IPC16bits.U1EIP = 5;        /* Set UART2 Error interupt priority to 5*/
+//    IPC2bits.U1RXIP = 4;        /* Set UART1 RX interrupt priority to 4*/
+//    IPC3bits.U1TXIP = 3;        /* Set UART1 TX interupt priority to 3*/
     
     IPC16bits.U2EIP = 5;        /* Set UART2 Error interupt priority to 5*/
     IPC7bits.U2RXIP = 4;        /* Set UART2 RX interrupt priority to 4*/

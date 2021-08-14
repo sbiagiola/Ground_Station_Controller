@@ -443,6 +443,21 @@ int32_t uart_ringBuffer_envDatos_U2(uint8_t *pBuf, int32_t size){
 return ret;
 }
 
+void WriteUART2(unsigned int data) {
+    while(U2STAbits.UTXBF);
+    if(U2MODEbits.PDSEL == 2)
+        U2TXREG = data;
+    else
+        U2TXREG = data & 0x00FF;
+}
+
+void putrsUART2(const char *buffer) {
+    while(*buffer) {
+        WriteUART2(*buffer);
+        buffer++;
+    }
+}
+
 void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
     
@@ -524,7 +539,7 @@ void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
   
     while( Rx_Reg_U2_State() ){        // Existe al menos un dato para leer en la FIFO de recepción
         Get_Char_Rx_Reg_U2(&data);      // Saco un dato x iteración, lo guardo dentro de data
-        ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
+//        ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
         
         // Testear esto
         ringBuffer_putData_TEST(&pRingBufferRx_U2_TEST,data);

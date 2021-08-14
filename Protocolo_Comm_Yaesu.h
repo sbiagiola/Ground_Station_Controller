@@ -46,7 +46,7 @@ typedef enum {
 typedef enum{
 Comando_No_Valido = 0,
                          /*============ Acimut ============*/
-Giro_Horario,               // Clockwise Rotation
+Giro_Horario,                   // Clockwise Rotation
 Giro_Antihorario,               // Counter Clockwise Rotation
 Stop_Acimut,                    // CW/CCW Rotation Stop
 Devolver_Valor_Acimut,          // Retornar el valor de actual del ángulo de de acimut 
@@ -76,6 +76,7 @@ Mayor_Presicion_a_e_grados,     // Formato de mayor precisión para combinación
 
 /*============================ [Funciones] ==================================*/
 void Comm_PC_Interface(void);
+void Comm_PC_Interface_TEST(void);
 uint8_t Verificando_Comando(void);
 /*===========================================================================*/
  
