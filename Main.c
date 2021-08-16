@@ -19,6 +19,7 @@
 #include "interrupts.h"
 #include "Entradas.h"
 #include "Salidas_Motores.h"
+#include "timer1.h"
 
 /*===================== [Variables Internas (Estáticas)] =====================*/
 static uint8_t Bandera_Home_Stop_1 = 1;
@@ -50,6 +51,8 @@ int main(){
     Config_IO();
     Config_UART();
     Config_ADC();
+    
+    init_timer1();
 
     initInterrupts();
     /*====================================================================*/
@@ -63,10 +66,19 @@ int main(){
 //    pRingBufferRx_U1_TEST.pBuf[0]='b';
 //    pRingBufferRx_U2_TEST.pBuf[0]='c';
 //    pRingBufferTx_U2_TEST.pBuf[0]='d';
+    LATAbits.LATA4 = 1;
+    SetTimer(5000);
+    
     while(1) {
-        LATAbits.LATA4 = !PORTAbits.RA4;
-        __delay_ms(100);
-        Comm_PC_Interface_TEST();
+
+        if(GetTimer() == 1)
+        {
+            LATAbits.LATA4 = !PORTAbits.RA4;
+            SetTimer(5000);
+        }
+        
+        
+        //Comm_PC_Interface_TEST();
         //MEF_Accionamiento();
         //MEF_Principal();
         //Chequear_Home_Stop_1();

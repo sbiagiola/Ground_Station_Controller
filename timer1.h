@@ -27,6 +27,9 @@ int Get_Estado_Temporizadores(void);
 void Function_Events_ms(void);
 /*===========================================================================*/
 
+void SetTimer(int);
+int GetTimer(void);
+
 #ifdef	__cplusplus
 }
 #endif

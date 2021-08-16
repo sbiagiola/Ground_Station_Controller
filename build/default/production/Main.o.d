@@ -9,4 +9,5 @@ RingBuffer.h  \
 Protocolo_Comm_Yaesu.h  \
 interrupts.h  \
 Entradas.h  \
- Salidas_Motores.h 
+ Salidas_Motores.h  \
+timer1.h 

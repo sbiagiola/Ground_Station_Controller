@@ -9,6 +9,7 @@
 #include "stdint.h"
 #include "timer1.h"
 #include "libpic30.h"
+#include "UART.h"
 /*===================== [Variables Internas (Globales)] =====================*/ 
 static uint16_t count_seg = 0;
 static uint16_t count_timer = 0;
@@ -35,7 +36,7 @@ void init_timer1(){
     T1CONbits.TGATE = 0;// Disable Gated Timer mode
     T1CONbits.TCKPS = 0b10;// Select 1:1 Prescaler. puede ser modificado en 8-64-128
     TMR1 = 0x00; // Clear timer register
-    PR1 = 8; // Load the period value. para que quede mas simple
+    PR1 = 4; // Load the period value. para que quede mas simple
     
     //IFS0bits.T1IF = 0;// Clear Timer1 Interrupt Flag
     T1CONbits.TON = 1;// Start Timer
@@ -45,15 +46,15 @@ void init_timer1(){
 /*
  * accedo al valor de contador que se incrementa cada 1ms
  */
-uint16_t temporizador(void)
-{
-    return count_seg;           
-}
+//uint16_t temporizador(void)
+//{
+//    return count_seg;           
+//}
 
 /*No extender demasiado esta función ya que se ejecuta en la rutina de interrupciones*/
-void Function_Events_ms(){ 
-    Temporizar_X_ms();
-}
+//void Function_Events_ms(){ 
+//    Temporizar_X_ms();
+//}
 /*Set_Temporizador es una función que permite el seteo de hasta 3 temporizadores independientes
 entre sí. Una vez asignado un valor al temporizador a utilizar se bloquea y no se permiten actualizaciones
 hasta terminar el conteo anterior.
@@ -90,29 +91,38 @@ en la rutina de interrupciones del timer1  cada 1 mSeg, según sea la configuraci
  */
 void Temporizar_X_ms(void){
     
-    if(Temporizador_1_Habilitado){
-        Contador_Tiempo_ms_1--;
-    }
-    if(Temporizador_2_Habilitado){
-        Contador_Tiempo_ms_2--;
-    }
-    if(Temporizador_3_Habilitado){
-        Contador_Tiempo_ms_3--;
-    }
-    
-    if(Contador_Tiempo_ms_1 == 0 && Temporizador_1_Habilitado == 1){
-        Temporizador_1_Habilitado = 0;
-        Temporizador_1_Estado_Conteo = Temporizador_1;
-    }
-    if(Contador_Tiempo_ms_2 == 0 && Temporizador_2_Habilitado == 1){
-        Temporizador_2_Habilitado = 0;
-        Temporizador_2_Estado_Conteo = Temporizador_2;
-    }
-     if(Contador_Tiempo_ms_3 == 0 && Temporizador_3_Habilitado == 1){
-        Temporizador_3_Habilitado = 0;
-        Temporizador_3_Estado_Conteo = Temporizador_3;
+    if(Temporizador_1_Habilitado)
+    {
+        if(Contador_Tiempo_ms_1 == 0)
+        {
+            Temporizador_1_Habilitado = 0;
+            Temporizador_1_Estado_Conteo = Temporizador_1;
+        } else {
+            Contador_Tiempo_ms_1--;
+        }      
     }
     
+    if(Temporizador_2_Habilitado)
+    {
+        if(Contador_Tiempo_ms_2 == 0)
+        {
+            Temporizador_2_Habilitado = 0;
+            Temporizador_2_Estado_Conteo = Temporizador_2;
+        } else {
+            Contador_Tiempo_ms_2--;
+        }      
+    }
+    
+    if(Temporizador_3_Habilitado)
+    {
+        if(Contador_Tiempo_ms_3 == 0)
+        {
+            Temporizador_3_Habilitado = 0;
+            Temporizador_3_Estado_Conteo = Temporizador_3;
+        } else {
+            Contador_Tiempo_ms_3--;
+        }      
+    }
 }
 /*Retorna un valor correspondiente al temporizador que a alcanzado la condición de 
 cuenta o cero si ninguno aún a alcanzado dicha condición.
@@ -134,24 +144,51 @@ int Get_Estado_Temporizadores(void){
 return 0;
 }
 
+
+/*        TEST       */
+
+int tiempoCuenta = 0;
+int timerFlag = 0;
+
+void SetTimer(int cont)
+{
+    tiempoCuenta = cont;
+}
+
+int GetTimer()
+{
+    if (timerFlag == 0)
+    {
+        return 0;
+    } else {
+        timerFlag = 0;
+        return 1;
+    }
+}
+
 /* Timer1 ISR 
     Interrup salta con una frecuencia de 5Mhz 
 */
-void __attribute__((interrupt,no_auto_psv)) _T1Interrupt(void){
-    
-    if(count_timer==625){ // cumple 1ms y aumenta count_seg
-    count_timer=0;
-    count_seg++;
+void __attribute__((interrupt,no_auto_psv)) _T1Interrupt(void)
+{
+    if(count_timer == 125){ // cumple 1ms y aumenta count_seg
         
-        if(count_seg==65000)
-        {
-            count_seg=0;
-        }
-    Function_Events_ms();
+        count_timer = 0;
+//        count_seg++;
+        
+//        if(count_seg == 1000)
+//        {
+//            LATAbits.LATA4 = !PORTAbits.RA4;
+//            count_seg=0;
+//        }
+//        Function_Events_ms();
+        if(tiempoCuenta > 0) {
+            tiempoCuenta--;
+        } else {
+            timerFlag = 1;
+        }        
     }
-    
-count_timer++;
-   
-IFS0bits.T1IF = 0; // Clear Timer1 Interrupt Flag 
+    count_timer++;
+    IFS0bits.T1IF = 0; // Clear Timer1 Interrupt Flag 
 }
 
