@@ -53,6 +53,7 @@ typedef struct{
 /*========================================================================*/
     
 /*===========================  Funciones   ===============================*/
+void initCN(void);
 void Config_CN_Pins(void);
 long posicion_actual_acimut(void);
 long posicion_actual_elevacion(void);

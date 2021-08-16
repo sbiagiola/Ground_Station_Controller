@@ -24,6 +24,7 @@ void Config_IO(void){
     Define_IO_Pins();
     Remappeable_Pins();
     Config_CN_Pins();
+    initCN();
 }
 
 void Change_Config_UART1(void){

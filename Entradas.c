@@ -9,13 +9,14 @@
 #include "stdint.h"
 #include "Salidas_Motores.h"
 #include "Protocolo_Comm_Yaesu.h"
+#include "UART.h"
 
 typedef enum{
     Resta = 0,
     Suma,
 }Operacion_Pulsos;  //No es triunfo pero paso cerca...
 
-/*===================== [Variables Internas (Globales)] =====================*/ 
+/*===================== [Variables Internas (Globales)] =====================*/
 Last_Value Valor_Anterior;
 _Contador Contador;
 
@@ -33,6 +34,23 @@ static uint8_t Bandera_Parad_Emerg = 0;
 extern Info_Comandos_Procesados Comando_Procesado;
 extern uint8_t Flag_Parada_Emergencia;
 /*===========================================================================*/
+
+void initCN()
+{
+    Valor_Anterior.Encoder_1_A = Enconder_1_Fase_A;
+    Valor_Anterior.Encoder_1_B = Enconder_1_Fase_B;
+    Valor_Anterior.Encoder_1_Z = Enconder_1_Fase_Z;
+    
+    Valor_Anterior.Encoder_2_A = Enconder_2_Fase_A;
+    Valor_Anterior.Encoder_2_B = Enconder_2_Fase_B;
+    Valor_Anterior.Encoder_2_Z = Enconder_2_Fase_Z;
+    
+    Valor_Anterior.Anemometr0 = Anemometro;
+    Valor_Anterior.Parad_Emerg = Parada_Emergencia;
+    
+    Valor_Anterior.Home_St0p_1 = Home_Stop_1;
+    Valor_Anterior.Home_St0p_2 = Home_Stop_2;
+}
 
 void Config_CN_Pins(){
 CNEN1bits.CN10IE = 1;   // Enable CN10 pin for interrupt detection  RC2 (PARADA EMERG)
@@ -53,14 +71,18 @@ IFS1bits.CNIF = 0;      // Reset CN interrupt   (Recomendaban esto)|
 
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     
+    putrsUART2("Salto interrupt\n\r");
+    
     if( (Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A) || (Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B) ){
 
         if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
+            putrsUART2("Entro 1\n\r");
             Bandera_Encoder_1_A = 0;
             Bandera_Encoder_1_B = 1;
         }
         
         if(Enconder_1_Fase_A == HIGH && Enconder_1_Fase_B == LOW && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_A == 1){
+            putrsUART2("Entro 2\n\r");
             Bandera_Encoder_1_A = 1;
             Bandera_Encoder_1_B = 0;
         }
@@ -176,17 +198,22 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     }
     
     if(Parada_Emergencia != Valor_Anterior.Parad_Emerg){
-        if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 0){
+        putrsUART2("Parada de emergencia\n\r");
+        if(Parada_Emergencia == LOW && Bandera_Parad_Emerg == 0){
             Bandera_Parad_Emerg = 1;
             Flag_Parada_Emergencia = Bandera_Parad_Emerg;
             Comando_Procesado.Proximo = Comando_Procesado.Actual;
             Comando_Procesado.Actual = Parar_Todo;
+            putrsUART2("PE encendida!\n\r");
+            LATCbits.LATC9 = 1;
         }
-        if(Parada_Emergencia == HIGH && Bandera_Parad_Emerg == 1){
+        else if(Parada_Emergencia == LOW && Bandera_Parad_Emerg == 1){
             Bandera_Parad_Emerg = 0;
             Flag_Parada_Emergencia = Bandera_Parad_Emerg;
+            putrsUART2("PE apagada!\n\r");
+            LATCbits.LATC9 = 0;
         }
-        Parada_Emergencia = Valor_Anterior.Parad_Emerg;
+        Valor_Anterior.Parad_Emerg = Parada_Emergencia;
     }
     
 IFS1bits.CNIF = 0; // Clear CN interrupt
