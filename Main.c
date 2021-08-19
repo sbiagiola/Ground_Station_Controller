@@ -58,27 +58,20 @@ int main(){
     /*====================================================================*/
 
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
-//    extern ringBufferData_struct_TEST pRingBufferTx_U1_TEST;
-//    extern ringBufferData_struct_TEST pRingBufferRx_U1_TEST;
-//    extern ringBufferData_struct_TEST pRingBufferTx_U2_TEST;
-//    extern ringBufferData_struct_TEST pRingBufferRx_U2_TEST;
-//    pRingBufferTx_U1_TEST.pBuf[0]='a';
-//    pRingBufferRx_U1_TEST.pBuf[0]='b';
-//    pRingBufferRx_U2_TEST.pBuf[0]='c';
-//    pRingBufferTx_U2_TEST.pBuf[0]='d';
+
     LATAbits.LATA4 = 1;
-    SetTimer(5000);
+    SetTimer(100);
     
     while(1) {
 
         if(GetTimer() == 1)
         {
             LATAbits.LATA4 = !PORTAbits.RA4;
-            SetTimer(5000);
+            SetTimer(100);
         }
         
         
-        //Comm_PC_Interface_TEST();
+        //Comm_PC_Interface();
         //MEF_Accionamiento();
         //MEF_Principal();
         //Chequear_Home_Stop_1();
