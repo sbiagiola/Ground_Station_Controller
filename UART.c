@@ -13,15 +13,15 @@
 /*========================================================================*/
 
 /*======================= [Variables Internas] ===========================*/
-void* pRingBufferTx_U1;     
-void* pRingBufferRx_U1;  
-void* pRingBufferTx_U2;  
-void* pRingBufferRx_U2;
+//void* pRingBufferTx_U1;     
+//void* pRingBufferRx_U1;  
+//void* pRingBufferTx_U2;  
+//void* pRingBufferRx_U2;
 
 // NO BORRAR LAS \ QUE ESTAN ACA O SE ROMPE TODA LA INICIALIZACION
 #define Create_RingBuffer_TX_U1(pRingBuffer)                \
     static uint8_t pBuf1[MAX_SIZE_COMMAND_AVALIBLE];        \
-    ringBufferData_struct_TEST pRingBuffer = {              \
+    ringBufferData_struct pRingBuffer = {              \
         .count = 0,                                         \
         .indexRead =0,                                      \
         .indexWrite= 0,                                     \
@@ -31,7 +31,7 @@ void* pRingBufferRx_U2;
 
 #define Create_RingBuffer_RX_U1(pRingBuffer)                \
     static uint8_t pBuf2[MAX_SIZE_COMMAND_AVALIBLE];        \
-    ringBufferData_struct_TEST pRingBuffer = {              \
+    ringBufferData_struct pRingBuffer = {              \
         .count = 0,                                         \
         .indexRead =0,                                      \
         .indexWrite= 0,                                     \
@@ -41,7 +41,7 @@ void* pRingBufferRx_U2;
 
 #define Create_RingBuffer_TX_U2(pRingBuffer)                \
     static uint8_t pBuf3[MAX_SIZE_COMMAND_AVALIBLE];        \
-    ringBufferData_struct_TEST pRingBuffer = {              \
+    ringBufferData_struct pRingBuffer = {              \
         .count = 0,                                         \
         .indexRead =0,                                      \
         .indexWrite= 0,                                     \
@@ -51,7 +51,7 @@ void* pRingBufferRx_U2;
 
 #define Create_RingBuffer_RX_U2(pRingBuffer)                \
     static uint8_t pBuf4[MAX_SIZE_COMMAND_AVALIBLE];        \
-    ringBufferData_struct_TEST pRingBuffer = {              \
+    ringBufferData_struct pRingBuffer = {              \
         .count = 0,                                         \
         .indexRead =0,                                      \
         .indexWrite= 0,                                     \
@@ -59,21 +59,22 @@ void* pRingBufferRx_U2;
         .size = MAX_SIZE_COMMAND_AVALIBLE                   \
     }
 
-Create_RingBuffer_TX_U1(pRingBufferTx_U1_TEST);
-Create_RingBuffer_RX_U1(pRingBufferRx_U1_TEST);
-Create_RingBuffer_TX_U2(pRingBufferTx_U2_TEST);
-Create_RingBuffer_RX_U2(pRingBufferRx_U2_TEST);
+Create_RingBuffer_TX_U1(pRingBufferTx_U1);
+Create_RingBuffer_RX_U1(pRingBufferRx_U1);
+Create_RingBuffer_TX_U2(pRingBufferTx_U2);
+Create_RingBuffer_RX_U2(pRingBufferRx_U2);
 
 uint8_t Respuesta;
 int Error_UART_U1;
 volatile int Error_UART_U2;
-/*========================================================================*/
+
+
+/* ======================================================================================= */
 
 void Config_UART(void){
 
-    /*******************        Configuración UART 1        *******************/
+    // ========= Configuración UART 1
     
-    //Register U1MODE
     U1MODEbits.UEN = 0b00;          // Solamente utilizamos los pines U1TX U1RX  
     U1MODEbits.BRGH = 0b0;          // Baud Rate Generator genera 16 clock por bit
     U1MODEbits.STSEL = 0b0;         // 1-stop bit
@@ -82,10 +83,9 @@ void Config_UART(void){
     IFS0bits.U1RXIF = 0;            // Clear RX Interrupt flag
     IFS0bits.U1TXIF = 0;            // Clear TX Interrupt flag
     
-    //Register U1STA
     U1STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita hay lugar en TXREG o TSR esta vacio
     U1STAbits.UTXISEL1 = 0b0;      
-    U1STAbits.URXISEL = 0b00;       // Interrupciones cuando hay la menos 3 caracter en RXREG
+    U1STAbits.URXISEL = 0b00;       // Interrupciones cuando hay 1 caracter en RXREG
       
     // Con este valor de BRG obtengo un Baud Rate de 9615 y un error del 0.125% respecto al buscado de 9600 */
     U1BRG = BRGVAL;                    //Valor del Baud Rate Generator Register de la UART1
@@ -95,9 +95,8 @@ void Config_UART(void){
     U1STAbits.UTXEN = 0b1;          // Habilito el transmisor de la UART1
     __delay_us(150);                // Se recomienda este delay luego de habilitar el transmisor UART
     
-    /*******************        Configuración UART 2        *******************/
+    // ========= Configuración UART 2
       
-    //Register U2MODE
     U2MODEbits.UEN = 0b00;          // Solamente utilizamos los pines U1TX U1RX
     U2MODEbits.BRGH = 0b0;          // Baud Rate Generator genera 16 clock por bit
     U2MODEbits.STSEL = 0b0;         // 1-stop bit
@@ -106,11 +105,11 @@ void Config_UART(void){
     IFS1bits.U2RXIF = 0;            // Clear RX Interrupt flag
     IFS1bits.U2TXIF = 0;            // Clear TX Interrupt flag
     
-    //Register U2STA
     U2STAbits.UTXISEL0 = 0b0;       // Interrupción cuando se transmita hay lugar en TXREG o TSR esta vacio
     U2STAbits.UTXISEL1 = 0b0;       
-    U2STAbits.URXISEL = 0b00;       // Interrupciones cuando hay la menos 3 caracter en RXREG
+    U2STAbits.URXISEL = 0b00;       // Interrupciones cuando hay 1 caracter en RXREG
     
+    // Con este valor de BRG obtengo un Baud Rate de 9615 y un error del 0.125% respecto al buscado de 9600 */
     U2BRG = BRGVAL;                 // Valor del Baud Rate Generator de la UART2
     
     U2MODEbits.UARTEN = 0b1;        // Habilito la UART2
@@ -119,15 +118,15 @@ void Config_UART(void){
     __delay_us(150);                // Se recomienda este delay luego de habilitar el transmisor UART
 }
 
-void Create_RingBuffer(void){
-    /* Inicialización de buffer de recepción y transmisión*/
-    pRingBufferTx_U1 = ringBuffer_init(RING_BUFFER_SIZE);
-    pRingBufferRx_U1 = ringBuffer_init(RING_BUFFER_SIZE);     
-    pRingBufferTx_U2 = ringBuffer_init(RING_BUFFER_SIZE);
-    pRingBufferRx_U2 = ringBuffer_init(RING_BUFFER_SIZE);
-}
+//void Create_RingBuffer(void){
+//    /* Inicialización de buffer de recepción y transmisión*/
+//    pRingBufferTx_U1 = ringBuffer_init(RING_BUFFER_SIZE);
+//    pRingBufferRx_U1 = ringBuffer_init(RING_BUFFER_SIZE);     
+//    pRingBufferTx_U2 = ringBuffer_init(RING_BUFFER_SIZE);
+//    pRingBufferRx_U2 = ringBuffer_init(RING_BUFFER_SIZE);
+//}
 
-/*******************        UART1        *******************/
+/* =================================     UART 1     ====================================== */
 
 void Enable_UART1(void){
     U1MODEbits.UARTEN = 0b1;        // Habilito la UART1
@@ -194,7 +193,8 @@ void Send_Char_Tx_Reg_U1(uint8_t *data){
     U1TXREG = *data;
 }
 
-/*******************        UART2        *******************/
+
+/* =================================     UART 2     ====================================== */
 
 void Enable_UART2(void){
     U2MODEbits.UARTEN = 0b1;        // Habilito la UART2
@@ -263,21 +263,19 @@ void Send_Char_Tx_Reg_U2(uint8_t* data){
     U2TXREG = *data;
 }
 
+
+/* =============================     LOOPBACK MODE     ================================== */
 // Posible testeo de las UARTS conectando transmisor y receptor.
+
 void Loopback_Mode(void){
     
-    /*******************        Configuración UART 1        *******************/
+    // ========= Configuración UART 1
     
-    //Register U1MODE
     U1MODEbits.UEN = 0b00;          // Solamente utilizamos el pin U1TX (U1RX esta sin utilización).
     U1MODEbits.UARTEN = 0b1;        // Habilito la UART1     
     U1MODEbits.BRGH = 0b0;          // Baud Rate Generator genera 16 clock por bit
     U1MODEbits.STSEL = 0b0;         // 1-stop bit
     U1MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
-    
-    //Register U1STA
-    //U1STAbits.URXISEL = 0b00;     // Configuración de interrupción del transmisor
-    //U1STAbits.URXISEL = 0b00;     // Modo de interrupción por Buffer de recepción
         
     // Con este valor de BRG obtengo un Baud Rate de 9615 y un error del 0.125% respecto al buscado de 9600 */
     U1BRG = 259;    //Valor del Baud Rate Generator Register de la UART1
@@ -285,163 +283,23 @@ void Loopback_Mode(void){
     //Era recomendado ponerlo luego de haber configurado todo
     U1MODEbits.LPBACK = 0b01;       //Loopback Mode habilitado U1TX conectado internamente a U1RX
     
-    /*******************        Configuración UART 2        *******************/
+    // ========= Configuración UART 2
       
-    //Register U2MODE
     U2MODEbits.UEN = 0b00;          // Solamente utilizamos el pin U1TX (U1RX esta sin utilización).
     U2MODEbits.UARTEN = 0b1;        // Habilito la UART2
     U2MODEbits.BRGH = 0b0;          // Baud Rate Generator genera 16 clock por bit
     U2MODEbits.STSEL = 0b0;         // 1-stop bit
     U2MODEbits.PDSEL = 0b0;         // No Parity, 8-data bits
     
-    //Register U2STA
-    //U2STAbits.URXISEL = 0b00;     // Configuración de interrupción del transmisor
-    //U2STAbits.URXISEL = 0b00;     // Modo de interrupción por Buffer de recepción
-    
+    /* Con este valor de BRG obtengo un Baud Rate de 9615 y un error del 0.125% respecto al buscado de 9600 */
     U2BRG = U1BRG;    //Valor del Baud Rate Generator de la UART2. Ponemos el mismo en las dos UART.
     
     //Era recomendado ponerlo luego de haber configurado todo
     U2MODEbits.LPBACK = 0b01;       //Loopback Mode habilitado U2TX conectado internamente a U2RX
 }
 
-int32_t uart_ringBuffer_recDatos_U1(uint8_t *pBuf, int32_t size){
-    int32_t ret = 0;
-    
-    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
-    
-     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
-     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
-     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
-     a 0 se vuelven a habilitar las interrupciones. 
-    
-    */
-    
-    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
-    DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
-       
-    /*================== Sección critica de código ==================*/
-    
-    while (!ringBuffer_isEmpty(pRingBufferRx_U1) && ret < size)
-    {
-    	uint8_t dato;
 
-        ringBuffer_getData(pRingBufferRx_U1, &dato);
-        pBuf[ret] = dato;
-        ret++;
-        DISICNT = 16380;        // Recarga del contador
-    }
-    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
-    INTCON2bits.DISI = 0b0;     // Habilito todas las interrupciones 
-    /*================== Fin de sección critica de código ==================*/
-return ret;
-}
-
-int32_t uart_ringBuffer_envDatos_U1(uint8_t *pBuf, int32_t size){
-    int32_t ret = 0;
-    
-    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
-    
-     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
-     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
-     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
-     a 0 se vuelven a habilitar las interrupciones. 
-    
-    */ 
-    
-    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
-    DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
-       
-    /*================== Sección critica de código ==================*/
-    
-        /* si el buffer estaba vacío hay que habilitar la interrupción TX */
-        if (ringBuffer_isEmpty(pRingBufferTx_U1)){
-            U1STAbits.UTXISEL0 = 0b0;       // Interrupciones por TSR vacio o hay lugar en TXREG (Entro a la rutina si o si después del DISI))
-            U1STAbits.UTXISEL1 = 0b0;
-            IEC0bits.U1TXIE = 0b1;          // Habilito interrupciones de TX
-        }
-
-        while (!ringBuffer_isFull(pRingBufferTx_U1) && ret < size)
-        {
-            ringBuffer_putData(pRingBufferTx_U1, pBuf[ret]);
-            ret++;
-            DISICNT = 16380;        // Recarga del contador
-        }
-    /*============== Fin de sección critica de código ===============*/
-    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
-    INTCON2bits.DISI = 0b0;     // Habilito todas las interrupciones 
-
-return ret;
-}
-
-int32_t uart_ringBuffer_recDatos_U2(uint8_t *pBuf, int32_t size){
-    int32_t ret = 0;
-    
-    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
-    
-     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
-     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
-     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
-     a 0 se vuelven a habilitar las interrupciones. 
-    
-     */
-    
-    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
-    DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
-       
-    /*================== Sección critica de código ==================*/
-        while (!ringBuffer_isEmpty(pRingBufferRx_U2) && ret < size)
-        {
-            uint8_t dato;
-
-            ringBuffer_getData(pRingBufferRx_U2, &dato);
-            pBuf[ret] = dato;
-            ret++;
-            DISICNT = 16380;        // Recarga del contador
-        }
-    /*============== Fin de sección critica de código ===============*/
-    
-    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
-    INTCON2bits.DISI = 0b0;     // Habilito todas las interrupciones 
-    
-return ret;
-}
-
-int32_t uart_ringBuffer_envDatos_U2(uint8_t *pBuf, int32_t size){
-    int32_t ret = 0;
-    
-    /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
-    
-     Para desactivar las interrupciones de prioridad entre 1 y 6 es necesario setear el bit
-     INTCON2bits.DISI en 1 para que se ejecute la instrucción DISI. Luego es necesario setear el número de
-     ciclos de clock que vamos tener deshabilitadas estas en el registro DISICNT. Si este registro llega
-     a 0 se vuelven a habilitar las interrupciones. 
-    
-     */
-    
-    INTCON2bits.DISI = 0b1;     // Deshabilito todas las interrupciones 
-    DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
-    
-    /*================== Sección critica de código ==================*/
-    
-    /* si el buffer estaba vacío hay que habilitar la int TX */
-    if (ringBuffer_isEmpty(pRingBufferTx_U2)){
-        U2STAbits.UTXISEL0 = 0b0;       // Interrupciones por TSR vacio o hay lugar en TXREG (Entro a la rutina si o si después del DISI))
-        U2STAbits.UTXISEL1 = 0b0;
-        IEC1bits.U2TXIE = 0b1;          // Habilito interrupciones de TX
-    }
-    
-    while (!ringBuffer_isFull(pRingBufferTx_U2) && ret < size)
-    {
-        ringBuffer_putData(pRingBufferTx_U2, pBuf[ret]);
-        ret++;
-        DISICNT = 16380;        // Recarga del contador
-    }
-    /*============== Fin de sección critica de código ===============*/
-    DISICNT = 0;                // Habilitamos nuevamente las interrupciones
-    INTCON2bits.DISI = 0b0;     // Habilito todas las interrupciones 
-    
-return ret;
-}
+/* =============================     SERIAL PRINT     =================================== */
 
 void WriteUART2(unsigned int data) {
     while(U2STAbits.UTXBF);
@@ -458,18 +316,21 @@ void putrsUART2(const char *buffer) {
     }
 }
 
+
+/* =================================     INTERRUPTS     ====================================== */
+
 void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
     
-    if(!ringBuffer_isEmpty(pRingBufferTx_U1)){
+    if(!ringBuffer_isEmpty(&pRingBufferTx_U1)){
         U1STAbits.UTXISEL0 = 0b0;    // Interrupción cuando transmito de FIFO a TSR y generas que se vacie la FIFO
         U1STAbits.UTXISEL1 = 0b1;
     }else{
         IEC0bits.U1TXIE = 0b0;          // Habilito interrupciones de TX, no hay datos para mandar.
     }
     
-    if(!Tx_Reg_U1_State() && !ringBuffer_isEmpty(pRingBufferTx_U1)){      //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
-        while( !Tx_Reg_U1_State() && ringBuffer_getData(pRingBufferTx_U1, &data) ){     //Hasta que no se llene el registro de transmisión
+    if(!Tx_Reg_U1_State() && !ringBuffer_isEmpty(&pRingBufferTx_U1)){      //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
+        while( !Tx_Reg_U1_State() && ringBuffer_getData(&pRingBufferTx_U1, &data) ){     //Hasta que no se llene el registro de transmisión
             Send_Char_Tx_Reg_U1(&data);
         }
     }
@@ -483,7 +344,7 @@ void __attribute__((interrupt,no_auto_psv)) _U1RXInterrupt(void){
    
         while( Rx_Reg_U1_State() ){    // Existe al menos un dato para leer en la FIFO de recepción    
             Get_Char_Rx_Reg_U1(&data);      
-            ringBuffer_putData(pRingBufferRx_U1, data);
+            ringBuffer_putData(&pRingBufferRx_U1,data);
         }
     
     IFS0bits.U1RXIF = 0;    // Clear RX Interrupt flag
@@ -516,7 +377,7 @@ void __attribute__((interrupt,no_auto_psv)) _U1ErrInterrupt(void){
 void __attribute__((interrupt,no_auto_psv)) _U2TXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
     
-    if(!ringBuffer_isEmpty(pRingBufferTx_U2)){
+    if(!ringBuffer_isEmpty(&pRingBufferTx_U2)){
         // Registro TSR vacio y hay datos en RB
         U2STAbits.UTXISEL0 = 0b0;    // Interrupción cuando transmito de FIFO a TSR y generas que se vacie la FIFO
         U2STAbits.UTXISEL1 = 0b1;
@@ -524,9 +385,9 @@ void __attribute__((interrupt,no_auto_psv)) _U2TXInterrupt(void){
         IEC1bits.U2TXIE = 0b0;  // Deshabilito interrupciones de TX, no hay datos para mandar.
     }
     
-    if(!Tx_Reg_U2_State() && !ringBuffer_isEmpty(pRingBufferTx_U2)){
+    if(!Tx_Reg_U2_State() && !ringBuffer_isEmpty(&pRingBufferTx_U2)){
         //Hay al menos un lugar en el buffer de transmisión y tenemos datos en el RB
-        while( !Tx_Reg_U2_State() && ringBuffer_getData(pRingBufferTx_U2, &data) ){
+        while( !Tx_Reg_U2_State() && ringBuffer_getData(&pRingBufferTx_U2, &data) ){
             Send_Char_Tx_Reg_U2(&data);
         }
     }
@@ -542,7 +403,7 @@ void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
 //        ringBuffer_putData(pRingBufferRx_U2, data);     // Envio el dato recuperado al RB
         
         // Testear esto
-        ringBuffer_putData_TEST(&pRingBufferRx_U2_TEST,data);
+        ringBuffer_putData(&pRingBufferRx_U2,data);
     }
     
     IFS1bits.U2RXIF = 0;    // Clear RX Interrupt flag 
@@ -573,7 +434,10 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     IFS4bits.U2EIF = 0;     // Clear Error Interrupt flag 
 }
 
-int32_t uart_ringBuffer_recDatos_U1_TEST(uint8_t *pBuf, int32_t size){
+
+/* =================================     RINGBUFFER     ====================================== */
+
+int32_t uart_ringBuffer_recDatos_U1(uint8_t *pBuf, int32_t size){
     int32_t ret = 0;
     
     /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
@@ -590,11 +454,11 @@ int32_t uart_ringBuffer_recDatos_U1_TEST(uint8_t *pBuf, int32_t size){
        
     /*================== Sección critica de código ==================*/
     
-    while (!ringBuffer_isEmpty_TEST(&pRingBufferRx_U1_TEST) && ret < size)
+    while (!ringBuffer_isEmpty(&pRingBufferRx_U1) && ret < size)
     {
     	uint8_t dato;
 
-        ringBuffer_getData_TEST(&pRingBufferRx_U1_TEST, &dato);
+        ringBuffer_getData(&pRingBufferRx_U1, &dato);
         pBuf[ret] = dato;
         ret++;
         DISICNT = 16380;        // Recarga del contador
@@ -605,7 +469,7 @@ int32_t uart_ringBuffer_recDatos_U1_TEST(uint8_t *pBuf, int32_t size){
 return ret;
 }
 
-int32_t uart_ringBuffer_envDatos_U1_TEST(uint8_t *pBuf, int32_t size){
+int32_t uart_ringBuffer_envDatos_U1(uint8_t *pBuf, int32_t size){
     int32_t ret = 0;
     
     /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
@@ -623,15 +487,15 @@ int32_t uart_ringBuffer_envDatos_U1_TEST(uint8_t *pBuf, int32_t size){
     /*================== Sección critica de código ==================*/
     
         /* si el buffer estaba vacío hay que habilitar la interrupción TX */
-        if (ringBuffer_isEmpty_TEST(&pRingBufferTx_U1_TEST)){
+        if (ringBuffer_isEmpty(&pRingBufferTx_U1)){
             U1STAbits.UTXISEL0 = 0b0;       // Interrupciones por TSR vacio o hay lugar en TXREG (Entro a la rutina si o si después del DISI))
             U1STAbits.UTXISEL1 = 0b0;
             IEC0bits.U1TXIE = 0b1;          // Habilito interrupciones de TX
         }
 
-        while (!ringBuffer_isFull_TEST(&pRingBufferTx_U1_TEST) && ret < size)
+        while (!ringBuffer_isFull(&pRingBufferTx_U1) && ret < size)
         {
-            ringBuffer_putData_TEST(&pRingBufferTx_U1_TEST, pBuf[ret]);
+            ringBuffer_putData(&pRingBufferTx_U1, pBuf[ret]);
             ret++;
             DISICNT = 16380;        // Recarga del contador
         }
@@ -642,7 +506,7 @@ int32_t uart_ringBuffer_envDatos_U1_TEST(uint8_t *pBuf, int32_t size){
 return ret;
 }
 
-int32_t uart_ringBuffer_recDatos_U2_TEST(uint8_t *pBuf, int32_t size){
+int32_t uart_ringBuffer_recDatos_U2(uint8_t *pBuf, int32_t size){
     int32_t ret = 0;
     
     /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
@@ -658,11 +522,11 @@ int32_t uart_ringBuffer_recDatos_U2_TEST(uint8_t *pBuf, int32_t size){
     DISICNT = 16380;            // Máximo valor posible de ciclos de deshabilitación de interrupciones 
        
     /*================== Sección critica de código ==================*/
-        while (!ringBuffer_isEmpty_TEST(&pRingBufferRx_U2_TEST) && ret < size)
+        while (!ringBuffer_isEmpty(&pRingBufferRx_U2) && ret < size)
         {
             uint8_t dato;
 
-            ringBuffer_getData_TEST(&pRingBufferRx_U2_TEST, &dato);
+            ringBuffer_getData(&pRingBufferRx_U2, &dato);
             pBuf[ret] = dato;
             ret++;
             DISICNT = 16380;        // Recarga del contador
@@ -675,7 +539,7 @@ int32_t uart_ringBuffer_recDatos_U2_TEST(uint8_t *pBuf, int32_t size){
 return ret;
 }
 
-int32_t uart_ringBuffer_envDatos_U2_TEST(uint8_t *pBuf, int32_t size){
+int32_t uart_ringBuffer_envDatos_U2(uint8_t *pBuf, int32_t size){
     int32_t ret = 0;
     
     /* Es necesario deshabilitar las demás interrupciónes para garantizar que no perdamos algún dato
@@ -693,15 +557,15 @@ int32_t uart_ringBuffer_envDatos_U2_TEST(uint8_t *pBuf, int32_t size){
     /*================== Sección critica de código ==================*/
     
     /* si el buffer estaba vacío hay que habilitar la int TX */
-    if (ringBuffer_isEmpty_TEST(&pRingBufferTx_U2_TEST)){
+    if (ringBuffer_isEmpty(&pRingBufferTx_U2)){
         U2STAbits.UTXISEL0 = 0b0;       // Interrupciones por TSR vacio o hay lugar en TXREG (Entro a la rutina si o si después del DISI))
         U2STAbits.UTXISEL1 = 0b0;
         IEC1bits.U2TXIE = 0b1;          // Habilito interrupciones de TX
     }
     
-    while (!ringBuffer_isFull_TEST(&pRingBufferTx_U2_TEST) && ret < size)
+    while (!ringBuffer_isFull(&pRingBufferTx_U2) && ret < size)
     {
-        ringBuffer_putData_TEST(&pRingBufferTx_U2_TEST, pBuf[ret]);
+        ringBuffer_putData(&pRingBufferTx_U2, pBuf[ret]);
         ret++;
         DISICNT = 16380;        // Recarga del contador
     }

@@ -264,7 +264,7 @@ uint8_t Verificando_Comando(){
 
 void Comm_PC_Interface(){
     static Estado_Comunicacion Estado_Comm = Esperando_Datos;      
-    FlagRec = uart_ringBuffer_recDatos_U2_TEST(&Caracter_Rec, sizeof(Caracter_Rec));
+    FlagRec = uart_ringBuffer_recDatos_U2(&Caracter_Rec, sizeof(Caracter_Rec));
 
         switch (Estado_Comm){
             
@@ -284,9 +284,9 @@ void Comm_PC_Interface(){
                 
                 if(Error_UART_U2 == 1) { 
                     Indice_Rec = 0;
-                    Clean_RingBufferRx_U2_TEST();
+                    Clean_RingBufferRx_U2();
                     Mensaje_Env[0] = ACKNOWLEDGE;
-                    uart_ringBuffer_envDatos_U2_TEST(Mensaje_Env,sizeof(char));
+                    uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));
                     Estado_Comm = Esperando_Datos;
                     break;
                 }
@@ -298,7 +298,7 @@ void Comm_PC_Interface(){
                     }
                     else{
                         Indice_Rec = 0;
-                        Clean_RingBufferRx_U2_TEST();                        
+                        Clean_RingBufferRx_U2();                        
                         Estado_Comm = Comando_No_Reconocido;
                         break;
                     }
@@ -330,7 +330,7 @@ void Comm_PC_Interface(){
                     break;
                 }
                 
-//                uart_ringBuffer_envDatos_U2_TEST(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
+//                uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
 //                strcpy(Char_Comando.Comando_Recibido,Buffer_Recepcion);
                     
                 putrsUART2("[Comm_PC_Interface] Comando valido!\n\r");
@@ -362,7 +362,7 @@ void Comm_PC_Interface(){
                 
                 
             case Comando_No_Reconocido:
-//                uart_ringBuffer_envDatos_U2_TEST(Mensaje_Error,sizeof(Mensaje_Error));
+//                uart_ringBuffer_envDatos_U2(Mensaje_Error,sizeof(Mensaje_Error));
                 putrsUART2("[Comm_PC_Interface] Comando NO RECONOCIDO\n\r");
                 
                 Estado_Comm = Limpiando_Buffer;

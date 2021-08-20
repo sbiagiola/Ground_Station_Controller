@@ -48,10 +48,6 @@ void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
             Cant_Carac_A_Enviar = sprintf(Data_A_Enviar,"\n+0%.1f\r",Data_Control.Valor_Actual_Elevacion);
         break;
         
-        case Devolver_Valor_A_E:
-           Cant_Carac_A_Enviar = sprintf(Data_A_Enviar,"\n+0%.1f+0%.1f\r",Data_Control.Valor_Actual_Acimut,Data_Control.Valor_Actual_Elevacion);
-        break;
-        
         default: ;
     }
 }
@@ -229,11 +225,6 @@ void MEF_Accionamiento(void){
             Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
-        case Hacia_aaa_grados:
-             Calcular_Posicion_Actual(&Contador);
-             Control_Posicion_Acimut();
-        break;
-
         case Arriba:
             // Disparo un temporizador que en X mSeg cambie el estado a parar elevacion.
             if(Get_Estado_Temporizadores() != Temporizador_2){
@@ -266,48 +257,6 @@ void MEF_Accionamiento(void){
             Comando_Procesado.Actual = Comando_Procesado.Ultimo;
         break;
 
-        case Velocidad_1_Elevacion:
-            Velocidad_1_El();
-            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
-        break;
-
-        case Velocidad_2_Elevacion:
-            Velocidad_2_El();
-            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
-        break;
-
-        case Velocidad_3_Elevacion:   
-            Velocidad_3_El();
-            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
-        break;
-
-        case Velocidad_4_Elevacion:    
-            Velocidad_4_El();
-            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
-        break;
-
-        case Hacia_aaa_eee_grados:
-            Calcular_Posicion_Actual(&Contador);
-            Control_Posicion_Acimut();
-            Control_Posicion_Elevacion();
-        break;
-
-        case Devolver_Valor_A_E:
-            Generar_Formato_Mensaje(Datos_A_Enviados,Devolver_Valor_A_E);
-            uart_ringBuffer_envDatos_U2((uint8_t*)Datos_A_Enviados,Cant_Carac_A_Enviar);
-            Comando_Procesado.Actual = Comando_Procesado.Ultimo;
-        break;
-
-        case Mayor_Presicion_a_grados:
-            Calcular_Posicion_Actual(&Contador);
-            Control_Posicion_Acimut();
-        break;
-
-        case Mayor_Presicion_e_grados:
-            Calcular_Posicion_Actual(&Contador);
-            Control_Posicion_Elevacion();
-        break;
-
         case Mayor_Presicion_a_e_grados:
             Calcular_Posicion_Actual(&Contador);
             Control_Posicion_Acimut();
@@ -320,15 +269,9 @@ void MEF_Accionamiento(void){
 
 void Actualizar_Objetivos(uint8_t ID_Comando){
     
-    if(ID_Comando == Hacia_aaa_grados || ID_Comando == Mayor_Presicion_a_grados){
-        Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
-    }
+
     
-    if(ID_Comando == Mayor_Presicion_e_grados){
-        Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
-    }
-    
-    if(ID_Comando == Mayor_Presicion_a_e_grados || ID_Comando == Hacia_aaa_eee_grados){
+    if(ID_Comando == Mayor_Presicion_a_e_grados){
         Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
         Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
     }

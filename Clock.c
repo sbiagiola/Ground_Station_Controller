@@ -2,11 +2,12 @@
 #include "Clock.h"
 #include "libpic30.h" 
 
-_FOSCSEL(FNOSC_FRC & IESO_OFF);                     // Internal FRC start-up without PLL, no Two Speed Start-up
-_FOSC(FCKSM_CSECMD & OSCIOFNC_ON & POSCMD_XT & IOL1WAY_OFF)       // Clock switch enabled, OSC2 pin has clock out function , Primarly Oscillator XT 
-_FPOR(FPWRT_PWR64)                                  // TPWRT de 64ms      
-//_FWDT(FWDTEN_OFF);                                // Watchdog Timer disabled
+_FOSCSEL(FNOSC_FRC & IESO_OFF);                                 // Internal FRC start-up without PLL, no Two Speed Start-up
+_FOSC(FCKSM_CSECMD & OSCIOFNC_ON & POSCMD_XT & IOL1WAY_OFF)     // Clock switch enabled, OSC2 pin has clock out function , Primarly Oscillator XT 
+_FPOR(FPWRT_PWR64)                                              // TPWRT de 64ms      
+//_FWDT(FWDTEN_OFF);                                            // Watchdog Timer disabled
     
+
 void Config_Clock(void){
     // Inicializa con el clock FRC interno divided by n (1 por defecto) hasta 
     // que el cristal y PLL se estabilizen, luego modificamos y permitimos el switcheo de clock.

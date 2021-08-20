@@ -21,13 +21,10 @@
 #include "Salidas_Motores.h"
 #include "timer1.h"
 
-/*===================== [Variables Internas (Estáticas)] =====================*/
 static uint8_t Bandera_Home_Stop_1 = 1;
-/*===========================================================================*/
 
-/*===================== [Variables Externas (Globales)] =====================*/
 extern Last_Value Valor_Anterior;
-/*===========================================================================*/
+
 
 void Chequear_Home_Stop_1(void){
     if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
@@ -44,9 +41,9 @@ void Chequear_Home_Stop_1(void){
 
 int main(){
         
-    Create_RingBuffer();    // Ponerlo antes de habilitar el uso de UART
+//    Create_RingBuffer();    // Ponerlo antes de habilitar el uso de UART
     
-    /*============ Configuración interna del microcontrolador ============*/
+    /* ============   Configuración interna del microcontrolador   ============ */
     Config_Clock();
     Config_IO();
     Config_UART();
@@ -55,7 +52,7 @@ int main(){
     init_timer1();
 
     initInterrupts();
-    /*====================================================================*/
+    /* ======================================================================== */
 
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
 
@@ -71,7 +68,7 @@ int main(){
         }
         
         
-        //Comm_PC_Interface();
+        Comm_PC_Interface();
         //MEF_Accionamiento();
         //MEF_Principal();
         //Chequear_Home_Stop_1();
