@@ -57,14 +57,14 @@ int main(){
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
 
     LATAbits.LATA4 = 1;
-    SetTimer(100);
+    SetTimer(TEMP_1, 100);
     
     while(1) {
 
-        if(GetTimer() == 1)
+        if(GetTimer(TEMP_1) == 1)
         {
             LATAbits.LATA4 = !PORTAbits.RA4;
-            SetTimer(100);
+            SetTimer(TEMP_1, 100);
         }
         
         
