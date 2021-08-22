@@ -135,19 +135,22 @@ int Analizando_Datos(char* Segmento){
     while(Segmento[j] != '\r'){
         
         Angulo_Num++;
-        if(Angulo_Num > 2){
+        if(Angulo_Num > 3){
             // Más de dos angulos se detectaron.
+            putrsUART2("[Analizando_Datos] Error: Mas de dos angulos detectados\n\r");
             return 0;
         }
         
         for( ; Segmento[j] != '.' && !isspace(Segmento[j]); j++){
             if(!isdigit(Segmento[j])){
                 //Error detectando digitos
+                putrsUART2("[Analizando_Datos] Error: Error detectando digitos\n\r");
                 return 0;
             }
             Cant_Dig_Antes++;
             if(Cant_Dig_Antes > 3){
                 // + de 3 digitos en el ángulo antes del '.' o ' '
+                putrsUART2("[Analizando_Datos] Error: + de 3 digitos en el ángulo antes del '.' o ' '\n\r");
                 return 0;
             }
         }
@@ -157,11 +160,13 @@ int Analizando_Datos(char* Segmento){
             for( ; !isspace(Segmento[j]); j++){
                 if(!isdigit(Segmento[j])){
                     //Error detectando digitos
+                    putrsUART2("[Analizando_Datos] Error: Error detectando digitos\n\r");
                     return 0;
                 }
             }
         } else {
             // Punto decimal no detectado
+            putrsUART2("[Analizando_Datos] Error: Punto decimal no detectado\n\r");
             return 0;
         }
         
