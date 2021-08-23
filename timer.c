@@ -11,24 +11,11 @@
 #include "libpic30.h"
 #include "UART.h"
 /*===================== [Variables Internas (Globales)] =====================*/ 
-//static uint16_t count_seg = 0;
-//static uint16_t count_timer = 0;
-//
-//static uint8_t Contador_Tiempo_ms_1 = 0;
-//static uint8_t Contador_Tiempo_ms_2 = 0;
-//static uint8_t Contador_Tiempo_ms_3 = 0;
-//
-//static uint8_t Temporizador_1_Habilitado = 0;
-//static uint8_t Temporizador_2_Habilitado = 0;
-//static uint8_t Temporizador_3_Habilitado = 0;
-//
-//static uint8_t Temporizador_1_Estado_Conteo = 0;
-//static uint8_t Temporizador_2_Estado_Conteo = 0;
-//static uint8_t Temporizador_3_Estado_Conteo = 0;
+static uint8_t cont_timer = 0;
+static uint64_t _millis;
 /*===========================================================================*/
-struct timer timer1[CANT_TIMER];
+//struct timer timer1[CANT_TIMER];
 /*===================== [Variables Externas (Globales)] =====================*/
-
 /*===========================================================================*/
 void init_timer1(){
     
@@ -44,36 +31,40 @@ void init_timer1(){
     T1CONbits.TON = 1;// Start Timer
     
     // Inicializacion de las struct timer
-    uint8_t i;
-    for(i = 0; i < CANT_TIMER; i++) {
-        timer1[i].enable = 0;
-        timer1[i].tiempoCuenta = 0;
-        timer1[i].timerFlag = 0;
-    }
+//    uint8_t i;
+//    for(i = 0; i < CANT_TIMER; i++) {
+//        timer1[i].enable = 0;
+//        timer1[i].tiempoCuenta = 0;
+//        timer1[i].timerFlag = 0;
+//    }
 }
 
 
 /* ======================================================================== */
 
-void SetTimer(uint8_t index, int cont)
-{
-    timer1[index].enable = 1;
-    timer1[index].timerFlag = 0;
-    timer1[index].tiempoCuenta = cont * 125; // Cada 125 veces que salta _T1Interrupt se cumple un 1 ms 
-}
+//void SetTimer(uint8_t index, int cont)
+//{
+//    timer1[index].enable = 1;
+//    timer1[index].timerFlag = 0;
+//    timer1[index].tiempoCuenta = cont * 125; // Cada 125 veces que salta _T1Interrupt se cumple un 1 ms 
+//}
+//
+//
+//int GetTimer(uint8_t index)
+//{
+//    if (timer1[index].timerFlag == 0)
+//    {
+//        return 0;
+//    } else {
+//        timer1[index].timerFlag = 0;
+//        timer1[index].enable = 0;
+//        return 1;
+//    }
+//    return 0;
+//}
 
-
-int GetTimer(uint8_t index)
-{
-    if (timer1[index].timerFlag == 0)
-    {
-        return 0;
-    } else {
-        timer1[index].timerFlag = 0;
-        timer1[index].enable = 0;
-        return 1;
-    }
-    return 0;
+uint64_t millis() {
+    return _millis;
 }
 
 /* Timer1 ISR 
@@ -85,39 +76,23 @@ int GetTimer(uint8_t index)
 
 void __attribute__((interrupt,no_auto_psv)) _T1Interrupt(void)
 {
-    uint8_t i;
-    for(i = 0; i < CANT_TIMER; i++) {
-        if(timer1[i].enable == 1)
-        {
-            if(timer1[i].tiempoCuenta > 0) {
-                timer1[i].tiempoCuenta--;
-            } else {
-                timer1[i].timerFlag = 1;
-            }
-        }
-    }
-    
-    IFS0bits.T1IF = 0; // Clear Timer1 Interrupt Flag
-//    
-//    
-//    if(count_timer == 125){ // cumple 1ms y aumenta count_seg
-//        
-//        count_timer = 0;
-//        count_seg++;
-        
-//        if(count_seg == 1000)
+//    uint8_t i;
+//    for(i = 0; i < CANT_TIMER; i++) {
+//        if(timer1[i].enable == 1)
 //        {
-//            LATAbits.LATA4 = !PORTAbits.RA4;
-//            count_seg=0;
+//            if(timer1[i].tiempoCuenta > 0) {
+//                timer1[i].tiempoCuenta--;
+//            } else {
+//                timer1[i].timerFlag = 1;
+//            }
 //        }
-//        Function_Events_ms();
-//        if(tiempoCuenta > 0) {
-//            tiempoCuenta--;
-//        } else {
-//            timerFlag = 1;
-//        }        
 //    }
-//    count_timer++;
-     
+    if(cont_timer == 125) {
+        cont_timer = 0;
+        _millis++;
+    }
+    cont_timer++;
+    
+    IFS0bits.T1IF = 0; // Clear Timer1 Interrupt Flag     
 }
 

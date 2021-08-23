@@ -12,33 +12,26 @@
 extern "C" {
 #endif
 
-#define CANT_TIMER  2       // Cantidad maxima de timers que se pueden setear
+//#define CANT_TIMER  2       // Cantidad maxima de timers que se pueden setear
     
-typedef enum{
-    TEMP_1 = 0,
-    TEMP_2,
-    TEMP_3
-}timer_index;
-
-struct timer {
-    uint8_t enable;      // Index de timer
-    uint64_t tiempoCuenta;       // Tiempo de cuenta de timer
-    uint8_t timerFlag;      // Flag de tiempo cumplido
-};
-
-
+//typedef enum{
+//    TEMP_1 = 0,
+//    TEMP_2,
+//    TEMP_3
+//}timer_index;
+//
+//struct timer {
+//    uint8_t enable;      // Index de timer
+//    uint64_t tiempoCuenta;       // Tiempo de cuenta de timer
+//    uint8_t timerFlag;      // Flag de tiempo cumplido
+//};
 
 /*============================ [Funciones] ==================================*/   
 void init_timer1(void);
-//uint16_t temporizador(void);
-//void Temporizar_X_ms(void);
-//int Set_Temporizador(int Contador_Num,uint16_t Cant_ms);
-//int Get_Estado_Temporizadores(void);
-//void Function_Events_ms(void);
+//void SetTimer(uint8_t, int);
+//int GetTimer(uint8_t);
+uint64_t millis(void);
 /*===========================================================================*/
-
-void SetTimer(uint8_t, int);
-int GetTimer(uint8_t);
 
 #ifdef	__cplusplus
 }

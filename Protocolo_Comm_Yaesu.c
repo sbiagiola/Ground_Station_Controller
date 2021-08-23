@@ -129,53 +129,52 @@ Retorna un 1 si el comando esta correcto. En caso contrario se devolvera un 0
  */
 int Analizando_Datos(char* Segmento){
     
-    // P123.1 123.1\r
     int j = 1, Angulo_Num = 0, Cant_Dig_Antes = 0;
     
-    while(Segmento[j] != '\r'){
-        
+    while(Segmento[j - 1] != '\r')
+    {
         Angulo_Num++;
-        if(Angulo_Num > 3){
-            // Más de dos angulos se detectaron.
-            putrsUART2("[Analizando_Datos] Error: Mas de dos angulos detectados\n\r");
-            return 0;
+        if(Angulo_Num > 2) {
+            putrsUART2("[Analizando_Datos] Error: Mas de un angulo detectado\n");
+            return(0);
         }
         
-        for( ; Segmento[j] != '.' && !isspace(Segmento[j]); j++){
+        for( ; Segmento[j] != '.'; j++) {
             if(!isdigit(Segmento[j])){
                 //Error detectando digitos
-                putrsUART2("[Analizando_Datos] Error: Error detectando digitos\n\r");
+                putrsUART2("[Analizando_Datos] Error: Digito no valido (1)\n");
                 return 0;
             }
             Cant_Dig_Antes++;
-            if(Cant_Dig_Antes > 3){
+            if(Cant_Dig_Antes > 3) {
                 // + de 3 digitos en el ángulo antes del '.' o ' '
-                putrsUART2("[Analizando_Datos] Error: + de 3 digitos en el ángulo antes del '.' o ' '\n\r");
+                putrsUART2("[Analizando_Datos] Error: + de 3 digitos en el ángulo antes del '.'\n");
                 return 0;
             }
         }
         
-        if(Segmento[j] == '.'){
-            j++;
-            for( ; !isspace(Segmento[j]); j++){
-                if(!isdigit(Segmento[j])){
-                    //Error detectando digitos
-                    putrsUART2("[Analizando_Datos] Error: Error detectando digitos\n\r");
-                    return 0;
-                }
+        j++;
+        
+        for( ; !isspace(Segmento[j]); j++){
+            if(!isdigit(Segmento[j])){
+                //Error detectando digitos
+                putrsUART2("[Analizando_Datos] Error: Digito no valido (2)\n");
+                return 0;
             }
-        } else {
-            // Punto decimal no detectado
-            putrsUART2("[Analizando_Datos] Error: Punto decimal no detectado\n\r");
-            return 0;
         }
         
         j++;
         Cant_Dig_Antes = 0;
     }
     
+    if(Angulo_Num < 2) {
+        // Menos de dos angulos detectados
+        putrsUART2("[Analizando_Datos] Error: Menos de un angulo detectado\n");
+        return(0);
+    }
+    
     // Dato valido
-    return 1; 
+    return 1;
 }
 
 
@@ -188,34 +187,34 @@ uint8_t Verificando_Comando(){
     // Acimut:
     
     if(Buffer_Recepcion[0] == 'R' || Buffer_Recepcion[0] == 'r') {
-        putrsUART2("[Verificando_Comando] Comando GIRO_HORARIO detectado\r\n");
+        putrsUART2("[Verificando_Comando] Comando GIRO_HORARIO detectado\n");
         return Giro_Horario;
     }
     
     if(Buffer_Recepcion[0] == 'L' || Buffer_Recepcion[0] == 'l') {
-        putrsUART2("[Verificando_Comando] Comando GIRO_ANTIHORARIO detectado\r\n");
+        putrsUART2("[Verificando_Comando] Comando GIRO_ANTIHORARIO detectado\n");
         return Giro_Antihorario;
     }
     
     if(Buffer_Recepcion[0] == 'A' || Buffer_Recepcion[0] == 'a') {
-        putrsUART2("[Verificando_Comando] Comando STOP_ACIMUT detectado\r\n");
+        putrsUART2("[Verificando_Comando] Comando STOP_ACIMUT detectado\n");
         return Stop_Acimut;
     }
     
     // Elevacion:
     
     if(Buffer_Recepcion[0] == 'U' || Buffer_Recepcion[0] == 'u') {
-        putrsUART2("[Verificando_Comando] Comando ARRIBA detectado\r\n");
+        putrsUART2("[Verificando_Comando] Comando ARRIBA detectado\n");
         return Arriba;
     }
     
     if(Buffer_Recepcion[0] == 'D' || Buffer_Recepcion[0] == 'd') {
-        putrsUART2("[Verificando_Comando] Comando ABAJO detectado\r\n");
+        putrsUART2("[Verificando_Comando] Comando ABAJO detectado\n");
         return Abajo;
     }
     
     if(Buffer_Recepcion[0] == 'E' || Buffer_Recepcion[0] == 'e') {
-        putrsUART2("[Verificando_Comando] Comando STOP_ELEVACION detectado\r\n");
+        putrsUART2("[Verificando_Comando] Comando STOP_ELEVACION detectado\n");
         return Stop_Elevacion;
     }
     
@@ -223,21 +222,22 @@ uint8_t Verificando_Comando(){
     
     // Parar todo
     if(Buffer_Recepcion[0] == 'S' || Buffer_Recepcion[0] == 's'){
-        putrsUART2("[Verificando_Comando] Comando PARAR_TODO detectado\r\n");
+        putrsUART2("[Verificando_Comando] Comando PARAR_TODO detectado\n");
         return Parar_Todo;
     }
     
     // Comando objetivo tracking
     if(Buffer_Recepcion[0] == 'P' || Buffer_Recepcion[0] == 'p'){
-        putrsUART2("[Verificando_Comando] Comando OBJ_TRACKING detectado\r\n");
+        putrsUART2("[Verificando_Comando] Comando OBJ_TRACKING detectado\n");
         if(Analizando_Datos(Buffer_Recepcion)){
             Segmentar_Datos(Buffer_Recepcion,Char_Comando.Char_Acimut,Char_Comando.Char_Elevacion);
             
-            putrsUART2("\n\r [Verificando_Comando] azimut --> ");
+            putrsUART2("[Verificando_Comando] ========= Datos obtenidos ========\n");
+            putrsUART2("[Verificando_Comando] azimut --> ");
             putrsUART2(Char_Comando.Char_Acimut);
-            putrsUART2("\n\r [Verificando_Comando] elevacion --> ");
+            putrsUART2("\n[Verificando_Comando] elevacion --> ");
             putrsUART2(Char_Comando.Char_Elevacion);
-            putrsUART2("\n\r");
+            putrsUART2("\n[Verificando_Comando] ================================\n");
             return Mayor_Presicion_a_e_grados;
         }
         else{
@@ -276,7 +276,7 @@ void Comm_PC_Interface(){
             case Esperando_Datos:
                 
                 if( FlagRec != 0 ){
-                    putrsUART2("[Comm_PC_Interface] Comando recibido\n\r");
+                    putrsUART2("[Comm_PC_Interface] Comando recibido\n\n");
                     Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
                     Indice_Rec++;
                     
@@ -320,8 +320,7 @@ void Comm_PC_Interface(){
                 
                 putrsUART2("[Comm_PC_Interface] Comando recibido: ");
                 putrsUART2(Buffer_Recepcion);
-                putrsUART2("/n/r");
-                putrsUART2("[Comm_PC_Interface] Validando comando...\n\r");
+                putrsUART2("[Comm_PC_Interface] Validando comando...\n");
                 
                     
             /* Se podría poner que cada cierto tiempo los comandos "manuales se borren, como para que no queden
@@ -338,7 +337,7 @@ void Comm_PC_Interface(){
 //                uart_ringBuffer_envDatos_U2(Mensaje_Recibido_Correcto,sizeof(Mensaje_Recibido_Correcto));
 //                strcpy(Char_Comando.Comando_Recibido,Buffer_Recepcion);
                     
-                putrsUART2("[Comm_PC_Interface] Comando valido!\n\r");
+                putrsUART2("[Comm_PC_Interface] Comando valido!\n");
                 Comando_Procesado.Ultimo = Comando_Procesado.Actual;
                 Comando_Procesado.Actual = Comando_Procesado.Proximo;
                     
@@ -353,7 +352,7 @@ void Comm_PC_Interface(){
             
             case Limpiando_Buffer:
                 
-                putrsUART2("[Comm_PC_Interface] Limpiando buffer...\n\r");
+                putrsUART2("[Comm_PC_Interface] Limpiando buffer...\n\n");
                 
                 int i = 0;
                 while(i < MAX_SIZE_COMMAND_AVALIBLE) { // [TO DO] Fijarse si se puede usar size del Buffer_Recepcion 
