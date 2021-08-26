@@ -13,17 +13,22 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+
 
 /*==================== [Macros y Definiciones] ========================*/    
-#define LI1_Variador        PORTBbits.RB15
-#define LI2_Variador        PORTBbits.RB14
-#define LI3_Variador        PORTAbits.RA7
-#define LI4_Variador        PORTAbits.RA10
+#define LI1_Variador        LATBbits.LATB15
+#define LI2_Variador        LATBbits.LATB14
+#define LI3_Variador        LATAbits.LATA7
+#define LI4_Variador        LATAbits.LATA10
     
-#define OUT_RELE_1          PORTCbits.RC9
-#define OUT_RELE_2          PORTCbits.RC8
-#define OUT_RELE_3          PORTCbits.RC7
-#define OUT_RELE_4          PORTCbits.RC6
+#define OUT_RELE_1          LATCbits.LATC9
+#define OUT_RELE_2          LATCbits.LATC8
+#define OUT_RELE_3          LATCbits.LATC7
+#define OUT_RELE_4          LATCbits.LATC6
+    
+#define ON 1
+#define OFF 0
 
 typedef struct{
     double Cero_Acimut;
@@ -41,6 +46,7 @@ typedef struct{
     uint8_t Proximo;
     uint8_t Ultimo;
 }Info_Comandos_Procesados;
+
 
 typedef enum{
     Stop = 1,

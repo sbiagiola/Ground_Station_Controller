@@ -77,6 +77,7 @@ Info_Comandos_Procesados Comando_Procesado;
 
 uint8_t Flag_Parada_Emergencia = 0;     
 Comando_Almacenado Char_Comando;
+uint8_t nuevoComando = 0;
 /*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
@@ -204,13 +205,13 @@ uint8_t Verificando_Comando(){
     // Elevacion:
     
     if(Buffer_Recepcion[0] == 'U' || Buffer_Recepcion[0] == 'u') {
-        putrsUART2("[Verificando_Comando] Comando ARRIBA detectado\n");
-        return Arriba;
+        putrsUART2("[Verificando_Comando] Comando GIRO_ARRIBA detectado\n");
+        return Giro_Arriba;
     }
     
     if(Buffer_Recepcion[0] == 'D' || Buffer_Recepcion[0] == 'd') {
-        putrsUART2("[Verificando_Comando] Comando ABAJO detectado\n");
-        return Abajo;
+        putrsUART2("[Verificando_Comando] Comando GIRO_ABAJO detectado\n");
+        return Giro_Abajo;
     }
     
     if(Buffer_Recepcion[0] == 'E' || Buffer_Recepcion[0] == 'e') {
@@ -222,13 +223,13 @@ uint8_t Verificando_Comando(){
     
     // Parar todo
     if(Buffer_Recepcion[0] == 'S' || Buffer_Recepcion[0] == 's'){
-        putrsUART2("[Verificando_Comando] Comando PARAR_TODO detectado\n");
-        return Parar_Todo;
+        putrsUART2("[Verificando_Comando] Comando STOP_GLOBAL detectado\n");
+        return Stop_Global;
     }
     
     // Comando objetivo tracking
     if(Buffer_Recepcion[0] == 'P' || Buffer_Recepcion[0] == 'p'){
-        putrsUART2("[Verificando_Comando] Comando OBJ_TRACKING detectado\n");
+        putrsUART2("[Verificando_Comando] Comando OBJETIVO_TRACKING detectado\n");
         if(Analizando_Datos(Buffer_Recepcion)){
             Segmentar_Datos(Buffer_Recepcion,Char_Comando.Char_Acimut,Char_Comando.Char_Elevacion);
             
@@ -238,7 +239,7 @@ uint8_t Verificando_Comando(){
             putrsUART2("\n[Verificando_Comando] elevacion --> ");
             putrsUART2(Char_Comando.Char_Elevacion);
             putrsUART2("\n[Verificando_Comando] ================================\n");
-            return Mayor_Presicion_a_e_grados;
+            return Objetivo_Tracking;
         }
         else{
             putrsUART2("[Verificando_Comando] Comando tracking no valido\n\r");
@@ -250,14 +251,14 @@ uint8_t Verificando_Comando(){
 
     // Elevacion
     if(Buffer_Recepcion[0] == 'B' || Buffer_Recepcion[0] == 'b'){
-        putrsUART2("[Verificando_Comando] Comando DEVOLVER_VALOR_ELEVACION detectado\n\r");
-        return Devolver_Valor_Elevacion;
+        putrsUART2("[Verificando_Comando] Comando LEER_ELEVACION detectado\n\r");
+        return Leer_Elevacion;
     }
     
     // Acimut
     if(Buffer_Recepcion[0] == 'C' || Buffer_Recepcion[0] == 'c'){
-        putrsUART2("[Verificando_Comando] Comando DEVOLVER_VALOR_ACIMUT detectado\n\r");
-        return Devolver_Valor_Acimut;
+        putrsUART2("[Verificando_Comando] Comando LEER_ACIMUT detectado\n\r");
+        return Leer_Acimut;
     }
 
     putrsUART2("[Verificando_Comando] Comando no valido\n\r");
@@ -338,8 +339,9 @@ void Comm_PC_Interface(){
 //                strcpy(Char_Comando.Comando_Recibido,Buffer_Recepcion);
                     
                 putrsUART2("[Comm_PC_Interface] Comando valido!\n");
-                Comando_Procesado.Ultimo = Comando_Procesado.Actual;
+//                Comando_Procesado.Ultimo = Comando_Procesado.Actual;
                 Comando_Procesado.Actual = Comando_Procesado.Proximo;
+                nuevoComando = 1;
                     
 //                if(!Flag_Parada_Emergencia){ 
 //                    Comando_Procesado.Ultimo = Comando_Procesado.Actual;

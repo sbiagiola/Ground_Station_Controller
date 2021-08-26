@@ -29,6 +29,8 @@ extern "C" {
 #define MAX_LONG_DATA_ANGLE 6           // Máxima longitud de datos asociada al ángulo
 /*========================================================================*/
     
+
+    
 /*===================== [Macros y Definiciones] ==========================*/
 typedef struct{
     char Comando_Recibido[MAX_SIZE_COMMAND_AVALIBLE];
@@ -53,18 +55,22 @@ typedef enum{
     Giro_Antihorario,               // Counter Clockwise Rotation
     Stop_Acimut,                    // CW/CCW Rotation Stop
     // Elevacion
-    Arriba,                         // UP Direction Rotation
-    Abajo,                          // DOWN Direction Rotation
+    Giro_Arriba,                         // UP Direction Rotation
+    Giro_Abajo,                          // DOWN Direction Rotation
     Stop_Elevacion,                 // UP/DOWN Direction Rotation Stop
 
     // Comandos de lectura
-    Devolver_Valor_Acimut,          // Retornar el valor de actual del ángulo de de acimut 
-    Devolver_Valor_Elevacion,       // Retornar el valor de actual del ángulo de elevación
+    Leer_Acimut,          // Retornar el valor de actual del ángulo de de acimut 
+    Leer_Elevacion,       // Retornar el valor de actual del ángulo de elevación
 
     // Comandos de tracking
-    Parar_Todo,                     // Stop Global
-    Mayor_Presicion_a_e_grados,     // Formato de mayor precisión para combinación
+    Stop_Global,                     // Stop Global
+    Objetivo_Tracking,     // Formato de mayor precisión para combinación
+            
+    Sleep,
 }ID_Comandos;
+
+
 /*===========================================================================*/
 
 /*============================ [Funciones] ==================================*/

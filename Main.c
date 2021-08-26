@@ -21,23 +21,24 @@
 #include "Salidas_Motores.h"
 #include "timer1.h"
 
-static uint8_t Bandera_Home_Stop_1 = 1;
+//static uint8_t Bandera_Home_Stop_1 = 1;
 
 extern Last_Value Valor_Anterior;
 
 
-void Chequear_Home_Stop_1(void){
-    if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
-        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
-            //Seteo de posicion de reposo de alguna manera
-            Bandera_Home_Stop_1 = 0;
-        }
-        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0){
-            //Definir acciones
-        }
-        Home_Stop_1 = Valor_Anterior.Home_St0p_1;
-    }
-}
+//void Chequear_Home_Stop_1(void){
+//    if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
+//        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
+//            //Seteo de posicion de reposo de alguna manera
+//            Bandera_Home_Stop_1 = 0;
+//        }
+//        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0){
+//            //Definir acciones
+//        }
+//        Home_Stop_1 = Valor_Anterior.Home_St0p_1;
+//    }
+//}
+int primerinicio = 1;
 
 int main(){
         
@@ -51,27 +52,32 @@ int main(){
     
     init_timer1();
 
+    // [TO DO] Verificar por que los reles se apagan solos despues de un tiempo
     initInterrupts();
     /* ======================================================================== */
 
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
 
-    LATAbits.LATA4 = 1;
+//    LATAbits.LATA4 = 1;
 //    SetTimer(TEMP_1, 10000);
     
     unsigned long millis_LED;
     
+  
     while(1) {
-
-        if(millis() - millis_LED > 100)
+        
+        if(millis() - millis_LED > 50)
         {
-            LATAbits.LATA9 = !PORTAbits.RA9;
+            LATAbits.LATA4 = !PORTAbits.RA4;
             millis_LED = millis();
         }
         
         
         Comm_PC_Interface();
-        //MEF_Accionamiento();
+        MEF_Accionamiento();
+        
+        
+//        MEF_Accionamiento();
         //MEF_Principal();
         //Chequear_Home_Stop_1();
     }

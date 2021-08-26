@@ -75,16 +75,16 @@ void Define_IO_Pins(void){
     TRISAbits.TRISA4 = OUTPUT;  // Salida al led.           Pin 34.
     TRISAbits.TRISA7 = OUTPUT;  // Salida a motor.          Pin 13.
     TRISAbits.TRISA8 = OUTPUT;  // Salida HMI_S/L           Pin 32.
-    TRISAbits.TRISA9 = INPUT;   // Entrada de END/STOP 1.   Pin 35.
+    TRISAbits.TRISA9 = INPUT;   // Entrada de Anemometro.   Pin 35.
     TRISAbits.TRISA10 = OUTPUT; // Salida a motor.          Pin 12.
     
     //Port B
     
-    TRISBbits.TRISB5 = INPUT;   // Entrada de END/STOP 2.       Pin 41.
+    TRISBbits.TRISB5 = INPUT;   // Entrada de HOME/STOP 2.      Pin 41.
     TRISBbits.TRISB6 = INPUT;   // Entrada de encoder1 FASE A.  Pin 42.
     TRISBbits.TRISB7 = INPUT;   // Entrada de encoder1 FASE B.  Pin 43.
     TRISBbits.TRISB8 = INPUT;   // Entrada de encoder1 FASE Z.  Pin 44.
-    TRISBbits.TRISB9 = INPUT;   // Entrada de Anemometro.       Pin 1.
+    TRISBbits.TRISB9 = INPUT;   // Entrada de HOME/STOP 1.      Pin 1.
     TRISBbits.TRISB12 = OUTPUT; // Salida DACRP.                Pin 10.
     TRISBbits.TRISB13 = OUTPUT; // Salida DACRN.                Pin 11.
     TRISBbits.TRISB14 = OUTPUT; // Salida a motor.              Pin 14.

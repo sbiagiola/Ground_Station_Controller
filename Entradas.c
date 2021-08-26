@@ -26,6 +26,7 @@ static uint8_t Bandera_Encoder_1_A = 1;
 static uint8_t Bandera_Encoder_1_B = 1;
 static uint8_t Bandera_Encoder_2_A = 1;
 static uint8_t Bandera_Encoder_2_B = 1;
+static uint8_t Bandera_Home_Stop_1 = 1;
 static uint8_t Bandera_Home_Stop_2 = 1;
 static uint8_t Bandera_Parad_Emerg = 0;
 /*===========================================================================*/
@@ -166,14 +167,14 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         Enconder_2_Fase_Z = Valor_Anterior.Encoder_2_Z;
     }
     
-    if(Anemometro != Valor_Anterior.Anemometr0){
-        if(Anemometro == HIGH){
-            Contador.Anemometr0++;
-            //Falta tener el anemometro y definir un número máximo
-        }
-        Anemometro = Valor_Anterior.Anemometr0;
-    }
-    /*  Esta parte nunca va a darse dado que el puerto A no tiene la capacidad de CN.
+//    if(Anemometro != Valor_Anterior.Anemometr0){
+//        if(Anemometro == HIGH){
+//            Contador.Anemometr0++;
+//            //Falta tener el anemometro y definir un número máximo
+//        }
+//        Anemometro = Valor_Anterior.Anemometr0;
+//    }
+
     
     if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
         if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
@@ -185,7 +186,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         }
         Home_Stop_1 = Valor_Anterior.Home_St0p_1;
     }
-    */
+
     if(Home_Stop_2 != Valor_Anterior.Home_St0p_2){
         if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 1){
             //Seteo de posicion de reposo de alguna manera
@@ -203,7 +204,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
             Bandera_Parad_Emerg = 1;
             Flag_Parada_Emergencia = Bandera_Parad_Emerg;
             Comando_Procesado.Proximo = Comando_Procesado.Actual;
-            Comando_Procesado.Actual = Parar_Todo;
+            Comando_Procesado.Actual = Stop_Global;
             putrsUART2("PE encendida!\n\r");
             LATCbits.LATC9 = 1;
         }

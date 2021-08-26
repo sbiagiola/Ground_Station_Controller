@@ -22,10 +22,11 @@ extern "C" {
 #define Enconder_2_Fase_Z   PORTCbits.RC5
     
 #define Parada_Emergencia   PORTCbits.RC2
-#define Anemometro          PORTBbits.RB9
-    
+#define Anemometro          PORTAbits.RA4
+ 
+#define Home_Stop_1         PORTBbits.RB9
 #define Home_Stop_2         PORTBbits.RB5
-#define Home_Stop_1         PORTAbits.RA4
+
     
 typedef struct{
     long Encoder_1_Pulsos;

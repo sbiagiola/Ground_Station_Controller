@@ -11,12 +11,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+
 #include "Salidas_Motores.h"
+
 #include "Protocolo_Comm_Yaesu.h"
 #include "Entradas.h"
 #include "RingBuffer.h"
 #include "timer1.h"
 #include "UART.h"
+
 /*===================== [Variables Internas (Globales)] =====================*/
 Struct_Data_Control Data_Control;
 
@@ -32,6 +35,7 @@ extern uint8_t Flag_Parada_Emergencia;
 
 extern Comando_Almacenado Char_Comando;
 extern Info_Comandos_Procesados Comando_Procesado;
+extern uint8_t nuevoComando;
 /*===========================================================================*/
 
 void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
@@ -40,11 +44,11 @@ void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
     
     switch(Id_Comando){
         
-        case Devolver_Valor_Acimut:
+        case Leer_Acimut:
             Cant_Carac_A_Enviar = sprintf(Data_A_Enviar,"\n+0%.1f\r",Data_Control.Valor_Actual_Acimut);
         break;
         
-        case Devolver_Valor_Elevacion:
+        case Leer_Elevacion:
             Cant_Carac_A_Enviar = sprintf(Data_A_Enviar,"\n+0%.1f\r",Data_Control.Valor_Actual_Elevacion);
         break;
         
@@ -271,7 +275,7 @@ void Actualizar_Objetivos(uint8_t ID_Comando){
     
 
     
-    if(ID_Comando == Mayor_Presicion_a_e_grados){
+    if(ID_Comando == Objetivo_Tracking){
         Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
         Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
     }
@@ -301,14 +305,57 @@ void Actualizar_Objetivos(uint8_t ID_Comando){
 //return Stop;  
 //}
 
+//static Estado_MEF_Principal Estado_Actual_MEF_Principal = Sleep;
+//
 //void MEF_Principal(void){
-//    static Estado_MEF_Principal Estado_Actual_MEF_Principal = Stop;
-//    static Estado_MEF_Principal Estado_Anterior_MEF_Principal = Stop;
 //    
-//    Estado_Anterior_MEF_Principal = Estado_Actual_MEF_Principal;
-//    Estado_Actual_MEF_Principal = Identificar_Tipo_Comando(Comando_Procesado.Actual);
+//    if(nuevoComando > 0)
+//    {
+//        Estado_Actual_MEF_Principal = Comando_Procesado.Actual;
+//        nuevoComando = 0;
+//    } else {
+//        Estado_Actual_MEF_Principal = Sleep;
+//    }
+//    
+////    static Estado_MEF_Principal Estado_Actual_MEF_Principal = Sleep;
+////    static Estado_MEF_Principal Estado_Anterior_MEF_Principal = Sleep;
+//    
+////    Estado_Anterior_MEF_Principal = Estado_Actual_MEF_Principal;
+////    Estado_Actual_MEF_Principal = Identificar_Tipo_Comando(Comando_Procesado.Actual);
 //    
 //    switch(Estado_Actual_MEF_Principal){
+//        
+//        case Giro_Horario:
+//            OUT_RELE_1 = ON;
+//            Estado_Actual_MEF_Principal = Sleep;
+//            break;
+//            
+//        case Giro_Antihorario:
+//            OUT_RELE_2 = ON;
+//            Estado_Actual_MEF_Principal = Sleep;
+//            break;
+//            
+//        case Stop_Acimut:
+//            OUT_RELE_1 = OFF;
+//            OUT_RELE_2 = OFF;
+//            Estado_Actual_MEF_Principal = Sleep;
+//            break;
+//                    
+//        case Arriba:
+//            OUT_RELE_3 = ON;
+//            Estado_Actual_MEF_Principal = Sleep;
+//            break;
+//            
+//        case Abajo:
+//            OUT_RELE_4 = ON;
+//            Estado_Actual_MEF_Principal = Sleep;
+//            break;
+//            
+//        case Stop_Elevacion:
+//            OUT_RELE_3 = OFF;
+//            OUT_RELE_4 = OFF;
+//            Estado_Actual_MEF_Principal = Sleep;
+//            break;
 //        
 //        case Stop:
 //            Bajar_Salidas();
@@ -369,76 +416,150 @@ void Actualizar_Objetivos(uint8_t ID_Comando){
 //            Estado_Actual_MEF_Principal = Estado_Anterior_MEF_Principal;
 //        break;
 //        
+//        case Sleep:
+//            break;
+//        
 //        default: Estado_Actual_MEF_Principal = Stop;
 //
 //    }
 //}
 
-//void MEF_Movimiento_Manual(){
-//    static ID_Comandos Estado_Actual_MEF_Manual ;
-//    static ID_Comandos Estado_Anterior_MEF_Manual;
-//    
-//    Estado_Anterior_MEF_Manual = Estado_Actual_MEF_Manual;
-//    Estado_Actual_MEF_Manual = Comando_Procesado.Actual;
-//    
-//    switch(Estado_Actual_MEF_Manual){
-//        
-//        case Giro_Horario:
-//            // Hay problema cuando estas en este estado y te mandan otro comando. Ahi quedan las salidas arriba. ver esto
-//            if(Get_Estado_Temporizadores() != Temporizador_1){
-//                if(Set_Temporizador(Temporizador_1,5)){
-//                    Girar_Horario();
-//                }
-//            }else{  //Get_Estado_Temporizadores() == Temporizador_2
-//                Estado_Actual_MEF_Manual = Stop_Acimut;
-//            }
-//        break;
-//
-//        case Giro_Antihorario:
-//            // Disparo un temporizador que en X mSeg cambie el estado a parar acimut.
-//            if(Get_Estado_Temporizadores() != Temporizador_1){
-//                if(Set_Temporizador(Temporizador_1,5)){
-//                    Girar_Antihorario();
-//                }
-//            }else{  //Get_Estado_Temporizadores() == Temporizador_2
-//                Estado_Actual_MEF_Manual = Stop_Acimut;
-//            }
-//        break;
-//
-//        case Stop_Acimut:
-//            Parar_Acimut();
-//        break;
-//        
-//        case Arriba:
-//            if(Get_Estado_Temporizadores() != Temporizador_2){
-//                if(Set_Temporizador(Temporizador_2,5)){
-//                    Mov_Arriba();
-//                }
-//            }else{  //Get_Estado_Temporizadores() == Temporizador_1
-//                Estado_Actual_MEF_Manual = Stop_Elevacion;
-//            }
-//        break;
-//
-//        case Abajo:
-//            // Disparo un temporizador que en X mSeg cambie el estado a parar elevacion.
-//            if(Get_Estado_Temporizadores() != Temporizador_2){
-//                if(Set_Temporizador(Temporizador_2,5)){
-//                    Mov_Abajo();
-//                }
-//            }else{  //Get_Estado_Temporizadores() == Temporizador_1
-//                Estado_Actual_MEF_Manual = Stop_Elevacion;
-//            }
-//        break;
-//
-//        case Stop_Elevacion:
-//            Parar_Elevacion();
-//        break;
-//        
-//        default: Bajar_Salidas();
-//        
-//    }
-//
-//}
+ID_Comandos estado_Accionamiento = Sleep;
+uint16_t ciclos_sin_comandos;
+unsigned long delayTimer1;
+
+void MEF_Accionamiento(){
+    
+    if(nuevoComando > 0)
+    {
+        putrsUART2("NUEVO COMANDO\n");
+        estado_Accionamiento = Comando_Procesado.Actual;
+        nuevoComando = 0;
+        ciclos_sin_comandos = 0;
+    } else {
+        ciclos_sin_comandos++;
+        if(ciclos_sin_comandos == 100000) {
+            // [TO DO] Rutina para volver a posicion de home antes de Sleep ???
+            estado_Accionamiento = Sleep;
+            ciclos_sin_comandos = 0;
+        }
+    }
+    
+    // Parada de emergencia
+    if(Flag_Parada_Emergencia == 1) {
+        OUT_RELE_1 = OFF;
+        OUT_RELE_2 = OFF;
+        OUT_RELE_3 = OFF;
+        OUT_RELE_4 = OFF;
+        estado_Accionamiento = Sleep;
+    }
+    
+    switch(estado_Accionamiento){
+        
+        /* =========  Movimiento manual  ========== */
+        
+        // ------- Acimut:
+        
+        case Giro_Horario:
+            if(PORTCbits.RC8) {
+                OUT_RELE_2 = OFF;
+                delayTimer1 = millis();
+                while(millis() - delayTimer1 < 2000) {} // [TO DO] Evaluar el tiempo de delay
+            }
+            OUT_RELE_1 = ON;
+            estado_Accionamiento = Sleep;
+            break;
+            
+        case Giro_Antihorario:
+            if(PORTCbits.RC9) {
+                OUT_RELE_1 = OFF;
+                delayTimer1 = millis();
+                while(millis() - delayTimer1 < 2000) {}
+            }
+            OUT_RELE_2 = ON;
+            estado_Accionamiento = Sleep;
+            break;
+            
+        case Stop_Acimut:
+            OUT_RELE_1 = OFF;
+            OUT_RELE_2 = OFF;
+            estado_Accionamiento = Sleep;
+            break;
+            
+        // ------- Elevacion:
+                    
+        case Giro_Arriba:
+            if(PORTCbits.RC6) {
+                OUT_RELE_4 = OFF;
+                delayTimer1 = millis();
+                while(millis() - delayTimer1 < 2000) {}
+            }
+            OUT_RELE_3 = ON;
+            estado_Accionamiento = Sleep;
+            break;
+            
+        case Giro_Abajo:
+            if(PORTCbits.RC7) {
+                OUT_RELE_3 = OFF;
+                delayTimer1 = millis();
+                while(millis() - delayTimer1 < 2000) {}
+            }
+            OUT_RELE_4 = ON;
+            estado_Accionamiento = Sleep;
+            break;
+            
+        case Stop_Elevacion:
+            OUT_RELE_3 = OFF;
+            OUT_RELE_4 = OFF;
+            estado_Accionamiento = Sleep;
+            break;
+            
+        // ------- Stop_Global:
+            
+        case Stop_Global:
+            OUT_RELE_1 = OFF;
+            OUT_RELE_2 = OFF;
+            OUT_RELE_3 = OFF;
+            OUT_RELE_4 = OFF;
+            estado_Accionamiento = Sleep;
+            break;
+            
+        /* =========  Movimiento tracking  ========== */
+            
+        case Objetivo_Tracking:
+            // [TO DO] Logica de control
+            // IF PRIMERA VEZ
+            OUT_RELE_1 = OFF;
+            OUT_RELE_2 = OFF;
+            OUT_RELE_3 = OFF;
+            OUT_RELE_4 = OFF;
+            //
+            
+//            Actualizar_Objetivos(Comando_Procesado.Actual);
+//            Calcular_Posicion_Actual(&Contador);
+//            Control_Posicion_Acimut();
+//            Control_Posicion_Elevacion();
+            
+            
+            
+            estado_Accionamiento = Sleep;
+            break;
+            
+        /* ================  Sleep  ================= */
+            
+        case Sleep:
+            break;
+            
+        default:
+            estado_Accionamiento = Sleep;
+    }
+}
+
+
+
+
+
+
 void Control_Posicion_Acimut(void){
     //if(){   //Mientras no sale el HOME_STOP_X podemos mover
         if(Data_Control.Target_Acimut > (Data_Control.Valor_Actual_Acimut + OFFSET_ANGULAR_ENCODER_ACIMUT)){

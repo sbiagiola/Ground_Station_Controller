@@ -71,8 +71,6 @@ uint64_t millis() {
     Interrup salta con una frecuencia de 5Mhz 
 */
 
-// [TO DO]  fijarse si esta bien calibrado o si pierde mucho tiempo en los if (probar con 5 timers)
-//          en ese caso se puede sacar el timerflag y comprobar si es igual a 0 el tiempoCuenta
 
 void __attribute__((interrupt,no_auto_psv)) _T1Interrupt(void)
 {
