@@ -47,14 +47,23 @@ typedef struct{
     uint8_t Ultimo;
 }Info_Comandos_Procesados;
 
+typedef enum {
+    ALL = 1,
+    ACIMUT,
+    ACIMUT_RIGTH,
+    ACIMUT_LEFT,
+    ELEVACION,
+    ELEVACION_UP,
+    ELEVACION_DOWN,
+}OUT;
 
-typedef enum{
-    Stop = 1,
-    Tracking,
-    Movimiento_Manual,
-    Enviar_Posicion,
-    Cambio_Veloc_Elevacion,
-}Estado_MEF_Principal;
+//typedef enum{
+//    Stop = 1,
+//    Tracking,
+//    Movimiento_Manual,
+//    Enviar_Posicion,
+//    Cambio_Veloc_Elevacion,
+//}Estado_MEF_Principal;
 
 #define GRADOS_POR_VUELTA                       360
 
@@ -79,6 +88,8 @@ typedef enum{
 /*========================================================================*/
     
 /*===========================  Funciones   ===============================*/
+void Stop(OUT);
+
 void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando);
 void Calcular_Posicion_Actual(const _Contador* Data);
 void MEF_Accionamiento(void);

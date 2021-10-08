@@ -54,25 +54,23 @@ void initCN()
 }
 
 void Config_CN_Pins(){
-CNEN1bits.CN10IE = 1;   // Enable CN10 pin for interrupt detection  RC2 (PARADA EMERG)
-CNEN2bits.CN21IE = 1;   // Enable CN22 pin for interrupt detection  RB9 (ANEMOMETRO)
+    CNEN1bits.CN10IE = 1;   // Enable CN10 pin for interrupt detection  RC2 (PARADA EMERG)
+    CNEN2bits.CN21IE = 1;   // Enable CN22 pin for interrupt detection  RB9 (ANEMOMETRO)
 
-CNEN2bits.CN22IE = 1;   // Enable CN22 pin for interrupt detection  RB8 (FASE A ENCODER 1)
-CNEN2bits.CN23IE = 1;   // Enable CN23 pin for interrupt detection  RB7 (FASE B ENCODER 1)
-CNEN2bits.CN24IE = 1;   // Enable CN24 pin for interrupt detection  RB6 (FASE Z ENCODER 1)
+    CNEN2bits.CN22IE = 1;   // Enable CN22 pin for interrupt detection  RB8 (FASE A ENCODER 1)
+    CNEN2bits.CN23IE = 1;   // Enable CN23 pin for interrupt detection  RB7 (FASE B ENCODER 1)
+    CNEN2bits.CN24IE = 1;   // Enable CN24 pin for interrupt detection  RB6 (FASE Z ENCODER 1)
 
-CNEN2bits.CN27IE = 1;   // Enable CN27 pin for interrupt detection  RB5 (END/STOP 2)
+    CNEN2bits.CN27IE = 1;   // Enable CN27 pin for interrupt detection  RB5 (END/STOP 2)
 
-CNEN2bits.CN25IE = 1;   // Enable CN25 pin for interrupt detection  RC4 (FASE B ENCODER 2)
-CNEN2bits.CN26IE = 1;   // Enable CN26 pin for interrupt detection  RC5 (FASE Z ENCODER 2)
-CNEN2bits.CN28IE = 1;   // Enable CN28 pin for interrupt detection  RC3 (FASE A ENCODER 2)
+    CNEN2bits.CN25IE = 1;   // Enable CN25 pin for interrupt detection  RC4 (FASE B ENCODER 2)
+    CNEN2bits.CN26IE = 1;   // Enable CN26 pin for interrupt detection  RC5 (FASE Z ENCODER 2)
+    CNEN2bits.CN28IE = 1;   // Enable CN28 pin for interrupt detection  RC3 (FASE A ENCODER 2)
 
-IFS1bits.CNIF = 0;      // Reset CN interrupt   (Recomendaban esto)|
+    IFS1bits.CNIF = 0;      // Reset CN interrupt   (Recomendaban esto)|
 }
 
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
-    
-    putrsUART2("Salto interrupt\n\r");
     
     if( (Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A) || (Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B) ){
 
@@ -167,41 +165,40 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         Enconder_2_Fase_Z = Valor_Anterior.Encoder_2_Z;
     }
     
-//    if(Anemometro != Valor_Anterior.Anemometr0){
-//        if(Anemometro == HIGH){
-//            Contador.Anemometr0++;
-//            //Falta tener el anemometro y definir un número máximo
-//        }
-//        Anemometro = Valor_Anterior.Anemometr0;
-//    }
-
-    
+    // ---------- HOME STOP 1
     if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
         putrsUART2("[_CNInterrupt] Home_Stop_1 interrupt detected!");
+        
+        // [TO DO] Para que es este if?
         if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
             //Seteo de posicion de reposo de alguna manera
             Bandera_Home_Stop_1 = 0;
         }
-        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0){
-            //Definir acciones
-            OUT_RELE_1 = OFF;
-            OUT_RELE_2 = OFF;
-        }
+        
+        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0)
+            Stop(ACIMUT);
+        
         Home_Stop_1 = Valor_Anterior.Home_St0p_1;
     }
-
+    
+    // ---------- HOME STOP 2
     if(Home_Stop_2 != Valor_Anterior.Home_St0p_2){
         putrsUART2("[_CNInterrupt] Home_Stop_2 interrupt detected!");
+        
+        // [TO DO] Para que es este if?
         if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 1){
             //Seteo de posicion de reposo de alguna manera
             Bandera_Home_Stop_2 = 0;
         }
-        if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 0){
-            //Definir acciones
-        }
+        
+        if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 0)
+            Stop(ELEVACION);
+
         Home_Stop_2 = Valor_Anterior.Home_St0p_2;
     }
     
+    // ---------- PARADA DE EMERGENCIA
+    // [TO DO] Cambiar comando por stop directo
     if(Parada_Emergencia != Valor_Anterior.Parad_Emerg){
         putrsUART2("[_CNInterrupt] Parada_Emergencia interrupt detected!");
         if(Parada_Emergencia == LOW && Bandera_Parad_Emerg == 0){
@@ -210,18 +207,16 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
             Comando_Procesado.Proximo = Comando_Procesado.Actual;
             Comando_Procesado.Actual = Stop_Global;
             putrsUART2("PE encendida!\n\r");
-            LATCbits.LATC9 = 1;
         }
         else if(Parada_Emergencia == LOW && Bandera_Parad_Emerg == 1){
             Bandera_Parad_Emerg = 0;
             Flag_Parada_Emergencia = Bandera_Parad_Emerg;
             putrsUART2("PE apagada!\n\r");
-            LATCbits.LATC9 = 0;
         }
         Valor_Anterior.Parad_Emerg = Parada_Emergencia;
     }
     
-IFS1bits.CNIF = 0; // Clear CN interrupt
+    IFS1bits.CNIF = 0; // Clear CN interrupt
 }
 
 /*

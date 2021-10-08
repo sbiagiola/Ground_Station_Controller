@@ -424,6 +424,31 @@ void Actualizar_Objetivos(uint8_t ID_Comando){
 //    }
 //}
 
+void Stop(OUT out) {
+    switch(out)
+    {
+        case ALL:
+            OUT_RELE_1 = OFF;
+            OUT_RELE_2 = OFF;
+            OUT_RELE_3 = OFF;
+            OUT_RELE_4 = OFF;
+            break;
+        
+        case ACIMUT:
+            OUT_RELE_1 = OFF;
+            OUT_RELE_2 = OFF;
+            break;
+            
+        case ELEVACION:
+            OUT_RELE_3 = OFF;
+            OUT_RELE_4 = OFF;
+            break;
+                    
+        default:
+            break;
+    }
+}
+
 ID_Comandos estado_Accionamiento = Sleep;
 uint16_t ciclos_sin_comandos;
 unsigned long delayTimer1;
@@ -447,10 +472,7 @@ void MEF_Accionamiento(){
     
     // Parada de emergencia
     if(Flag_Parada_Emergencia == 1) {
-        OUT_RELE_1 = OFF;
-        OUT_RELE_2 = OFF;
-        OUT_RELE_3 = OFF;
-        OUT_RELE_4 = OFF;
+        Stop(ALL);
         estado_Accionamiento = Sleep;
     }
     
@@ -461,7 +483,7 @@ void MEF_Accionamiento(){
         // ------- Acimut:
         
         case Giro_Horario:
-            if(PORTCbits.RC8) {
+            if(OUT_RELE_2) {
                 OUT_RELE_2 = OFF;
                 delayTimer1 = millis();
                 while(millis() - delayTimer1 < 2000) {} // [TO DO] Evaluar el tiempo de delay
@@ -471,7 +493,7 @@ void MEF_Accionamiento(){
             break;
             
         case Giro_Antihorario:
-            if(PORTCbits.RC9) {
+            if(OUT_RELE_1) {
                 OUT_RELE_1 = OFF;
                 delayTimer1 = millis();
                 while(millis() - delayTimer1 < 2000) {}
@@ -481,15 +503,14 @@ void MEF_Accionamiento(){
             break;
             
         case Stop_Acimut:
-            OUT_RELE_1 = OFF;
-            OUT_RELE_2 = OFF;
+            Stop(ACIMUT);
             estado_Accionamiento = Sleep;
             break;
             
         // ------- Elevacion:
                     
         case Giro_Arriba:
-            if(PORTCbits.RC6) {
+            if(OUT_RELE_4) {
                 OUT_RELE_4 = OFF;
                 delayTimer1 = millis();
                 while(millis() - delayTimer1 < 2000) {}
@@ -499,7 +520,7 @@ void MEF_Accionamiento(){
             break;
             
         case Giro_Abajo:
-            if(PORTCbits.RC7) {
+            if(OUT_RELE_3) {
                 OUT_RELE_3 = OFF;
                 delayTimer1 = millis();
                 while(millis() - delayTimer1 < 2000) {}
@@ -509,18 +530,14 @@ void MEF_Accionamiento(){
             break;
             
         case Stop_Elevacion:
-            OUT_RELE_3 = OFF;
-            OUT_RELE_4 = OFF;
+            Stop(ELEVACION);
             estado_Accionamiento = Sleep;
             break;
             
         // ------- Stop_Global:
             
         case Stop_Global:
-            OUT_RELE_1 = OFF;
-            OUT_RELE_2 = OFF;
-            OUT_RELE_3 = OFF;
-            OUT_RELE_4 = OFF;
+            Stop(ALL);
             estado_Accionamiento = Sleep;
             break;
             

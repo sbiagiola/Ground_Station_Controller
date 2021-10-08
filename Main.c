@@ -17,8 +17,8 @@
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
 #include "interrupts.h"
-#include "Entradas.h"
 #include "Salidas_Motores.h"
+#include "Entradas.h"
 #include "timer1.h"
 
 //static uint8_t Bandera_Home_Stop_1 = 1;
@@ -57,9 +57,6 @@ int main(){
     /* ======================================================================== */
 
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
-
-//    LATAbits.LATA4 = 1;
-//    SetTimer(TEMP_1, 10000);
     
     unsigned long millis_LED;
   
