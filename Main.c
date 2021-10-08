@@ -62,11 +62,10 @@ int main(){
 //    SetTimer(TEMP_1, 10000);
     
     unsigned long millis_LED;
-    
   
     while(1) {
         
-        if(millis() - millis_LED > 50)
+        if(millis() - millis_LED > 500)
         {
             LATAbits.LATA4 = !PORTAbits.RA4;
             millis_LED = millis();
@@ -76,10 +75,6 @@ int main(){
         Comm_PC_Interface();
         MEF_Accionamiento();
         
-        
-//        MEF_Accionamiento();
-        //MEF_Principal();
-        //Chequear_Home_Stop_1();
     }
     return (EXIT_SUCCESS);
 }

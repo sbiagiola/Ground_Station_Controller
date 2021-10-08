@@ -177,17 +177,21 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
 
     
     if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
+        putrsUART2("[_CNInterrupt] Home_Stop_1 interrupt detected!");
         if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
             //Seteo de posicion de reposo de alguna manera
             Bandera_Home_Stop_1 = 0;
         }
         if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0){
             //Definir acciones
+            OUT_RELE_1 = OFF;
+            OUT_RELE_2 = OFF;
         }
         Home_Stop_1 = Valor_Anterior.Home_St0p_1;
     }
 
     if(Home_Stop_2 != Valor_Anterior.Home_St0p_2){
+        putrsUART2("[_CNInterrupt] Home_Stop_2 interrupt detected!");
         if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 1){
             //Seteo de posicion de reposo de alguna manera
             Bandera_Home_Stop_2 = 0;
@@ -199,7 +203,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     }
     
     if(Parada_Emergencia != Valor_Anterior.Parad_Emerg){
-        putrsUART2("Parada de emergencia\n\r");
+        putrsUART2("[_CNInterrupt] Parada_Emergencia interrupt detected!");
         if(Parada_Emergencia == LOW && Bandera_Parad_Emerg == 0){
             Bandera_Parad_Emerg = 1;
             Flag_Parada_Emergencia = Bandera_Parad_Emerg;

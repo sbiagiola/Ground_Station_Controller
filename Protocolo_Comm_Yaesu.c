@@ -221,7 +221,7 @@ uint8_t Verificando_Comando(){
     
     /* --------------------   Comandos tracking   -------------------- */
     
-    // Parar todo
+    // Stop global
     if(Buffer_Recepcion[0] == 'S' || Buffer_Recepcion[0] == 's'){
         putrsUART2("[Verificando_Comando] Comando STOP_GLOBAL detectado\n");
         return Stop_Global;
