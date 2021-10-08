@@ -104,7 +104,7 @@ En caso de querer un único segmento de salida, repetir el dato de salida en los 
 */
 void Segmentar_Datos(char *Raw_Data, char* Out_Data_Ac, char* Out_Data_El){
     
-    while(!isdigit(*Raw_Data)){
+    while(!isdigit(*Raw_Data) || *Raw_Data != '-'){
         Raw_Data++;     // Sacamos los datos que no son digitos
     }
     
@@ -139,6 +139,11 @@ int Analizando_Datos(char* Segmento){
             putrsUART2("[Analizando_Datos] Error: Mas de un angulo detectado\n");
             return(0);
         }
+        
+        if(Segmento[j] == '-') {
+            putrsUART2("[Analizando_Datos] Angulo negativo detectado\n");
+            j++;
+        } else putrsUART2("[Analizando_Datos] Angulo positivo detectado\n");
         
         for( ; Segmento[j] != '.'; j++) {
             if(!isdigit(Segmento[j])){

@@ -207,13 +207,13 @@ Default Scalar Model: Small
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x200              0x217e          0x323d  (12861)
-.const                      0x237e               0x624           0x936  (2358)
-.text                       0x29a2               0xc96          0x12e1  (4833)
-.dinit                      0x3638               0x162           0x213  (531)
-.text                       0x379a               0x45e           0x68d  (1677)
-.init.delay32               0x3bf8                0x1c            0x2a  (42)
+.const                      0x237e               0x680           0x9c0  (2496)
+.text                       0x29fe               0xcb8          0x1314  (4884)
+.dinit                      0x36b6               0x162           0x213  (531)
+.text                       0x3818               0x45e           0x68d  (1677)
+.init.delay32               0x3c76                0x1c            0x2a  (42)
 
-                 Total "program" memory used (bytes):         0x571e  (22302) 16%
+                 Total "program" memory used (bytes):         0x57db  (22491) 17%
 
 
 "data" Memory  [Origin = 0x800, Length = 0x4000]
@@ -415,145 +415,145 @@ External Symbols in Program Memory (by address):
                   0x0022ba                  __dunpack
                   0x002308                  ___floatdidf
                   0x002328                  ___floatundidf
-                  0x0029a2                  _Generar_Formato_Mensaje
-                  0x0029ee                  _Calcular_Posicion_Actual
-                  0x002a5c                  _Bajar_Salidas
-                  0x002a72                  _Parar_Elevacion
-                  0x002a80                  _Parar_Acimut
-                  0x002a8e                  _Velocidad_1_El
-                  0x002a9c                  _Velocidad_2_El
-                  0x002aae                  _Velocidad_3_El
-                  0x002ac0                  _Velocidad_4_El
-                  0x002ad2                  _Mov_Arriba
-                  0x002ae0                  _Mov_Abajo
-                  0x002aee                  _Girar_Horario
-                  0x002af4                  _Girar_Antihorario
-                  0x002afa                  _Actualizar_Objetivos
-                  0x002b20                  _Stop
-                  0x002b50                  _MEF_Accionamiento
-                  0x002d00                  _Control_Posicion_Acimut
-                  0x002d50                  _Control_Posicion_Elevacion
-                  0x002da0                  _Segmentar_Datos
-                  0x002de6                  _Analizando_Datos
-                  0x002ea2                  _Verificando_Comando
-                  0x002ff6                  _Comm_PC_Interface
-                  0x00314e                  _Config_UART
-                  0x0031c4                  _Enable_UART1
-                  0x0031da                  _Disable_UART1
-                  0x0031ea                  _Tx_Reg_U1_State
-                  0x003200                  _Tx_Shift_Reg_U1_State
-                  0x003216                  _Rx_Reg_U1_State
-                  0x00322a                  _Rx_Shift_Reg_U1_State
-                  0x00323e                  _Get_Char_Rx_Reg_U1
-                  0x00324e                  _Send_Char_Tx_Reg_U1
-                  0x00325e                  _Enable_UART2
-                  0x003274                  _Disable_UART2
-                  0x003284                  _Tx_Reg_U2_State
-                  0x00329a                  _Tx_Shift_Reg_U2_State
-                  0x0032b0                  _Rx_Reg_U2_State
-                  0x0032c4                  _Rx_Shift_Reg_U2_State
-                  0x0032d8                  _Get_Char_Rx_Reg_U2
-                  0x0032e8                  _Send_Char_Tx_Reg_U2
-                  0x0032f8                  _Loopback_Mode
-                  0x003336                  _WriteUART2
-                  0x00335e                  _putrsUART2
-                  0x00337a                  _uart_ringBuffer_recDatos_U1
-                  0x0033ca                  _uart_ringBuffer_envDatos_U1
-                  0x003428                  _uart_ringBuffer_recDatos_U2
-                  0x003478                  _uart_ringBuffer_envDatos_U2
-                  0x0034d6                  _ringBuffer_putData
-                  0x00356c                  _ringBuffer_getData
-                  0x0035d2                  _ringBuffer_isFull
-                  0x0035f4                  _ringBuffer_isEmpty
-                  0x00360c                  _Clean_RingBufferRx_U2
-                  0x003622                  _Clean_RingBufferRx_U1
-                  0x00379a                  _inicia_control
-                  0x0037c4                  _Control_automatico
-                  0x003888                  _Estado_control_automatico
-                  0x003890                  _Config_IO
-                  0x0038a0                  _Change_Config_UART1
-                  0x0038c0                  _Remappeable_Pins
-                  0x0038f0                  _Define_IO_Pins
-                  0x00393a                  _Set_Pin_As_A_or_D
-                  0x00395e                  _initCN
-                  0x0039c8                  _Config_CN_Pins
-                  0x0039e2                  _posicion_actual_acimut
-                  0x0039ec                  _posicion_actual_elevacion
-                  0x0039f6                  _enableInterrupts
-                  0x003a04                  _disableInterrupts
-                  0x003a12                  _initInterrupts
-                  0x003a58                  _disableUART1
-                  0x003a64                  _disableUART2
-                  0x003a70                  _disableADC1
-                  0x003a78                  _disableTIMER1
-                  0x003a80                  _disableCN
-                  0x003a88                  _Config_Clock
-                  0x003ae4                  _Config_ADC
-                  0x003b2e                  _Get_Data
-                  0x003b40                  _main
-                  0x003b9a                  _init_DAC
-                  0x003bc0                  _Send_DAC
-                  0x003bce                  _init_timer1
-                  0x003bec                  _millis
-                  0x003bf8                  ___delay32
+                  0x0029fe                  _Generar_Formato_Mensaje
+                  0x002a4a                  _Calcular_Posicion_Actual
+                  0x002ab8                  _Bajar_Salidas
+                  0x002ace                  _Parar_Elevacion
+                  0x002adc                  _Parar_Acimut
+                  0x002aea                  _Velocidad_1_El
+                  0x002af8                  _Velocidad_2_El
+                  0x002b0a                  _Velocidad_3_El
+                  0x002b1c                  _Velocidad_4_El
+                  0x002b2e                  _Mov_Arriba
+                  0x002b3c                  _Mov_Abajo
+                  0x002b4a                  _Girar_Horario
+                  0x002b50                  _Girar_Antihorario
+                  0x002b56                  _Actualizar_Objetivos
+                  0x002b7c                  _Stop
+                  0x002bac                  _MEF_Accionamiento
+                  0x002d5c                  _Control_Posicion_Acimut
+                  0x002dac                  _Control_Posicion_Elevacion
+                  0x002dfc                  _Segmentar_Datos
+                  0x002e4c                  _Analizando_Datos
+                  0x002f20                  _Verificando_Comando
+                  0x003074                  _Comm_PC_Interface
+                  0x0031cc                  _Config_UART
+                  0x003242                  _Enable_UART1
+                  0x003258                  _Disable_UART1
+                  0x003268                  _Tx_Reg_U1_State
+                  0x00327e                  _Tx_Shift_Reg_U1_State
+                  0x003294                  _Rx_Reg_U1_State
+                  0x0032a8                  _Rx_Shift_Reg_U1_State
+                  0x0032bc                  _Get_Char_Rx_Reg_U1
+                  0x0032cc                  _Send_Char_Tx_Reg_U1
+                  0x0032dc                  _Enable_UART2
+                  0x0032f2                  _Disable_UART2
+                  0x003302                  _Tx_Reg_U2_State
+                  0x003318                  _Tx_Shift_Reg_U2_State
+                  0x00332e                  _Rx_Reg_U2_State
+                  0x003342                  _Rx_Shift_Reg_U2_State
+                  0x003356                  _Get_Char_Rx_Reg_U2
+                  0x003366                  _Send_Char_Tx_Reg_U2
+                  0x003376                  _Loopback_Mode
+                  0x0033b4                  _WriteUART2
+                  0x0033dc                  _putrsUART2
+                  0x0033f8                  _uart_ringBuffer_recDatos_U1
+                  0x003448                  _uart_ringBuffer_envDatos_U1
+                  0x0034a6                  _uart_ringBuffer_recDatos_U2
+                  0x0034f6                  _uart_ringBuffer_envDatos_U2
+                  0x003554                  _ringBuffer_putData
+                  0x0035ea                  _ringBuffer_getData
+                  0x003650                  _ringBuffer_isFull
+                  0x003672                  _ringBuffer_isEmpty
+                  0x00368a                  _Clean_RingBufferRx_U2
+                  0x0036a0                  _Clean_RingBufferRx_U1
+                  0x003818                  _inicia_control
+                  0x003842                  _Control_automatico
+                  0x003906                  _Estado_control_automatico
+                  0x00390e                  _Config_IO
+                  0x00391e                  _Change_Config_UART1
+                  0x00393e                  _Remappeable_Pins
+                  0x00396e                  _Define_IO_Pins
+                  0x0039b8                  _Set_Pin_As_A_or_D
+                  0x0039dc                  _initCN
+                  0x003a46                  _Config_CN_Pins
+                  0x003a60                  _posicion_actual_acimut
+                  0x003a6a                  _posicion_actual_elevacion
+                  0x003a74                  _enableInterrupts
+                  0x003a82                  _disableInterrupts
+                  0x003a90                  _initInterrupts
+                  0x003ad6                  _disableUART1
+                  0x003ae2                  _disableUART2
+                  0x003aee                  _disableADC1
+                  0x003af6                  _disableTIMER1
+                  0x003afe                  _disableCN
+                  0x003b06                  _Config_Clock
+                  0x003b62                  _Config_ADC
+                  0x003bac                  _Get_Data
+                  0x003bbe                  _main
+                  0x003c18                  _init_DAC
+                  0x003c3e                  _Send_DAC
+                  0x003c4c                  _init_timer1
+                  0x003c6a                  _millis
+                  0x003c76                  ___delay32
 
 External Symbols in Program Memory (by name):
 
-                  0x002afa                  _Actualizar_Objetivos
-                  0x002de6                  _Analizando_Datos
-                  0x002a5c                  _Bajar_Salidas
-                  0x0029ee                  _Calcular_Posicion_Actual
-                  0x0038a0                  _Change_Config_UART1
-                  0x003622                  _Clean_RingBufferRx_U1
-                  0x00360c                  _Clean_RingBufferRx_U2
-                  0x002ff6                  _Comm_PC_Interface
-                  0x003ae4                  _Config_ADC
-                  0x0039c8                  _Config_CN_Pins
-                  0x003a88                  _Config_Clock
-                  0x003890                  _Config_IO
-                  0x00314e                  _Config_UART
-                  0x002d00                  _Control_Posicion_Acimut
-                  0x002d50                  _Control_Posicion_Elevacion
-                  0x0037c4                  _Control_automatico
-                  0x0038f0                  _Define_IO_Pins
-                  0x0031da                  _Disable_UART1
-                  0x003274                  _Disable_UART2
-                  0x0031c4                  _Enable_UART1
-                  0x00325e                  _Enable_UART2
-                  0x003888                  _Estado_control_automatico
-                  0x0029a2                  _Generar_Formato_Mensaje
-                  0x00323e                  _Get_Char_Rx_Reg_U1
-                  0x0032d8                  _Get_Char_Rx_Reg_U2
-                  0x003b2e                  _Get_Data
-                  0x002af4                  _Girar_Antihorario
-                  0x002aee                  _Girar_Horario
-                  0x0032f8                  _Loopback_Mode
-                  0x002b50                  _MEF_Accionamiento
-                  0x002ae0                  _Mov_Abajo
-                  0x002ad2                  _Mov_Arriba
-                  0x002a80                  _Parar_Acimut
-                  0x002a72                  _Parar_Elevacion
-                  0x0038c0                  _Remappeable_Pins
-                  0x003216                  _Rx_Reg_U1_State
-                  0x0032b0                  _Rx_Reg_U2_State
-                  0x00322a                  _Rx_Shift_Reg_U1_State
-                  0x0032c4                  _Rx_Shift_Reg_U2_State
-                  0x002da0                  _Segmentar_Datos
-                  0x00324e                  _Send_Char_Tx_Reg_U1
-                  0x0032e8                  _Send_Char_Tx_Reg_U2
-                  0x003bc0                  _Send_DAC
-                  0x00393a                  _Set_Pin_As_A_or_D
-                  0x002b20                  _Stop
-                  0x0031ea                  _Tx_Reg_U1_State
-                  0x003284                  _Tx_Reg_U2_State
-                  0x003200                  _Tx_Shift_Reg_U1_State
-                  0x00329a                  _Tx_Shift_Reg_U2_State
-                  0x002a8e                  _Velocidad_1_El
-                  0x002a9c                  _Velocidad_2_El
-                  0x002aae                  _Velocidad_3_El
-                  0x002ac0                  _Velocidad_4_El
-                  0x002ea2                  _Verificando_Comando
-                  0x003336                  _WriteUART2
+                  0x002b56                  _Actualizar_Objetivos
+                  0x002e4c                  _Analizando_Datos
+                  0x002ab8                  _Bajar_Salidas
+                  0x002a4a                  _Calcular_Posicion_Actual
+                  0x00391e                  _Change_Config_UART1
+                  0x0036a0                  _Clean_RingBufferRx_U1
+                  0x00368a                  _Clean_RingBufferRx_U2
+                  0x003074                  _Comm_PC_Interface
+                  0x003b62                  _Config_ADC
+                  0x003a46                  _Config_CN_Pins
+                  0x003b06                  _Config_Clock
+                  0x00390e                  _Config_IO
+                  0x0031cc                  _Config_UART
+                  0x002d5c                  _Control_Posicion_Acimut
+                  0x002dac                  _Control_Posicion_Elevacion
+                  0x003842                  _Control_automatico
+                  0x00396e                  _Define_IO_Pins
+                  0x003258                  _Disable_UART1
+                  0x0032f2                  _Disable_UART2
+                  0x003242                  _Enable_UART1
+                  0x0032dc                  _Enable_UART2
+                  0x003906                  _Estado_control_automatico
+                  0x0029fe                  _Generar_Formato_Mensaje
+                  0x0032bc                  _Get_Char_Rx_Reg_U1
+                  0x003356                  _Get_Char_Rx_Reg_U2
+                  0x003bac                  _Get_Data
+                  0x002b50                  _Girar_Antihorario
+                  0x002b4a                  _Girar_Horario
+                  0x003376                  _Loopback_Mode
+                  0x002bac                  _MEF_Accionamiento
+                  0x002b3c                  _Mov_Abajo
+                  0x002b2e                  _Mov_Arriba
+                  0x002adc                  _Parar_Acimut
+                  0x002ace                  _Parar_Elevacion
+                  0x00393e                  _Remappeable_Pins
+                  0x003294                  _Rx_Reg_U1_State
+                  0x00332e                  _Rx_Reg_U2_State
+                  0x0032a8                  _Rx_Shift_Reg_U1_State
+                  0x003342                  _Rx_Shift_Reg_U2_State
+                  0x002dfc                  _Segmentar_Datos
+                  0x0032cc                  _Send_Char_Tx_Reg_U1
+                  0x003366                  _Send_Char_Tx_Reg_U2
+                  0x003c3e                  _Send_DAC
+                  0x0039b8                  _Set_Pin_As_A_or_D
+                  0x002b7c                  _Stop
+                  0x003268                  _Tx_Reg_U1_State
+                  0x003302                  _Tx_Reg_U2_State
+                  0x00327e                  _Tx_Shift_Reg_U1_State
+                  0x003318                  _Tx_Shift_Reg_U2_State
+                  0x002aea                  _Velocidad_1_El
+                  0x002af8                  _Velocidad_2_El
+                  0x002b0a                  _Velocidad_3_El
+                  0x002b1c                  _Velocidad_4_El
+                  0x002f20                  _Verificando_Comando
+                  0x0033b4                  _WriteUART2
                   0x0004e8                  __CNInterrupt
                   0x0008d2                  __DefaultInterrupt
                   0x001c7e                  __Dnorm
@@ -583,7 +583,7 @@ External Symbols in Program Memory (by name):
                   0x001546                  ___Putfld_fF
                   0x00212c                  ___adddf3
                   0x0008da                  ___addsf3
-                  0x003bf8                  ___delay32
+                  0x003c76                  ___delay32
                   0x001d2a                  ___divdf3
                   0x001dde                  ___divsf3
                   0x001e62                  ___divsi3
@@ -633,42 +633,42 @@ External Symbols in Program Memory (by name):
                   0x00023c                  __psv_init
                   0x000200                  __resetPRI
                   0x0010f2                  __sprintf_fF
-                  0x003a70                  _disableADC1
-                  0x003a80                  _disableCN
-                  0x003a04                  _disableInterrupts
-                  0x003a78                  _disableTIMER1
-                  0x003a58                  _disableUART1
-                  0x003a64                  _disableUART2
+                  0x003aee                  _disableADC1
+                  0x003afe                  _disableCN
+                  0x003a82                  _disableInterrupts
+                  0x003af6                  _disableTIMER1
+                  0x003ad6                  _disableUART1
+                  0x003ae2                  _disableUART2
                   0x001a42                  _div
-                  0x0039f6                  _enableInterrupts
-                  0x00379a                  _inicia_control
-                  0x00395e                  _initCN
-                  0x003a12                  _initInterrupts
-                  0x003b9a                  _init_DAC
-                  0x003bce                  _init_timer1
+                  0x003a74                  _enableInterrupts
+                  0x003818                  _inicia_control
+                  0x0039dc                  _initCN
+                  0x003a90                  _initInterrupts
+                  0x003c18                  _init_DAC
+                  0x003c4c                  _init_timer1
                   0x000eb4                  _isalnum
                   0x000afc                  _isspace
                   0x001a58                  _ldiv
-                  0x003b40                  _main
+                  0x003bbe                  _main
                   0x001a82                  _memchr
                   0x0011a2                  _memcpy
-                  0x003bec                  _millis
-                  0x0039e2                  _posicion_actual_acimut
-                  0x0039ec                  _posicion_actual_elevacion
-                  0x00335e                  _putrsUART2
-                  0x00356c                  _ringBuffer_getData
-                  0x0035f4                  _ringBuffer_isEmpty
-                  0x0035d2                  _ringBuffer_isFull
-                  0x0034d6                  _ringBuffer_putData
+                  0x003c6a                  _millis
+                  0x003a60                  _posicion_actual_acimut
+                  0x003a6a                  _posicion_actual_elevacion
+                  0x0033dc                  _putrsUART2
+                  0x0035ea                  _ringBuffer_getData
+                  0x003672                  _ringBuffer_isEmpty
+                  0x003650                  _ringBuffer_isFull
+                  0x003554                  _ringBuffer_putData
                   0x001a96                  _strchr
                   0x000b0c                  _strcpy
                   0x0011b0                  _strcspn
                   0x0011d2                  _strspn
                   0x00116e                  _strtok
-                  0x0033ca                  _uart_ringBuffer_envDatos_U1
-                  0x003478                  _uart_ringBuffer_envDatos_U2
-                  0x00337a                  _uart_ringBuffer_recDatos_U1
-                  0x003428                  _uart_ringBuffer_recDatos_U2
+                  0x003448                  _uart_ringBuffer_envDatos_U1
+                  0x0034f6                  _uart_ringBuffer_envDatos_U2
+                  0x0033f8                  _uart_ringBuffer_recDatos_U1
+                  0x0034a6                  _uart_ringBuffer_recDatos_U2
                   0x0010e4                  sprintf_fF.XXeo:_prout
 
 Memory Configuration
@@ -1027,7 +1027,7 @@ __FUID3
  .debug_abbrev    0x000b9f        0x161 build/default/production/Entradas.o
  .debug_abbrev    0x000d00         0xc9 build/default/production/Control_automatico.o
 
-.debug_line       0x000000       0x11c8
+.debug_line       0x000000       0x11ce
  *(.debug_line)
  .debug_line      0x000000        0x11d build/default/production/Clock.o
  .debug_line      0x00011d        0x122 build/default/production/Main.o
@@ -1039,10 +1039,10 @@ __FUID3
  .debug_line      0x000922        0x120 build/default/production/DAC.o
  .debug_line      0x000a42        0x13b build/default/production/timer.o
  .debug_line      0x000b7d         0x1a build/default/production/GPS.o
- .debug_line      0x000b97        0x171 build/default/production/Protocolo_Comm_Yaesu.o
- .debug_line      0x000d08        0x21e build/default/production/Salidas_Motores.o
- .debug_line      0x000f26        0x1ea build/default/production/Entradas.o
- .debug_line      0x001110         0xb8 build/default/production/Control_automatico.o
+ .debug_line      0x000b97        0x177 build/default/production/Protocolo_Comm_Yaesu.o
+ .debug_line      0x000d0e        0x21e build/default/production/Salidas_Motores.o
+ .debug_line      0x000f2c        0x1ea build/default/production/Entradas.o
+ .debug_line      0x001116         0xb8 build/default/production/Control_automatico.o
 
 .debug_frame      0x000000        0xb4c
  *(.debug_frame)
@@ -2454,111 +2454,111 @@ __c30_signature
  .ivt._CNInterrupt
                   0x00003a          0x2 build/default/production/Entradas.o
 
-.const              0xa37e        0x624 load address 0x00237e  
- .const             0xa37e        0x546 build/default/production/Protocolo_Comm_Yaesu.o
- .const             0xa8c4         0xc6 build/default/production/Entradas.o
- .const             0xa98a         0x18 build/default/production/Salidas_Motores.o
+.const              0xa37e        0x680 load address 0x00237e  
+ .const             0xa37e        0x5a2 build/default/production/Protocolo_Comm_Yaesu.o
+ .const             0xa920         0xc6 build/default/production/Entradas.o
+ .const             0xa9e6         0x18 build/default/production/Salidas_Motores.o
 
-.text             0x0029a2        0xc96
- .text            0x0029a2        0x3fe build/default/production/Salidas_Motores.o
-                  0x0029a2                  _Generar_Formato_Mensaje
-                  0x0029ee                  _Calcular_Posicion_Actual
-                  0x002a5c                  _Bajar_Salidas
-                  0x002a72                  _Parar_Elevacion
-                  0x002a80                  _Parar_Acimut
-                  0x002a8e                  _Velocidad_1_El
-                  0x002a9c                  _Velocidad_2_El
-                  0x002aae                  _Velocidad_3_El
-                  0x002ac0                  _Velocidad_4_El
-                  0x002ad2                  _Mov_Arriba
-                  0x002ae0                  _Mov_Abajo
-                  0x002aee                  _Girar_Horario
-                  0x002af4                  _Girar_Antihorario
-                  0x002afa                  _Actualizar_Objetivos
-                  0x002b20                  _Stop
-                  0x002b50                  _MEF_Accionamiento
-                  0x002d00                  _Control_Posicion_Acimut
-                  0x002d50                  _Control_Posicion_Elevacion
- .text            0x002da0        0x3ae build/default/production/Protocolo_Comm_Yaesu.o
-                  0x002da0                  _Segmentar_Datos
-                  0x002de6                  _Analizando_Datos
-                  0x002ea2                  _Verificando_Comando
-                  0x002ff6                  _Comm_PC_Interface
- .text            0x00314e        0x388 build/default/production/UART.o
-                  0x00314e                  _Config_UART
-                  0x0031c4                  _Enable_UART1
-                  0x0031da                  _Disable_UART1
-                  0x0031ea                  _Tx_Reg_U1_State
-                  0x003200                  _Tx_Shift_Reg_U1_State
-                  0x003216                  _Rx_Reg_U1_State
-                  0x00322a                  _Rx_Shift_Reg_U1_State
-                  0x00323e                  _Get_Char_Rx_Reg_U1
-                  0x00324e                  _Send_Char_Tx_Reg_U1
-                  0x00325e                  _Enable_UART2
-                  0x003274                  _Disable_UART2
-                  0x003284                  _Tx_Reg_U2_State
-                  0x00329a                  _Tx_Shift_Reg_U2_State
-                  0x0032b0                  _Rx_Reg_U2_State
-                  0x0032c4                  _Rx_Shift_Reg_U2_State
-                  0x0032d8                  _Get_Char_Rx_Reg_U2
-                  0x0032e8                  _Send_Char_Tx_Reg_U2
-                  0x0032f8                  _Loopback_Mode
-                  0x003336                  _WriteUART2
-                  0x00335e                  _putrsUART2
-                  0x00337a                  _uart_ringBuffer_recDatos_U1
-                  0x0033ca                  _uart_ringBuffer_envDatos_U1
-                  0x003428                  _uart_ringBuffer_recDatos_U2
-                  0x003478                  _uart_ringBuffer_envDatos_U2
- .text            0x0034d6        0x162 build/default/production/RingBuffer.o
-                  0x0034d6                  _ringBuffer_putData
-                  0x00356c                  _ringBuffer_getData
-                  0x0035d2                  _ringBuffer_isFull
-                  0x0035f4                  _ringBuffer_isEmpty
-                  0x00360c                  _Clean_RingBufferRx_U2
-                  0x003622                  _Clean_RingBufferRx_U1
+.text             0x0029fe        0xcb8
+ .text            0x0029fe        0x3fe build/default/production/Salidas_Motores.o
+                  0x0029fe                  _Generar_Formato_Mensaje
+                  0x002a4a                  _Calcular_Posicion_Actual
+                  0x002ab8                  _Bajar_Salidas
+                  0x002ace                  _Parar_Elevacion
+                  0x002adc                  _Parar_Acimut
+                  0x002aea                  _Velocidad_1_El
+                  0x002af8                  _Velocidad_2_El
+                  0x002b0a                  _Velocidad_3_El
+                  0x002b1c                  _Velocidad_4_El
+                  0x002b2e                  _Mov_Arriba
+                  0x002b3c                  _Mov_Abajo
+                  0x002b4a                  _Girar_Horario
+                  0x002b50                  _Girar_Antihorario
+                  0x002b56                  _Actualizar_Objetivos
+                  0x002b7c                  _Stop
+                  0x002bac                  _MEF_Accionamiento
+                  0x002d5c                  _Control_Posicion_Acimut
+                  0x002dac                  _Control_Posicion_Elevacion
+ .text            0x002dfc        0x3d0 build/default/production/Protocolo_Comm_Yaesu.o
+                  0x002dfc                  _Segmentar_Datos
+                  0x002e4c                  _Analizando_Datos
+                  0x002f20                  _Verificando_Comando
+                  0x003074                  _Comm_PC_Interface
+ .text            0x0031cc        0x388 build/default/production/UART.o
+                  0x0031cc                  _Config_UART
+                  0x003242                  _Enable_UART1
+                  0x003258                  _Disable_UART1
+                  0x003268                  _Tx_Reg_U1_State
+                  0x00327e                  _Tx_Shift_Reg_U1_State
+                  0x003294                  _Rx_Reg_U1_State
+                  0x0032a8                  _Rx_Shift_Reg_U1_State
+                  0x0032bc                  _Get_Char_Rx_Reg_U1
+                  0x0032cc                  _Send_Char_Tx_Reg_U1
+                  0x0032dc                  _Enable_UART2
+                  0x0032f2                  _Disable_UART2
+                  0x003302                  _Tx_Reg_U2_State
+                  0x003318                  _Tx_Shift_Reg_U2_State
+                  0x00332e                  _Rx_Reg_U2_State
+                  0x003342                  _Rx_Shift_Reg_U2_State
+                  0x003356                  _Get_Char_Rx_Reg_U2
+                  0x003366                  _Send_Char_Tx_Reg_U2
+                  0x003376                  _Loopback_Mode
+                  0x0033b4                  _WriteUART2
+                  0x0033dc                  _putrsUART2
+                  0x0033f8                  _uart_ringBuffer_recDatos_U1
+                  0x003448                  _uart_ringBuffer_envDatos_U1
+                  0x0034a6                  _uart_ringBuffer_recDatos_U2
+                  0x0034f6                  _uart_ringBuffer_envDatos_U2
+ .text            0x003554        0x162 build/default/production/RingBuffer.o
+                  0x003554                  _ringBuffer_putData
+                  0x0035ea                  _ringBuffer_getData
+                  0x003650                  _ringBuffer_isFull
+                  0x003672                  _ringBuffer_isEmpty
+                  0x00368a                  _Clean_RingBufferRx_U2
+                  0x0036a0                  _Clean_RingBufferRx_U1
 
-.dinit            0x003638        0x162
- .dinit           0x003638        0x162 data_init
+.dinit            0x0036b6        0x162
+ .dinit           0x0036b6        0x162 data_init
 
-.text             0x00379a        0x45e
- .text            0x00379a         0xf6 build/default/production/Control_automatico.o
-                  0x00379a                  _inicia_control
-                  0x0037c4                  _Control_automatico
-                  0x003888                  _Estado_control_automatico
- .text            0x003890         0xce build/default/production/IO_Config.o
-                  0x003890                  _Config_IO
-                  0x0038a0                  _Change_Config_UART1
-                  0x0038c0                  _Remappeable_Pins
-                  0x0038f0                  _Define_IO_Pins
-                  0x00393a                  _Set_Pin_As_A_or_D
- .text            0x00395e         0x98 build/default/production/Entradas.o
-                  0x00395e                  _initCN
-                  0x0039c8                  _Config_CN_Pins
-                  0x0039e2                  _posicion_actual_acimut
-                  0x0039ec                  _posicion_actual_elevacion
- .text            0x0039f6         0x92 build/default/production/interupts.o
-                  0x0039f6                  _enableInterrupts
-                  0x003a04                  _disableInterrupts
-                  0x003a12                  _initInterrupts
-                  0x003a58                  _disableUART1
-                  0x003a64                  _disableUART2
-                  0x003a70                  _disableADC1
-                  0x003a78                  _disableTIMER1
-                  0x003a80                  _disableCN
- .text            0x003a88         0x5c build/default/production/Clock.o
-                  0x003a88                  _Config_Clock
- .text            0x003ae4         0x5c build/default/production/ADC.o
-                  0x003ae4                  _Config_ADC
-                  0x003b2e                  _Get_Data
- .text            0x003b40         0x5a build/default/production/Main.o
-                  0x003b40                  _main
- .text            0x003b9a         0x34 build/default/production/DAC.o
-                  0x003b9a                  _init_DAC
-                  0x003bc0                  _Send_DAC
- .text            0x003bce         0x2a build/default/production/timer.o
-                  0x003bce                  _init_timer1
-                  0x003bec                  _millis
+.text             0x003818        0x45e
+ .text            0x003818         0xf6 build/default/production/Control_automatico.o
+                  0x003818                  _inicia_control
+                  0x003842                  _Control_automatico
+                  0x003906                  _Estado_control_automatico
+ .text            0x00390e         0xce build/default/production/IO_Config.o
+                  0x00390e                  _Config_IO
+                  0x00391e                  _Change_Config_UART1
+                  0x00393e                  _Remappeable_Pins
+                  0x00396e                  _Define_IO_Pins
+                  0x0039b8                  _Set_Pin_As_A_or_D
+ .text            0x0039dc         0x98 build/default/production/Entradas.o
+                  0x0039dc                  _initCN
+                  0x003a46                  _Config_CN_Pins
+                  0x003a60                  _posicion_actual_acimut
+                  0x003a6a                  _posicion_actual_elevacion
+ .text            0x003a74         0x92 build/default/production/interupts.o
+                  0x003a74                  _enableInterrupts
+                  0x003a82                  _disableInterrupts
+                  0x003a90                  _initInterrupts
+                  0x003ad6                  _disableUART1
+                  0x003ae2                  _disableUART2
+                  0x003aee                  _disableADC1
+                  0x003af6                  _disableTIMER1
+                  0x003afe                  _disableCN
+ .text            0x003b06         0x5c build/default/production/Clock.o
+                  0x003b06                  _Config_Clock
+ .text            0x003b62         0x5c build/default/production/ADC.o
+                  0x003b62                  _Config_ADC
+                  0x003bac                  _Get_Data
+ .text            0x003bbe         0x5a build/default/production/Main.o
+                  0x003bbe                  _main
+ .text            0x003c18         0x34 build/default/production/DAC.o
+                  0x003c18                  _init_DAC
+                  0x003c3e                  _Send_DAC
+ .text            0x003c4c         0x2a build/default/production/timer.o
+                  0x003c4c                  _init_timer1
+                  0x003c6a                  _millis
 
-.init.delay32     0x003bf8         0x1c
- .init.delay32    0x003bf8         0x1c c:/program files (x86)/microchip/xc16/v1.50/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
-                  0x003bf8                  ___delay32
+.init.delay32     0x003c76         0x1c
+ .init.delay32    0x003c76         0x1c c:/program files (x86)/microchip/xc16/v1.50/bin/bin/../../lib\liblega-pic30-elf.a(delay32.Leo)
+                  0x003c76                  ___delay32
