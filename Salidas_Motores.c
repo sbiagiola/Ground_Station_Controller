@@ -546,10 +546,10 @@ void MEF_Accionamiento(){
         case Objetivo_Tracking:
             // [TO DO] Logica de control
             // IF PRIMERA VEZ
-            OUT_RELE_1 = OFF;
-            OUT_RELE_2 = OFF;
-            OUT_RELE_3 = OFF;
-            OUT_RELE_4 = OFF;
+            //OUT_RELE_1 = OFF;
+            //OUT_RELE_2 = OFF;
+            //OUT_RELE_3 = OFF;
+            //OUT_RELE_4 = OFF;
             //
             
 //            Actualizar_Objetivos(Comando_Procesado.Actual);

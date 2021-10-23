@@ -66,7 +66,7 @@ Create_RingBuffer_RX_U2(pRingBufferRx_U2);
 
 uint8_t Respuesta;
 int Error_UART_U1;
-volatile int Error_UART_U2;
+volatile int Error_UART_U2 = 0;
 
 
 /* ======================================================================================= */
@@ -411,26 +411,48 @@ void __attribute__((interrupt,no_auto_psv)) _U2RXInterrupt(void){
 
 void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     uint8_t data;
+    int i;
+    
     
     Error_UART_U2 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
+    putrsUART2("[UART] ERROR_UART_U2\n");
     Respuesta = NEGATIVE_ACKNOWLEDGE;
     uart_ringBuffer_envDatos_U2(&Respuesta,sizeof(char));
 
     if(U2STAbits.OERR && !U2STAbits.FERR){     
         U2STAbits.OERR = 0b0;       // Clear del overrun para permitir recepción de más datos. Vaciamos la FIFO
+        LATCbits.LATC6 = 1;
+        putrsUART2("[UART Error] ERROR por overflow \n");
     }
-    
-    if(U2STAbits.FERR && !U2STAbits.OERR){
-        while(1){
-            if(!U2STAbits.FERR){ 
+    else if(U2STAbits.PERR && !U2STAbits.FERR){
+        putrsUART2("[UART Error] ERROR de pariedad  \n");
+        for (i=1;i<=5;i++){
+            if(!U2STAbits.PERR){ 
                 Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, solo vacio la FIFO
             }
-            if(U2STAbits.FERR){             // El char en la FIFO contiene falla en el bit de STOP
+            if(U2STAbits.PERR){             // El char en la FIFO contiene falla en el bit de STOP
+                putrsUART2("[UART Error] Error en el caracter\n");
                 Get_Char_Rx_Reg_U2(&data);  
                 break;
             }
         }
     }
+    else if(U2STAbits.FERR && !U2STAbits.OERR){
+        putrsUART2("[UART Error] ERROR en el bit STOP \n");
+        for (i=1;i<=5;i++){
+            if(!U2STAbits.FERR){ 
+                Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, solo vacio la FIFO
+            }
+            if(U2STAbits.FERR){             // El char en la FIFO contiene falla en el bit de STOP
+                putrsUART2("[UART Error] Error en el caracter \n");
+                Get_Char_Rx_Reg_U2(&data);  
+                break;
+            }
+        }
+        Error_UART_U2 = 0;
+    }
+    else Error_UART_U2 = 0; // Error no reconocible
+    
     IFS4bits.U2EIF = 0;     // Clear Error Interrupt flag 
 }
 

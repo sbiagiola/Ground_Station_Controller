@@ -297,8 +297,10 @@ void Comm_PC_Interface(){
                     Indice_Rec = 0;
                     Clean_RingBufferRx_U2();
                     Mensaje_Env[0] = ACKNOWLEDGE;
-                    uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));
+                    putrsUART2("[Comm][PC - Interface] ERROR en la UART2 \n");
+                    //uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));
                     Estado_Comm = Esperando_Datos;
+                    Error_UART_U2 = 0;
                     break;
                 }
                 

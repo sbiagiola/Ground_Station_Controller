@@ -75,13 +75,13 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     if( (Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A) || (Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B) ){
 
         if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
-            putrsUART2("Entro 1\n\r");
+            //putrsUART2("Entro 1\n\r");
             Bandera_Encoder_1_A = 0;
             Bandera_Encoder_1_B = 1;
         }
         
         if(Enconder_1_Fase_A == HIGH && Enconder_1_Fase_B == LOW && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_A == 1){
-            putrsUART2("Entro 2\n\r");
+            //putrsUART2("Entro 2\n\r");
             Bandera_Encoder_1_A = 1;
             Bandera_Encoder_1_B = 0;
         }
@@ -122,21 +122,26 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     if((Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A) || (Enconder_2_Fase_B != Valor_Anterior.Encoder_2_B)){
         
         if(Enconder_2_Fase_A == LOW && Enconder_2_Fase_B == HIGH && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_B == 1){
-            Bandera_Encoder_2_A = 0;
+            putrsUART2("[Encoder 2] - Entramos a la parte de flag 2, fase B \n\r");
+            Bandera_Encoder_2_A =  0;
             Bandera_Encoder_2_B = 1;
         }
         
         if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_A == 1){
+            putrsUART2("[Encoder 2] - Entramos a la parte de flag 2, fase A \n\r");
             Bandera_Encoder_2_A = 1;
             Bandera_Encoder_2_B = 0;
         }
         
         if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_A == 1){
+            putrsUART2("[Encoder 2] - Sumamo' un pulso' \n\r");
+            
             Contador.Encoder_2_Pulsos++;
             Estado_Operacion_Encoder_2 = Suma;
         }
 
         if(Enconder_2_Fase_A == LOW && Enconder_2_Fase_B == HIGH && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_B == 1){
+            putrsUART2("[Encoder 2] - Restamo' un pulso' \n\r");
             Contador.Encoder_2_Pulsos--;
             Estado_Operacion_Encoder_2 = Resta;
         }
