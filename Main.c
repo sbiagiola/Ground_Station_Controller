@@ -4,10 +4,9 @@
  *
  * Created on 18 de marzo de 2021, 14:50
  */
-
-#include <xc.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <xc.h>
 #include "DAC.h"
 #include "Clock.h"
 #include "libpic30.h"   
@@ -55,10 +54,13 @@ int main(){
     // [TO DO] Verificar por que los reles se apagan solos despues de un tiempo
     initInterrupts();
     /* ======================================================================== */
-
+    double angulo = 0;
+    char *char_Angulo;
+    //char char_Pulsos[MAX_LONG_DATA_ANGLE];
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
     
     unsigned long millis_LED;
+    unsigned long millis_ANGULO;
   
     while(1) {
         
@@ -68,6 +70,19 @@ int main(){
             millis_LED = millis();
         }
         
+        if (millis() - millis_ANGULO > 1000)
+        {
+            angulo = (get_Elevacion()*360.0)/100.0;
+            //sprintf(char_Pulsos, "%d", get_Elevacion());
+            sprintf(char_Angulo, "%.2f", angulo);
+            
+            WriteUART2(get_Elevacion());
+            //putrsUART2(char_Pulsos);
+            putrsUART2(" pulsos - Angulo leido = ");
+            putrsUART2(char_Angulo);
+            putrsUART2("\n");
+            millis_ANGULO = millis();
+        }
         
         Comm_PC_Interface();
         MEF_Accionamiento();

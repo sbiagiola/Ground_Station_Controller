@@ -12,52 +12,53 @@
 extern "C" {
 #endif
 
-/*==================== [Macros y Definiciones] ========================*/  
-#define Enconder_1_Fase_A   PORTBbits.RB6
-#define Enconder_1_Fase_B   PORTBbits.RB7
-#define Enconder_1_Fase_Z   PORTBbits.RB8
-    
-#define Enconder_2_Fase_A   PORTCbits.RC3
-#define Enconder_2_Fase_B   PORTCbits.RC4
-#define Enconder_2_Fase_Z   PORTCbits.RC5
-    
-#define Parada_Emergencia   PORTCbits.RC2
-#define Anemometro          PORTAbits.RA4
- 
-#define Home_Stop_1         PORTBbits.RB9
-#define Home_Stop_2         PORTBbits.RB5
+/*==================== [Macros y Definiciones] ========================*/
 
+#define HIGH    1
+#define LOW     0
+    
+#define ENCODER_1_A         PORTBbits.RB6
+#define ENCODER_1_B         PORTBbits.RB7
+#define ENCODER_1_Z         PORTBbits.RB8
+    
+#define ENCODER_2_A         PORTCbits.RC5
+#define ENCODER_2_B         PORTCbits.RC4
+#define ENCODER_2_Z         PORTCbits.RC3
+
+#define HOME_STOP_1         PORTBbits.RB9
+#define HOME_STOP_2         PORTBbits.RB5
+    
+#define PARADA_EMERGENCIA   PORTCbits.RC2
+#define ANEMOMETRO          PORTAbits.RA4
     
 typedef struct{
-    long Encoder_1_Pulsos;
-    long Encoder_1_Vueltas;  
-    long Encoder_2_Pulsos;
-    long Encoder_2_Vueltas;
-    int Anemometr0;
+    long encoder_1_Pulsos;
+    long encoder_1_Vueltas;
+    int encoder_2_Pulsos;
+    long encoder_2_Vueltas;
+    int anemometro;
 }_Contador;
 
 typedef struct{
-    uint16_t    Encoder_1_A;
-    uint16_t    Encoder_1_B;
-    uint16_t    Encoder_1_Z;
-    uint16_t    Encoder_2_A;
-    uint16_t    Encoder_2_B;
-    uint16_t    Encoder_2_Z;
-    uint16_t    Anemometr0;
-    uint16_t    Home_St0p_1;
-    uint16_t    Home_St0p_2;
-    uint16_t    Parad_Emerg;
+    uint16_t encoder_1_A;
+    uint16_t encoder_1_B;
+    uint16_t encoder_1_Z;
+    uint16_t encoder_2_A;
+    uint16_t encoder_2_B;
+    uint16_t encoder_2_Z;
+    uint16_t anemometro;
+    uint16_t home_stop_1;
+    uint16_t home_stop_2;
+    uint16_t parada_emergencia;
 }Last_Value;
 
-#define HIGH 1
-#define LOW 0
 /*========================================================================*/
     
 /*===========================  Funciones   ===============================*/
 void initCN(void);
 void Config_CN_Pins(void);
-long posicion_actual_acimut(void);
-long posicion_actual_elevacion(void);
+long get_Acimut(void);
+long get_Elevacion(void);
 /*========================================================================*/
 #ifdef	__cplusplus
 }

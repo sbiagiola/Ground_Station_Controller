@@ -17,15 +17,11 @@ typedef enum{
 }Operacion_Pulsos;  //No es triunfo pero paso cerca...
 
 /*===================== [Variables Internas (Globales)] =====================*/
-Last_Value Valor_Anterior;
-_Contador Contador;
+Last_Value valor_anterior;
+_Contador contador;
 
-static Operacion_Pulsos Estado_Operacion_Encoder_1;
-static Operacion_Pulsos Estado_Operacion_Encoder_2;
-static uint8_t Bandera_Encoder_1_A = 1;
-static uint8_t Bandera_Encoder_1_B = 1;
-static uint8_t Bandera_Encoder_2_A = 1;
-static uint8_t Bandera_Encoder_2_B = 1;
+static Operacion_Pulsos estado_Operacion_Encoder_1;
+static Operacion_Pulsos estado_Operacion_Encoder_2;
 static uint8_t Bandera_Home_Stop_1 = 1;
 static uint8_t Bandera_Home_Stop_2 = 1;
 static uint8_t Bandera_Parad_Emerg = 0;
@@ -33,24 +29,25 @@ static uint8_t Bandera_Parad_Emerg = 0;
 
 /*===================== [Variables Externas (Globales)] =====================*/
 extern Info_Comandos_Procesados Comando_Procesado;
+// [TO DO] Para que usa esta flag ???
 extern uint8_t Flag_Parada_Emergencia;
 /*===========================================================================*/
 
 void initCN()
 {
-    Valor_Anterior.Encoder_1_A = Enconder_1_Fase_A;
-    Valor_Anterior.Encoder_1_B = Enconder_1_Fase_B;
-    Valor_Anterior.Encoder_1_Z = Enconder_1_Fase_Z;
+    valor_anterior.encoder_1_A = ENCODER_1_A;
+    valor_anterior.encoder_1_B = ENCODER_1_B;
+    valor_anterior.encoder_1_Z = ENCODER_1_Z;
     
-    Valor_Anterior.Encoder_2_A = Enconder_2_Fase_A;
-    Valor_Anterior.Encoder_2_B = Enconder_2_Fase_B;
-    Valor_Anterior.Encoder_2_Z = Enconder_2_Fase_Z;
+    valor_anterior.encoder_2_A = ENCODER_2_A;
+    valor_anterior.encoder_2_B = ENCODER_2_B;
+    valor_anterior.encoder_2_Z = ENCODER_2_Z;
     
-    Valor_Anterior.Anemometr0 = Anemometro;
-    Valor_Anterior.Parad_Emerg = Parada_Emergencia;
+    valor_anterior.anemometro = ANEMOMETRO;
+    valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
     
-    Valor_Anterior.Home_St0p_1 = Home_Stop_1;
-    Valor_Anterior.Home_St0p_2 = Home_Stop_2;
+    valor_anterior.home_stop_1 = HOME_STOP_1;
+    valor_anterior.home_stop_2 = HOME_STOP_2;
 }
 
 void Config_CN_Pins(){
@@ -72,168 +69,124 @@ void Config_CN_Pins(){
 
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     
-    if( (Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A) || (Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B) ){
-
-        if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
-            //putrsUART2("Entro 1\n\r");
-            Bandera_Encoder_1_A = 0;
-            Bandera_Encoder_1_B = 1;
+    /* ---------------------------   ENCODER 1   --------------------------- */
+    // Contador de pulsos
+    if((ENCODER_1_A != valor_anterior.encoder_1_A)) {
+        if(ENCODER_1_A == HIGH) {
+            if(ENCODER_1_B == HIGH) {
+                putrsUART2("[CNInterrupt]: Encoder 1 (fase B)\n\r");
+                contador.encoder_1_Pulsos++;
+                estado_Operacion_Encoder_1 = Suma;
+            } else {
+                putrsUART2("[CNInterrupt]: Encoder 1 (fase A)\n\r");
+                contador.encoder_1_Pulsos--;
+                estado_Operacion_Encoder_1 = Resta;
+            }
         }
-        
-        if(Enconder_1_Fase_A == HIGH && Enconder_1_Fase_B == LOW && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_A == 1){
-            //putrsUART2("Entro 2\n\r");
-            Bandera_Encoder_1_A = 1;
-            Bandera_Encoder_1_B = 0;
-        }
-        
-        if(Enconder_1_Fase_A == HIGH && Enconder_1_Fase_B == LOW && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_A == 1){
-            Contador.Encoder_1_Pulsos++;
-            Estado_Operacion_Encoder_1 = Suma;
-        }
-
-        if(Enconder_1_Fase_A == LOW && Enconder_1_Fase_B == HIGH && Enconder_1_Fase_Z == LOW && Bandera_Encoder_1_B == 1){
-            Contador.Encoder_1_Pulsos--;
-            Estado_Operacion_Encoder_1 = Resta;
-        }
-        
-        if(Enconder_1_Fase_A != Valor_Anterior.Encoder_1_A){
-            Enconder_1_Fase_A = Valor_Anterior.Encoder_1_A;
-        }
-        
-        if(Enconder_1_Fase_B != Valor_Anterior.Encoder_1_B){
-            Enconder_1_Fase_B = Valor_Anterior.Encoder_1_B;
-        } 
+        valor_anterior.encoder_1_A = ENCODER_1_A;
     }
     
-    if(Enconder_1_Fase_Z != Valor_Anterior.Encoder_1_Z){
-        
-        if(Enconder_1_Fase_Z == HIGH){
-            if(Estado_Operacion_Encoder_1 == Suma){
-                Contador.Encoder_1_Vueltas++;
+    // Contador de vueltas
+    // [TO DO] Esto no sirve para nada en nuestro proyecto, se deja o se saca?
+    if(ENCODER_1_Z != valor_anterior.encoder_1_Z){
+        if(ENCODER_1_Z == HIGH){
+            if(estado_Operacion_Encoder_1 == Suma){
+                contador.encoder_1_Vueltas++;
+            } else {
+                contador.encoder_1_Vueltas--;
             }
-            if(Estado_Operacion_Encoder_1 == Resta){
-                Contador.Encoder_1_Vueltas--;
-            }
-            Contador.Encoder_1_Pulsos = 0;
         }
-        Enconder_1_Fase_Z = Valor_Anterior.Encoder_1_Z;
-    }
-
-    if((Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A) || (Enconder_2_Fase_B != Valor_Anterior.Encoder_2_B)){
-        
-        if(Enconder_2_Fase_A == LOW && Enconder_2_Fase_B == HIGH && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_B == 1){
-            putrsUART2("[Encoder 2] - Entramos a la parte de flag 2, fase B \n\r");
-            Bandera_Encoder_2_A =  0;
-            Bandera_Encoder_2_B = 1;
-        }
-        
-        if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_A == 1){
-            putrsUART2("[Encoder 2] - Entramos a la parte de flag 2, fase A \n\r");
-            Bandera_Encoder_2_A = 1;
-            Bandera_Encoder_2_B = 0;
-        }
-        
-        if(Enconder_2_Fase_A == HIGH && Enconder_2_Fase_B == LOW && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_A == 1){
-            putrsUART2("[Encoder 2] - Sumamo' un pulso' \n\r");
-            
-            Contador.Encoder_2_Pulsos++;
-            Estado_Operacion_Encoder_2 = Suma;
-        }
-
-        if(Enconder_2_Fase_A == LOW && Enconder_2_Fase_B == HIGH && Enconder_2_Fase_Z == LOW && Bandera_Encoder_2_B == 1){
-            putrsUART2("[Encoder 2] - Restamo' un pulso' \n\r");
-            Contador.Encoder_2_Pulsos--;
-            Estado_Operacion_Encoder_2 = Resta;
-        }
-        
-        if(Enconder_2_Fase_A != Valor_Anterior.Encoder_2_A){
-            Enconder_2_Fase_A = Valor_Anterior.Encoder_2_A;
-        }
-        
-        if(Enconder_2_Fase_B != Valor_Anterior.Encoder_2_B){
-            Enconder_2_Fase_B = Valor_Anterior.Encoder_2_B;
-        } 
+        valor_anterior.encoder_1_Z = ENCODER_1_Z;
     }
     
-    if(Enconder_2_Fase_Z != Valor_Anterior.Encoder_2_Z){
-        
-        if(Enconder_2_Fase_Z == HIGH){
-            
-            if(Estado_Operacion_Encoder_2 == Suma){
-                Contador.Encoder_2_Vueltas++;
+    /* ---------------------------   ENCODER 2   --------------------------- */
+    // Contador de pulsos
+    if((ENCODER_2_A != valor_anterior.encoder_2_A)) {
+        if(ENCODER_2_A == HIGH) {
+            if(ENCODER_2_B == HIGH) {
+                putrsUART2("[CNInterrupt]: Encoder 2 (fase B)\n\r");                
+                contador.encoder_2_Pulsos++;
+                estado_Operacion_Encoder_2 = Suma;
+            } else {
+                putrsUART2("[CNInterrupt]: Encoder 2 (fase A)\n\r");
+                contador.encoder_2_Pulsos--;
+                estado_Operacion_Encoder_2 = Resta;
             }
-            if(Estado_Operacion_Encoder_2 == Resta){
-                Contador.Encoder_2_Vueltas--;
-            }
-            Contador.Encoder_2_Pulsos = 0;
         }
-        Enconder_2_Fase_Z = Valor_Anterior.Encoder_2_Z;
+        valor_anterior.encoder_2_A = ENCODER_2_A;
     }
     
-    // ---------- HOME STOP 1
-    if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
+    // Contador de vueltas
+    // [TO DO] Esto no sirve para nada en nuestro proyecto, se deja o se saca?
+    if(ENCODER_2_Z != valor_anterior.encoder_2_Z){
+        if(ENCODER_2_Z == HIGH){
+            if(estado_Operacion_Encoder_2 == Suma){
+                contador.encoder_2_Vueltas++;
+            } else {
+                contador.encoder_2_Vueltas--;
+            }
+        }
+        valor_anterior.encoder_2_Z = ENCODER_2_Z;
+    }
+    
+    /* --------------------------   HOME STOP 1   -------------------------- */
+    if(HOME_STOP_1 != valor_anterior.home_stop_1){
         putrsUART2("[_CNInterrupt] Home_Stop_1 interrupt detected!");
         
         // [TO DO] Para que es este if?
-        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
+        if(HOME_STOP_1 == HIGH && Bandera_Home_Stop_1 == 1){
             //Seteo de posicion de reposo de alguna manera
             Bandera_Home_Stop_1 = 0;
         }
         
-        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0)
+        if(HOME_STOP_1 == HIGH && Bandera_Home_Stop_1 == 0)
             Stop(ACIMUT);
         
-        Home_Stop_1 = Valor_Anterior.Home_St0p_1;
+        valor_anterior.home_stop_1 = HOME_STOP_1;
     }
     
-    // ---------- HOME STOP 2
-    if(Home_Stop_2 != Valor_Anterior.Home_St0p_2){
+    /* --------------------------   HOME STOP 2   -------------------------- */
+    if(HOME_STOP_2 != valor_anterior.home_stop_2){
         putrsUART2("[_CNInterrupt] Home_Stop_2 interrupt detected!");
         
         // [TO DO] Para que es este if?
-        if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 1){
+        if(HOME_STOP_2 == HIGH && Bandera_Home_Stop_2 == 1){
             //Seteo de posicion de reposo de alguna manera
             Bandera_Home_Stop_2 = 0;
         }
         
-        if(Home_Stop_2 == HIGH && Bandera_Home_Stop_2 == 0)
+        if(HOME_STOP_2 == HIGH && Bandera_Home_Stop_2 == 0)
             Stop(ELEVACION);
 
-        Home_Stop_2 = Valor_Anterior.Home_St0p_2;
+        valor_anterior.home_stop_2 = HOME_STOP_2;
     }
     
-    // ---------- PARADA DE EMERGENCIA
-    // [TO DO] Cambiar comando por stop directo
-    if(Parada_Emergencia != Valor_Anterior.Parad_Emerg){
+    /* ----------------------   PARADA DE EMERGENCIA   --------------------- */
+    // [TO DO] Cambiar comando por stop directo ??
+    if(PARADA_EMERGENCIA != valor_anterior.parada_emergencia){
         putrsUART2("[_CNInterrupt] Parada_Emergencia interrupt detected!");
-        if(Parada_Emergencia == LOW && Bandera_Parad_Emerg == 0){
+        if(PARADA_EMERGENCIA == LOW && Bandera_Parad_Emerg == 0){
             Bandera_Parad_Emerg = 1;
             Flag_Parada_Emergencia = Bandera_Parad_Emerg;
             Comando_Procesado.Proximo = Comando_Procesado.Actual;
             Comando_Procesado.Actual = Stop_Global;
             putrsUART2("PE encendida!\n\r");
         }
-        else if(Parada_Emergencia == LOW && Bandera_Parad_Emerg == 1){
+        else if(PARADA_EMERGENCIA == LOW && Bandera_Parad_Emerg == 1){
             Bandera_Parad_Emerg = 0;
             Flag_Parada_Emergencia = Bandera_Parad_Emerg;
             putrsUART2("PE apagada!\n\r");
         }
-        Valor_Anterior.Parad_Emerg = Parada_Emergencia;
+        valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
     }
     
     IFS1bits.CNIF = 0; // Clear CN interrupt
 }
 
-/*
- * Considero enconder 1 acimut
- */
-long posicion_actual_acimut(void){
-    return Contador.Encoder_1_Pulsos;
+long get_Acimut(void){
+    return contador.encoder_1_Pulsos;
 }
 
-/*
- * Considero enconder 2 elevacion y la relax}cion lineal
- */
-long posicion_actual_elevacion(void){
-    return  Contador.Encoder_2_Pulsos;
+long get_Elevacion(void){
+    return  contador.encoder_2_Pulsos;
 }

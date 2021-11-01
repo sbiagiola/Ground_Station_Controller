@@ -29,7 +29,7 @@ uint32_t Cant_Carac_A_Enviar;
 /*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
-extern _Contador Contador;
+extern _Contador contador;
 
 extern uint8_t Flag_Parada_Emergencia; 
 
@@ -38,23 +38,23 @@ extern Info_Comandos_Procesados Comando_Procesado;
 extern uint8_t nuevoComando;
 /*===========================================================================*/
 
-void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
-
-    Calcular_Posicion_Actual(&Contador);
-    
-    switch(Id_Comando){
-        
-        case Leer_Acimut:
-            Cant_Carac_A_Enviar = sprintf(Data_A_Enviar,"\n+0%.1f\r",Data_Control.Valor_Actual_Acimut);
-        break;
-        
-        case Leer_Elevacion:
-            Cant_Carac_A_Enviar = sprintf(Data_A_Enviar,"\n+0%.1f\r",Data_Control.Valor_Actual_Elevacion);
-        break;
-        
-        default: ;
-    }
-}
+//void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
+//
+//    Calcular_Posicion_Actual(&contador);
+//    
+//    switch(Id_Comando){
+//        
+//        case Leer_Acimut:
+//            Cant_Carac_A_Enviar = sprintf(Data_A_Enviar,"\n+0%.1f\r",Data_Control.Valor_Actual_Acimut);
+//        break;
+//        
+//        case Leer_Elevacion:
+//            Cant_Carac_A_Enviar = sprintf(Data_A_Enviar,"\n+0%.1f\r",Data_Control.Valor_Actual_Elevacion);
+//        break;
+//        
+//        default: ;
+//    }
+//}
 
 /* Esta funcion se encarga de actualizar los valores actuales de los ángulos de acimut y
    elevación en cada llamado de la misma en función de la cantidad de pulsos enviados por cada
@@ -62,10 +62,10 @@ void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
  * 
     const _Contador Data (IN) (Solo lectura) -> Cantidad de pulsos y vueltas de cada encoder
  */
-void Calcular_Posicion_Actual(const _Contador* Data){
-    Data_Control.Valor_Actual_Acimut = (360*Data->Encoder_1_Vueltas+Data->Encoder_1_Pulsos)*RESOLUCION_POR_PULSO_ACIMUT;
-    Data_Control.Valor_Actual_Elevacion = (360*Data->Encoder_2_Vueltas+Data->Encoder_2_Pulsos)*RESOLUCION_POR_PULSO_ELEVACION;
-}
+//void Calcular_Posicion_Actual(const _Contador* Data){
+//    Data_Control.Valor_Actual_Acimut = (360*Data->Encoder_1_Vueltas+Data->Encoder_1_Pulsos)*RESOLUCION_POR_PULSO_ACIMUT;
+//    Data_Control.Valor_Actual_Elevacion = (360*Data->Encoder_2_Vueltas+Data->Encoder_2_Pulsos)*RESOLUCION_POR_PULSO_ELEVACION;
+//}
 
 void Bajar_Salidas(void){
     LI1_Variador = LOW;     

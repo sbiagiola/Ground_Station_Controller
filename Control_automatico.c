@@ -45,88 +45,88 @@ uint8_t State= RESET;
  */
 void inicia_control( uint32_t *Pos_final_acimut,uint32_t *Pos_final_elevacion){
     posicion_final_acimut=*Pos_final_acimut;
-    posicion_inicial_acimut= posicion_actual_acimut();
+//    posicion_inicial_acimut= posicion_actual_acimut();
     posicion_final_elevacion=*Pos_final_elevacion;
-    posicion_inicial_elevacion= posicion_actual_elevacion();
+//    posicion_inicial_elevacion= posicion_actual_elevacion();
     State=CARGANDO_VAR;
 }
 
 /*
  * se debe correr cada cierto tiempo,
  */
-void Control_automatico(void){
-    /*
-     * Debo consultar si cargaron variables
-     */
-    if (State==CARGANDO_VAR){
-    
-        //acimut
-         if (posicion_final_acimut > posicion_actual_acimut()){
-
-            Girar_Horario();
-         }
-
-         if (posicion_final_acimut < posicion_actual_acimut()){
-             Girar_Antihorario();
-         }
-
-         if((abs(posicion_final_acimut)-abs(posicion_actual_acimut()<0.1))){
-            posicion_acimut_alcanzada=true;
-         }
-
-
-
-         //elevacion
-
-         if (posicion_final_elevacion >= posicion_actual_elevacion()){
-
-             if((posicion_final_elevacion-posicion_actual_elevacion())>=3){
-                 //velocidad rapida elevacion
-             }
-
-             if((posicion_final_elevacion-posicion_actual_elevacion())<3){
-                 //velocidad lenta elevacion
-             }
-
-         }
-
-
-         if (posicion_final_elevacion >= posicion_actual_elevacion()){
-
-             if((posicion_final_elevacion-posicion_actual_elevacion())>=3){
-                 //velocidad rapida elevacion
-             }
-
-             if((posicion_final_elevacion-posicion_actual_elevacion())<3){
-                 //velocidad lenta elevacion
-             }
-
-         }
-         if (posicion_final_elevacion > posicion_actual_elevacion()){
-
-             if((posicion_final_elevacion-posicion_actual_elevacion())>=3){
-                 //velocidad rapida elevacion negativa
-             }
-
-             if((posicion_final_elevacion-posicion_actual_elevacion())<3){
-                 //velocidad lenta elevacion negativa
-             }
-
-         }
-         if((abs(posicion_final_elevacion)-abs(posicion_actual_elevacion()<0.1))){
-             posicion_elevacion_alcanzada=true;
-         }
-         
-         if(( posicion_elevacion_alcanzada=true)&&( posicion_acimut_alcanzada=true)){
-             State=POS_ALCANZADA;
-         }
-         
-    }
-    else {
-        State=POS_FAILED;
-    }
-     
-}
+//void Control_automatico(void){
+//    /*
+//     * Debo consultar si cargaron variables
+//     */
+//    if (State==CARGANDO_VAR){
+//    
+//        //acimut
+//         if (posicion_final_acimut > posicion_actual_acimut()){
+//
+//            Girar_Horario();
+//         }
+//
+//         if (posicion_final_acimut < posicion_actual_acimut()){
+//             Girar_Antihorario();
+//         }
+//
+//         if((abs(posicion_final_acimut)-abs(posicion_actual_acimut()<0.1))){
+//            posicion_acimut_alcanzada=true;
+//         }
+//
+//
+//
+//         //elevacion
+//
+//         if (posicion_final_elevacion >= posicion_actual_elevacion()){
+//
+//             if((posicion_final_elevacion-posicion_actual_elevacion())>=3){
+//                 //velocidad rapida elevacion
+//             }
+//
+//             if((posicion_final_elevacion-posicion_actual_elevacion())<3){
+//                 //velocidad lenta elevacion
+//             }
+//
+//         }
+//
+//
+//         if (posicion_final_elevacion >= posicion_actual_elevacion()){
+//
+//             if((posicion_final_elevacion-posicion_actual_elevacion())>=3){
+//                 //velocidad rapida elevacion
+//             }
+//
+//             if((posicion_final_elevacion-posicion_actual_elevacion())<3){
+//                 //velocidad lenta elevacion
+//             }
+//
+//         }
+//         if (posicion_final_elevacion > posicion_actual_elevacion()){
+//
+//             if((posicion_final_elevacion-posicion_actual_elevacion())>=3){
+//                 //velocidad rapida elevacion negativa
+//             }
+//
+//             if((posicion_final_elevacion-posicion_actual_elevacion())<3){
+//                 //velocidad lenta elevacion negativa
+//             }
+//
+//         }
+//         if((abs(posicion_final_elevacion)-abs(posicion_actual_elevacion()<0.1))){
+//             posicion_elevacion_alcanzada=true;
+//         }
+//         
+//         if(( posicion_elevacion_alcanzada=true)&&( posicion_acimut_alcanzada=true)){
+//             State=POS_ALCANZADA;
+//         }
+//         
+//    }
+//    else {
+//        State=POS_FAILED;
+//    }
+//     
+//}
 
 uint8_t Estado_control_automatico(){
     return State;
