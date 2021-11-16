@@ -2,7 +2,7 @@
 *.d
 
 # Object files
-.o
+*.o
 *.ko
 *.obj
 *.elf
@@ -51,10 +51,4 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-build/
-dist/
-
-build\
-dist\
-
-build\default\production\
+build\default\production
