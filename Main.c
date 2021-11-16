@@ -38,6 +38,11 @@ extern Last_Value Valor_Anterior;
 //    }
 //}
 
+
+
+
+
+
 int main(){
         
 //    Create_RingBuffer();    // Ponerlo antes de habilitar el uso de UART
