@@ -37,7 +37,6 @@ extern Last_Value Valor_Anterior;
 //        Home_Stop_1 = Valor_Anterior.Home_St0p_1;
 //    }
 //}
-int primerinicio = 1;
 
 int main(){
         
