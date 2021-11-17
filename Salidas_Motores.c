@@ -36,6 +36,8 @@ extern uint8_t Flag_Parada_Emergencia;
 extern Comando_Almacenado Char_Comando;
 extern Info_Comandos_Procesados Comando_Procesado;
 extern uint8_t nuevoComando;
+
+uint8_t tracking_flag = 0;
 /*===========================================================================*/
 
 //void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando){
@@ -271,15 +273,9 @@ void Girar_Antihorario(void){
 //        }
 // }
 
-void Actualizar_Objetivos(uint8_t ID_Comando){
-    
-
-    
-    if(ID_Comando == Objetivo_Tracking){
-        Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
-        Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
-    }
-
+void Actualizar_Objetivos(){
+    Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
+    Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
 }
 
 //Estado_MEF_Principal Identificar_Tipo_Comando(uint8_t ID_Comando){
@@ -450,14 +446,15 @@ void Stop(OUT out) {
 }
 
 ID_Comandos estado_Accionamiento = Sleep;
+ID_Comandos estado_Accionamiento_anterior = Sleep;
 uint16_t ciclos_sin_comandos;
-unsigned long delayTimer1;
 
 void MEF_Accionamiento(){
     
     if(nuevoComando > 0)
     {
         putrsUART2("NUEVO COMANDO\n");
+        estado_Accionamiento_anterior = estado_Accionamiento;
         estado_Accionamiento = Comando_Procesado.Actual;
         nuevoComando = 0;
         ciclos_sin_comandos = 0;
@@ -483,26 +480,33 @@ void MEF_Accionamiento(){
         // ------- Acimut:
         
         case Giro_Horario:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
             if(OUT_RELE_2) {
                 OUT_RELE_2 = OFF;
-                delayTimer1 = millis();
-                while(millis() - delayTimer1 < 2000) {} // [TO DO] Evaluar el tiempo de delay
+                delayPIC_ms(2000); // [TO DO] Evaluar el tiempo de delay
             }
             OUT_RELE_1 = ON;
             estado_Accionamiento = Sleep;
             break;
             
         case Giro_Antihorario:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
             if(OUT_RELE_1) {
                 OUT_RELE_1 = OFF;
-                delayTimer1 = millis();
-                while(millis() - delayTimer1 < 2000) {}
+                delayPIC_ms(2000);
             }
             OUT_RELE_2 = ON;
             estado_Accionamiento = Sleep;
             break;
             
         case Stop_Acimut:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
             Stop(ACIMUT);
             estado_Accionamiento = Sleep;
             break;
@@ -510,26 +514,33 @@ void MEF_Accionamiento(){
         // ------- Elevacion:
                     
         case Giro_Arriba:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
             if(OUT_RELE_4) {
                 OUT_RELE_4 = OFF;
-                delayTimer1 = millis();
-                while(millis() - delayTimer1 < 2000) {}
+                delayPIC_ms(2000);
             }
             OUT_RELE_3 = ON;
             estado_Accionamiento = Sleep;
             break;
             
         case Giro_Abajo:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
             if(OUT_RELE_3) {
                 OUT_RELE_3 = OFF;
-                delayTimer1 = millis();
-                while(millis() - delayTimer1 < 2000) {}
+                delayPIC_ms(2000);
             }
             OUT_RELE_4 = ON;
             estado_Accionamiento = Sleep;
             break;
             
         case Stop_Elevacion:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
             Stop(ELEVACION);
             estado_Accionamiento = Sleep;
             break;
@@ -537,6 +548,9 @@ void MEF_Accionamiento(){
         // ------- Stop_Global:
             
         case Stop_Global:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
             Stop(ALL);
             estado_Accionamiento = Sleep;
             break;
@@ -544,30 +558,51 @@ void MEF_Accionamiento(){
         /* =========  Movimiento tracking  ========== */
             
         case Objetivo_Tracking:
-            // [TO DO] Logica de control
-            // IF PRIMERA VEZ
-            //OUT_RELE_1 = OFF;
-            //OUT_RELE_2 = OFF;
-            //OUT_RELE_3 = OFF;
-            //OUT_RELE_4 = OFF;
-            //
+            if(estado_Accionamiento != estado_Accionamiento_anterior) {
+                estado_Accionamiento_anterior = estado_Accionamiento;
+                Stop(ALL);
+                delayPIC_ms(2000);
+                tracking_flag = 1;
+            }
             
 //            Actualizar_Objetivos(Comando_Procesado.Actual);
-//            Calcular_Posicion_Actual(&Contador);
+            Data_Control.Valor_Actual_Elevacion = (get_Elevacion()*360.0)/100.0;
+            
+//            Calcular_Posicion_Actual(&contador);
 //            Control_Posicion_Acimut();
 //            Control_Posicion_Elevacion();
+            if(Data_Control.Valor_Actual_Elevacion < (Data_Control.Target_Elevacion - 1))
+            {
+                OUT_RELE_2 = OFF;
+                OUT_RELE_1 = ON;
+            } 
+            else if (Data_Control.Valor_Actual_Elevacion > (Data_Control.Target_Elevacion + 1))
+            {
+                OUT_RELE_1 = OFF;
+                OUT_RELE_2= ON;
+            } else
+            {
+                OUT_RELE_1 = OFF;
+                OUT_RELE_2 = OFF;
+                tracking_flag = 0;
+                estado_Accionamiento = Sleep;
+            }      
             
-            
-            
-            estado_Accionamiento = Sleep;
             break;
             
         /* ================  Sleep  ================= */
             
         case Sleep:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
+            delayPIC_ms(100);
             break;
             
         default:
+            if(estado_Accionamiento != estado_Accionamiento_anterior)
+                estado_Accionamiento_anterior = estado_Accionamiento;
+            
             estado_Accionamiento = Sleep;
     }
 }

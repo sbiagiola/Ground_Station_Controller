@@ -85,6 +85,8 @@ extern volatile int Error_UART_U2;
 
 extern Struct_Data_Control Data_Control;
 extern _Contador Contador;
+
+const extern tracking_flag;
 /*===========================================================================*/
 
 /*
@@ -104,7 +106,7 @@ En caso de querer un único segmento de salida, repetir el dato de salida en los 
 */
 void Segmentar_Datos(char *Raw_Data, char* Out_Data_Ac, char* Out_Data_El){
     
-    while(!isdigit(*Raw_Data) || *Raw_Data != '-'){
+    while(!isdigit(*Raw_Data)){
         Raw_Data++;     // Sacamos los datos que no son digitos
     }
     
@@ -195,36 +197,38 @@ uint8_t Verificando_Comando(){
     
     // Acimut:
     
-    if(Buffer_Recepcion[0] == 'R' || Buffer_Recepcion[0] == 'r') {
-        putrsUART2("[Verificando_Comando] Comando GIRO_HORARIO detectado\n");
-        return Giro_Horario;
-    }
-    
-    if(Buffer_Recepcion[0] == 'L' || Buffer_Recepcion[0] == 'l') {
-        putrsUART2("[Verificando_Comando] Comando GIRO_ANTIHORARIO detectado\n");
-        return Giro_Antihorario;
-    }
-    
-    if(Buffer_Recepcion[0] == 'A' || Buffer_Recepcion[0] == 'a') {
-        putrsUART2("[Verificando_Comando] Comando STOP_ACIMUT detectado\n");
-        return Stop_Acimut;
-    }
-    
-    // Elevacion:
-    
-    if(Buffer_Recepcion[0] == 'U' || Buffer_Recepcion[0] == 'u') {
-        putrsUART2("[Verificando_Comando] Comando GIRO_ARRIBA detectado\n");
-        return Giro_Arriba;
-    }
-    
-    if(Buffer_Recepcion[0] == 'D' || Buffer_Recepcion[0] == 'd') {
-        putrsUART2("[Verificando_Comando] Comando GIRO_ABAJO detectado\n");
-        return Giro_Abajo;
-    }
-    
-    if(Buffer_Recepcion[0] == 'E' || Buffer_Recepcion[0] == 'e') {
-        putrsUART2("[Verificando_Comando] Comando STOP_ELEVACION detectado\n");
-        return Stop_Elevacion;
+    {
+        if(Buffer_Recepcion[0] == 'R' || Buffer_Recepcion[0] == 'r') {
+            putrsUART2("[Verificando_Comando] Comando GIRO_HORARIO detectado\n");
+            if(!tracking_flag) return Giro_Horario;
+        }
+
+        if(Buffer_Recepcion[0] == 'L' || Buffer_Recepcion[0] == 'l') {
+            putrsUART2("[Verificando_Comando] Comando GIRO_ANTIHORARIO detectado\n");
+            if(!tracking_flag) return Giro_Antihorario;
+        }
+
+        if(Buffer_Recepcion[0] == 'A' || Buffer_Recepcion[0] == 'a') {
+            putrsUART2("[Verificando_Comando] Comando STOP_ACIMUT detectado\n");
+            if(!tracking_flag) return Stop_Acimut;
+        }
+
+        // Elevacion:
+
+        if(Buffer_Recepcion[0] == 'U' || Buffer_Recepcion[0] == 'u') {
+            putrsUART2("[Verificando_Comando] Comando GIRO_ARRIBA detectado\n");
+            if(!tracking_flag) return Giro_Arriba;
+        }
+
+        if(Buffer_Recepcion[0] == 'D' || Buffer_Recepcion[0] == 'd') {
+            putrsUART2("[Verificando_Comando] Comando GIRO_ABAJO detectado\n");
+            if(!tracking_flag) return Giro_Abajo;
+        }
+
+        if(Buffer_Recepcion[0] == 'E' || Buffer_Recepcion[0] == 'e') {
+            putrsUART2("[Verificando_Comando] Comando STOP_ELEVACION detectado\n");
+            if(!tracking_flag) return Stop_Elevacion;
+        }
     }
     
     /* --------------------   Comandos tracking   -------------------- */
@@ -247,6 +251,7 @@ uint8_t Verificando_Comando(){
             putrsUART2("\n[Verificando_Comando] elevacion --> ");
             putrsUART2(Char_Comando.Char_Elevacion);
             putrsUART2("\n[Verificando_Comando] ================================\n");
+            Actualizar_Objetivos();
             return Objetivo_Tracking;
         }
         else{

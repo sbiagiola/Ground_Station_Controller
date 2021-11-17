@@ -96,7 +96,7 @@ void MEF_Accionamiento(void);
 void Control_Posicion_Acimut(void);
 void Control_Posicion_Elevacion(void);
 void MEF_Movimiento_Manual(void);
-void Actualizar_Objetivos(uint8_t ID_Comando);
+void Actualizar_Objetivos(void);
 
 void Girar_Horario(void);
 void Girar_Antihorario(void);

@@ -13,6 +13,7 @@
 /*===================== [Variables Internas (Globales)] =====================*/ 
 static uint8_t cont_timer = 0;
 static uint64_t _millis;
+static uint64_t delayTimer1 = 0;
 /*===========================================================================*/
 //struct timer timer1[CANT_TIMER];
 /*===================== [Variables Externas (Globales)] =====================*/
@@ -65,6 +66,13 @@ void init_timer1(){
 
 uint64_t millis() {
     return _millis;
+}
+
+void delayPIC_ms(uint64_t _delay) {
+    delayTimer1 = millis();
+    while(millis() - delayTimer1 < _delay) {
+        ClrWdt();
+    }
 }
 
 /* Timer1 ISR 

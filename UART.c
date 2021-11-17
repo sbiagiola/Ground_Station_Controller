@@ -421,7 +421,6 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
 
     if(U2STAbits.OERR && !U2STAbits.FERR){     
         U2STAbits.OERR = 0b0;       // Clear del overrun para permitir recepción de más datos. Vaciamos la FIFO
-        LATCbits.LATC6 = 1;
         putrsUART2("[UART Error] ERROR por overflow \n");
     }
     else if(U2STAbits.PERR && !U2STAbits.FERR){

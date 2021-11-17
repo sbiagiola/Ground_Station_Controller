@@ -19,6 +19,7 @@
       <itemPath>Salidas_Motores.h</itemPath>
       <itemPath>Entradas.h</itemPath>
       <itemPath>Control_automatico.h</itemPath>
+      <itemPath>config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

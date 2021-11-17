@@ -20,6 +20,7 @@ typedef enum{
 Last_Value valor_anterior;
 _Contador contador;
 
+
 static Operacion_Pulsos estado_Operacion_Encoder_1;
 static Operacion_Pulsos estado_Operacion_Encoder_2;
 static uint8_t Bandera_Home_Stop_1 = 1;
@@ -48,6 +49,8 @@ void initCN()
     
     valor_anterior.home_stop_1 = HOME_STOP_1;
     valor_anterior.home_stop_2 = HOME_STOP_2;
+    
+    contador.encoder_2_Pulsos = 50;
 }
 
 void Config_CN_Pins(){
