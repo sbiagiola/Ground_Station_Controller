@@ -3,7 +3,7 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>Prueba</name>
+            <name>Ground_Station_Controller</name>
             <creation-uuid>0fe7f72f-292d-459b-a779-54e492bf937f</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions>c</c-extensions>
