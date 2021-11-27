@@ -9,7 +9,8 @@
 
 #include "IO_Config.h"
 #include "UART.h"
-#include "Entradas.h"
+//#include "Entradas.h"
+#include "IO_Accionamiento.h"
 
 /*==================== [Macros y Definiciones] ========================*/  
 #define OUTPUT 0

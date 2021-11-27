@@ -16,8 +16,9 @@
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
 #include "interrupts.h"
-#include "Salidas_Motores.h"
-#include "Entradas.h"
+//#include "Salidas_Motores.h"
+//#include "Entradas.h"
+#include "IO_Accionamiento.h"
 #include "timer1.h"
 
 //static uint8_t Bandera_Home_Stop_1 = 1;

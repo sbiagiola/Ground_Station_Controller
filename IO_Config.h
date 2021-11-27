@@ -12,7 +12,8 @@
 extern "C" {
 #endif
 
-/*===========================  Funciones   ==============================*/   
+/*===========================  Funciones   ==============================*/
+void Config_CN_Pins(void);
 void Config_IO(void);
 void Define_IO_Pins(void);
 void Remappeable_Pins(void);

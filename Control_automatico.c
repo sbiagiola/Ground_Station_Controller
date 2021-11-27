@@ -17,8 +17,9 @@
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
 #include "interrupts.h"
-#include "Entradas.h"
-#include "Salidas_Motores.h"
+//#include "Entradas.h"
+//#include "Salidas_Motores.h"
+#include "IO_Accionamiento.h"
 
 
 /*

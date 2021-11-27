@@ -1,8 +1,9 @@
 #include "UART.h"
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
-#include "Entradas.h"
-#include "Salidas_Motores.h"
+//#include "Entradas.h"
+//#include "Salidas_Motores.h"
+#include "IO_Accionamiento.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -75,7 +76,7 @@ char Buffer_Recepcion[MAX_SIZE_COMMAND_AVALIBLE];
 
 Info_Comandos_Procesados Comando_Procesado;
 
-uint8_t Flag_Parada_Emergencia = 0;     
+extern uint8_t Flag_Parada_Emergencia;     
 Comando_Almacenado Char_Comando;
 uint8_t nuevoComando = 0;
 /*===========================================================================*/
