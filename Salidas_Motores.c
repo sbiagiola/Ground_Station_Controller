@@ -32,6 +32,9 @@ uint32_t Cant_Carac_A_Enviar;
 extern _Contador contador;
 
 extern uint8_t Flag_Parada_Emergencia; 
+extern uint8_t Bandera_Home_Stop_1;
+extern uint8_t Bandera_Home_Stop_2;
+extern uint8_t elevation_inHome;
 
 extern Comando_Almacenado Char_Comando;
 extern Info_Comandos_Procesados Comando_Procesado;
@@ -445,9 +448,10 @@ void Stop(OUT out) {
     }
 }
 
-ID_Comandos estado_Accionamiento = Sleep;
+ID_Comandos estado_Accionamiento = GoToHome_Elevacion;
 ID_Comandos estado_Accionamiento_anterior = Sleep;
 uint16_t ciclos_sin_comandos;
+uint8_t tracking_home;
 
 void MEF_Accionamiento(){
     
@@ -556,6 +560,34 @@ void MEF_Accionamiento(){
             break;
             
         /* =========  Movimiento tracking  ========== */
+            
+        case GoToHome_Elevacion:
+            if(estado_Accionamiento != estado_Accionamiento_anterior) {
+                estado_Accionamiento_anterior = estado_Accionamiento;
+                OUT_RELE_1 = 1;
+            }
+            
+            if(Bandera_Home_Stop_1) {
+                delayPIC_ms(2000);
+                OUT_RELE_2 = 1;
+                Bandera_Home_Stop_1 = 0;
+                tracking_home = 1;
+            }
+    
+            if(tracking_home) {
+                Data_Control.Valor_Actual_Elevacion = (get_Elevacion()*360.0)/100.0;
+                if(Data_Control.Valor_Actual_Elevacion > (180 - 1) && Data_Control.Valor_Actual_Elevacion < (180 + 1))
+                {
+                    OUT_RELE_1 = OFF;
+                    OUT_RELE_2 = OFF;
+                    tracking_home = 0;
+                    elevation_inHome = 1;
+                    estado_Accionamiento = Sleep;
+                }
+            }
+                
+            break;
+            
             
         case Objetivo_Tracking:
             if(estado_Accionamiento != estado_Accionamiento_anterior) {

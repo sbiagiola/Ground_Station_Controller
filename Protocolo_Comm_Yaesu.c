@@ -86,7 +86,7 @@ extern volatile int Error_UART_U2;
 extern Struct_Data_Control Data_Control;
 extern _Contador Contador;
 
-const extern tracking_flag;
+const extern uint8_t tracking_flag;
 /*===========================================================================*/
 
 /*

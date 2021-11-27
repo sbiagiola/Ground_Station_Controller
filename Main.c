@@ -23,7 +23,8 @@
 //static uint8_t Bandera_Home_Stop_1 = 1;
 
 extern Last_Value Valor_Anterior;
-const extern tracking_flag;
+const extern uint8_t tracking_flag;
+uint8_t elevation_inHome = 0;
 
 
 //void Chequear_Home_Stop_1(void){
@@ -66,8 +67,8 @@ int main(){
     
     init_timer1();
 
-    // [TO DO] Verificar por que los reles se apagan solos despues de un tiempo
     initInterrupts();
+    
     /* ======================================================================== */
     double angulo = 0;
     char char_Angulo[10] = {};
@@ -87,16 +88,18 @@ int main(){
             angulo = (get_Elevacion()*360.0)/100.0;
             sprintf(char_Millis, "%llu", millis());
             sprintf(char_Angulo, "%.2f", angulo);
-            
-            
+
+
             putrsUART2(char_Millis);
             putrsUART2(" - Angulo leido = ");
             putrsUART2(char_Angulo);
             putrsUART2("\n");
             millis_ANGULO = millis();
         }
+
+//        if(elevation_inHome)
+            Comm_PC_Interface();
         
-        Comm_PC_Interface();
         MEF_Accionamiento();
         ClrWdt();
         

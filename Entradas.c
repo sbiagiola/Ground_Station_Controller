@@ -10,6 +10,7 @@
 #include "Salidas_Motores.h"
 #include "Protocolo_Comm_Yaesu.h"
 #include "UART.h"
+#include "timer1.h"
 
 typedef enum{
     Resta = 0,
@@ -23,8 +24,8 @@ _Contador contador;
 
 static Operacion_Pulsos estado_Operacion_Encoder_1;
 static Operacion_Pulsos estado_Operacion_Encoder_2;
-static uint8_t Bandera_Home_Stop_1 = 1;
-static uint8_t Bandera_Home_Stop_2 = 1;
+uint8_t Bandera_Home_Stop_1 = 0;
+uint8_t Bandera_Home_Stop_2 = 0;
 static uint8_t Bandera_Parad_Emerg = 0;
 /*===========================================================================*/
 
@@ -50,7 +51,7 @@ void initCN()
     valor_anterior.home_stop_1 = HOME_STOP_1;
     valor_anterior.home_stop_2 = HOME_STOP_2;
     
-    contador.encoder_2_Pulsos = 50;
+    contador.encoder_2_Pulsos = 8;
 }
 
 void Config_CN_Pins(){
@@ -137,13 +138,16 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         putrsUART2("[_CNInterrupt] Home_Stop_1 interrupt detected!");
         
         // [TO DO] Para que es este if?
-        if(HOME_STOP_1 == HIGH && Bandera_Home_Stop_1 == 1){
-            //Seteo de posicion de reposo de alguna manera
-            Bandera_Home_Stop_1 = 0;
-        }
+//        if(HOME_STOP_1 == HIGH && Bandera_Home_Stop_1 == 1){
+//            //Seteo de posicion de reposo de alguna manera
+//            Bandera_Home_Stop_1 = 0;
+//        }
         
-        if(HOME_STOP_1 == HIGH && Bandera_Home_Stop_1 == 0)
+        if(HOME_STOP_1 == HIGH) {
             Stop(ACIMUT);
+            contador.encoder_2_Pulsos = 0;
+            Bandera_Home_Stop_1 = 1;
+        }
         
         valor_anterior.home_stop_1 = HOME_STOP_1;
     }
