@@ -28,6 +28,7 @@ extern "C" {
 
 /*============================ [Funciones] ==================================*/   
 void init_timer1(void);
+void delayPIC_ms(uint64_t);
 //void SetTimer(uint8_t, int);
 //int GetTimer(uint8_t);
 uint64_t millis(void);
