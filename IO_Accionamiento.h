@@ -114,7 +114,7 @@ typedef enum {
 
 /*===========================  Funciones Entradas   =========================*/
 void initCN(void);
-void Config_CN_Pins(void);
+
 long get_Acimut(void);
 long get_Elevacion(void);
 /*========================================================================*/

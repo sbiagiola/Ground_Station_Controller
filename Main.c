@@ -63,6 +63,7 @@ int main(){
     /* ============   Configuración interna del microcontrolador   ============ */
     Config_Clock();
     Config_IO();
+    initCN();
     Config_UART();
     Config_ADC();
     

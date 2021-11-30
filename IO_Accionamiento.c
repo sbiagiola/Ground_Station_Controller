@@ -1,10 +1,3 @@
-/*
- * File:   IO_Accionamiento.c
- * Author: Gustavo
- *
- * Created on 27 de noviembre de 2021, 17:19
- */
-
 
 #include <xc.h>
 #include "IO_Accionamiento.h"
@@ -71,23 +64,6 @@ void initCN()
     contador.encoder_2_Pulsos = 8;
 }
 
-void Config_CN_Pins(){
-    CNEN1bits.CN10IE = 1;   // Enable CN10 pin for interrupt detection  RC2 (PARADA EMERG)
-    CNEN2bits.CN21IE = 1;   // Enable CN22 pin for interrupt detection  RB9 (ANEMOMETRO)
-
-    CNEN2bits.CN22IE = 1;   // Enable CN22 pin for interrupt detection  RB8 (FASE A ENCODER 1)
-    CNEN2bits.CN23IE = 1;   // Enable CN23 pin for interrupt detection  RB7 (FASE B ENCODER 1)
-    CNEN2bits.CN24IE = 1;   // Enable CN24 pin for interrupt detection  RB6 (FASE Z ENCODER 1)
-
-    CNEN2bits.CN27IE = 1;   // Enable CN27 pin for interrupt detection  RB5 (END/STOP 2)
-
-    CNEN2bits.CN25IE = 1;   // Enable CN25 pin for interrupt detection  RC4 (FASE B ENCODER 2)
-    CNEN2bits.CN26IE = 1;   // Enable CN26 pin for interrupt detection  RC5 (FASE Z ENCODER 2)
-    CNEN2bits.CN28IE = 1;   // Enable CN28 pin for interrupt detection  RC3 (FASE A ENCODER 2)
-
-    IFS1bits.CNIF = 0;      // Reset CN interrupt   (Recomendaban esto)|
-}
-
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     
     /* ---------------------------   ENCODER 1   --------------------------- */
@@ -119,6 +95,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         }
         valor_anterior.encoder_1_Z = ENCODER_1_Z;
     }
+    /* --------------------------------------------------------------------- */
     
     /* ---------------------------   ENCODER 2   --------------------------- */
     // Contador de pulsos
@@ -149,16 +126,11 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         }
         valor_anterior.encoder_2_Z = ENCODER_2_Z;
     }
+    /* --------------------------------------------------------------------- */
     
     /* --------------------------   HOME STOP 1   -------------------------- */
     if(HOME_STOP_1 != valor_anterior.home_stop_1){
         putrsUART2("[_CNInterrupt] Home_Stop_1 interrupt detected!");
-        
-        // [TO DO] Para que es este if?
-//        if(HOME_STOP_1 == HIGH && Bandera_Home_Stop_1 == 1){
-//            //Seteo de posicion de reposo de alguna manera
-//            Bandera_Home_Stop_1 = 0;
-//        }
         
         if(HOME_STOP_1 == HIGH) {
             Stop(ACIMUT);
@@ -168,22 +140,19 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         
         valor_anterior.home_stop_1 = HOME_STOP_1;
     }
+    /* --------------------------------------------------------------------- */
     
     /* --------------------------   HOME STOP 2   -------------------------- */
     if(HOME_STOP_2 != valor_anterior.home_stop_2){
         putrsUART2("[_CNInterrupt] Home_Stop_2 interrupt detected!");
         
-        // [TO DO] Para que es este if?
-        if(HOME_STOP_2 == HIGH && Bandera_Home_Stop_2 == 1){
-            //Seteo de posicion de reposo de alguna manera
-            Bandera_Home_Stop_2 = 0;
-        }
-        
         if(HOME_STOP_2 == HIGH && Bandera_Home_Stop_2 == 0)
             Stop(ELEVACION);
+            Bandera_Home_Stop_2 = 1;
 
         valor_anterior.home_stop_2 = HOME_STOP_2;
     }
+    /* --------------------------------------------------------------------- */
     
     /* ----------------------   PARADA DE EMERGENCIA   --------------------- */
     // [TO DO] Cambiar comando por stop directo ??
@@ -203,6 +172,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         }
         valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
     }
+    /* --------------------------------------------------------------------- */
     
     IFS1bits.CNIF = 0; // Clear CN interrupt
 }

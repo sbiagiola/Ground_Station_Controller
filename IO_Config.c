@@ -10,7 +10,7 @@
 #include "IO_Config.h"
 #include "UART.h"
 //#include "Entradas.h"
-#include "IO_Accionamiento.h"
+//#include "IO_Accionamiento.h"
 
 /*==================== [Macros y Definiciones] ========================*/  
 #define OUTPUT 0
@@ -25,7 +25,23 @@ void Config_IO(void){
     Define_IO_Pins();
     Remappeable_Pins();
     Config_CN_Pins();
-    initCN();
+}
+
+void Config_CN_Pins(){
+    CNEN1bits.CN10IE = 1;   // Enable CN10 pin for interrupt detection  RC2 (PARADA EMERG)
+    CNEN2bits.CN21IE = 1;   // Enable CN22 pin for interrupt detection  RB9 (ANEMOMETRO)
+
+    CNEN2bits.CN22IE = 1;   // Enable CN22 pin for interrupt detection  RB8 (FASE A ENCODER 1)
+    CNEN2bits.CN23IE = 1;   // Enable CN23 pin for interrupt detection  RB7 (FASE B ENCODER 1)
+    CNEN2bits.CN24IE = 1;   // Enable CN24 pin for interrupt detection  RB6 (FASE Z ENCODER 1)
+
+    CNEN2bits.CN27IE = 1;   // Enable CN27 pin for interrupt detection  RB5 (END/STOP 2)
+
+    CNEN2bits.CN25IE = 1;   // Enable CN25 pin for interrupt detection  RC4 (FASE B ENCODER 2)
+    CNEN2bits.CN26IE = 1;   // Enable CN26 pin for interrupt detection  RC5 (FASE Z ENCODER 2)
+    CNEN2bits.CN28IE = 1;   // Enable CN28 pin for interrupt detection  RC3 (FASE A ENCODER 2)
+
+    IFS1bits.CNIF = 0;      // Reset CN interrupt   (Recomendaban esto)|
 }
 
 void Change_Config_UART1(void){
