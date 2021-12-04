@@ -13,25 +13,9 @@
 
 
 /*======================= [Variables Externas] ===========================*/
-//extern void* pRingBufferRx_U1;
-//extern void* pRingBufferRx_U2;
 extern ringBufferData_struct pRingBufferRx_U1;
 extern ringBufferData_struct pRingBufferRx_U2;
 /*========================================================================*/
-
-//void* ringBuffer_init(int32_t size){
-//    ringBufferData_struct *pRingBuffer;
-//    pRingBuffer = malloc(sizeof(ringBufferData_struct));
-//    
-//    pRingBuffer->pBuf = malloc(size);
-//    
-//    pRingBuffer->indexRead = 0;
-//    pRingBuffer->indexWrite = 0;
-//    pRingBuffer->count = 0;
-//    pRingBuffer->size = size;
-//
-//return pRingBuffer;
-//}
 
 unsigned int ringBuffer_putData(ringBufferData_struct *pRingBuffer, uint8_t data){
     unsigned int ret = 1;

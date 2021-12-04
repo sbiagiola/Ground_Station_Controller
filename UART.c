@@ -3,7 +3,6 @@
 #include "Clock.h"
 #include "libpic30.h"
 #include "RingBuffer.h"
-#include "Protocolo_Comm_Yaesu.h"
 
 /*==================== [Macros y definiciones] ===========================*/
 #define BAUDRATE 9600
@@ -12,11 +11,6 @@
 #define RING_BUFFER_SIZE MAX_SIZE_DATA_SEND
 /*========================================================================*/
 
-/*======================= [Variables Internas] ===========================*/
-//void* pRingBufferTx_U1;     
-//void* pRingBufferRx_U1;  
-//void* pRingBufferTx_U2;  
-//void* pRingBufferRx_U2;
 
 // NO BORRAR LAS \ QUE ESTAN ACA O SE ROMPE TODA LA INICIALIZACION
 #define Create_RingBuffer_TX_U1(pRingBuffer)                \
@@ -68,7 +62,6 @@ uint8_t Respuesta;
 int Error_UART_U1;
 volatile int Error_UART_U2 = 0;
 
-
 /* ======================================================================================= */
 
 void Config_UART(void){
@@ -118,14 +111,7 @@ void Config_UART(void){
     __delay_us(150);                // Se recomienda este delay luego de habilitar el transmisor UART
 }
 
-//void Create_RingBuffer(void){
-//    /* Inicialización de buffer de recepción y transmisión*/
-//    pRingBufferTx_U1 = ringBuffer_init(RING_BUFFER_SIZE);
-//    pRingBufferRx_U1 = ringBuffer_init(RING_BUFFER_SIZE);     
-//    pRingBufferTx_U2 = ringBuffer_init(RING_BUFFER_SIZE);
-//    pRingBufferRx_U2 = ringBuffer_init(RING_BUFFER_SIZE);
-//}
-
+/* ======================================================================================= */
 /* =================================     UART 1     ====================================== */
 
 void Enable_UART1(void){
@@ -193,7 +179,7 @@ void Send_Char_Tx_Reg_U1(uint8_t *data){
     U1TXREG = *data;
 }
 
-
+/* ======================================================================================= */
 /* =================================     UART 2     ====================================== */
 
 void Enable_UART2(void){
@@ -263,8 +249,8 @@ void Send_Char_Tx_Reg_U2(uint8_t* data){
     U2TXREG = *data;
 }
 
-
-/* =============================     LOOPBACK MODE     ================================== */
+/* ======================================================================================= */
+/* ==============================     LOOPBACK MODE     ================================== */
 // Posible testeo de las UARTS conectando transmisor y receptor.
 
 void Loopback_Mode(void){
@@ -298,8 +284,8 @@ void Loopback_Mode(void){
     U2MODEbits.LPBACK = 0b01;       //Loopback Mode habilitado U2TX conectado internamente a U2RX
 }
 
-
-/* =============================     SERIAL PRINT     =================================== */
+/* ======================================================================================= */
+/* =============================     SERIAL PRINT     ==================================== */
 
 void WriteUART2(unsigned int data) {
     while(U2STAbits.UTXBF);
@@ -316,8 +302,8 @@ void putrsUART2(const char *buffer) {
     }
 }
 
-
-/* =================================     INTERRUPTS     ====================================== */
+/* ======================================================================================= */
+/* ===============================     INTERRUPTS     ==================================== */
 
 void __attribute__((interrupt,no_auto_psv)) _U1TXInterrupt(void){
     uint8_t data;           //Variable temporal - Almacena 1 dato del RB
@@ -455,8 +441,8 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     IFS4bits.U2EIF = 0;     // Clear Error Interrupt flag 
 }
 
-
-/* =================================     RINGBUFFER     ====================================== */
+/* ======================================================================================= */
+/* ===============================     RINGBUFFER     ==================================== */
 
 int32_t uart_ringBuffer_recDatos_U1(uint8_t *pBuf, int32_t size){
     int32_t ret = 0;

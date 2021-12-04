@@ -12,7 +12,14 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
- 
+
+
+/* =============================================================================== */
+#define ACKNOWLEDGE  6          // Dato recibido correctamente
+#define NEGATIVE_ACKNOWLEDGE 21 // Dato recibido incorrectamente
+#define MAX_SIZE_COMMAND_AVALIBLE 14    // Máximo dado por PC344.1 133.1'CR'
+#define MAX_SIZE_DATA_SEND  16          // 'LF'+0344.1+0133.1'CR'
+/* =============================================================================== */
     
 void WriteUART2(unsigned int);
 void putrsUART2(const char *);

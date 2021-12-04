@@ -11,6 +11,13 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+/*==================== [Macros y Definiciones] ========================*/  
+#define OUTPUT 0
+#define INPUT 1
+#define ANALOGIC 0
+#define DIGITAL 1
+/*========================================================================*/
 
 /*===========================  Funciones   ==============================*/
 void Config_CN_Pins(void);

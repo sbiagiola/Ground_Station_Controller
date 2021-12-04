@@ -16,36 +16,43 @@
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
 #include "interrupts.h"
-//#include "Salidas_Motores.h"
-//#include "Entradas.h"
 #include "IO_Accionamiento.h"
 #include "timer1.h"
+
+/* ========================================================================
+ * ============================   TO DO LIST   ============================
+ * ========================================================================
+ * Firmware:
+ * - Error UART OVERFLOW cuando envio por primera vez comando P
+ * - HomeStop durante tracking
+ * - Rutina para volver a home despues de PARADA DE EMERGENCIA
+ *      - Evaluar si es necesario volver home en algun otro caso
+ *          - Luego de un timeout sin comandos
+ * - Limpiar variables y funciones de IO_Accionamiento.c
+ * 
+ * Logica general:
+ * - Que pasa cuando alguien sube un txt que tenga angulos Elev negativos?
+ *      - Se toma como archivo invalido? En este caso no seria posible
+ *        por ejemplo seguir al sol por mas de un dia.
+ *      - Se toma como archivo valido pero no se envian los angulos
+ *        negativos? En ese caso que se hace con la posicion de la antena?
+ *        Ponele si yo quiero que la antena siga al sol durante 3 dias,
+ *        durante la noche se va a tener que quedar quieta en un lugar,
+ *        donde?
+ * - Agregar comando de fin de tracking? Cuando llegaria este comando se iria
+ *   a home
+ * ======================================================================== */
 
 //static uint8_t Bandera_Home_Stop_1 = 1;
 
 extern Last_Value Valor_Anterior;
-const extern uint8_t tracking_flag;
+const extern ID_Comandos estado_Accionamiento;
 uint8_t elevation_inHome = 0;
-
-
-//void Chequear_Home_Stop_1(void){
-//    if(Home_Stop_1 != Valor_Anterior.Home_St0p_1){
-//        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 1){
-//            //Seteo de posicion de reposo de alguna manera
-//            Bandera_Home_Stop_1 = 0;
-//        }
-//        if(Home_Stop_1 == HIGH && Bandera_Home_Stop_1 == 0){
-//            //Definir acciones
-//        }
-//        Home_Stop_1 = Valor_Anterior.Home_St0p_1;
-//    }
-//}
-
 unsigned long millis_LED;
 
 void MasterLEDS() {
     int frecLED;
-    if(tracking_flag) frecLED = 100;
+    if(estado_Accionamiento == Objetivo_Tracking) frecLED = 100;
     else frecLED = 500;
     
     if(millis() - millis_LED > frecLED)
@@ -56,8 +63,6 @@ void MasterLEDS() {
 }
 
 int main(){
-        
-//    Create_RingBuffer();    // Ponerlo antes de habilitar el uso de UART
     
     /* ============   Configuración interna del microcontrolador   ============ */
     Config_Clock();
@@ -67,15 +72,15 @@ int main(){
     Config_ADC();
     
     init_timer1();
-
     initInterrupts();
-    
     /* ======================================================================== */
+    // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
+    
     double angulo = 0;
     char char_Angulo[10] = {};
     char char_Millis[15] = {};
 
-    // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
+    
     
     
     unsigned long millis_ANGULO;

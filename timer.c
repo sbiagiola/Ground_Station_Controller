@@ -10,14 +10,15 @@
 #include "timer1.h"
 #include "libpic30.h"
 #include "UART.h"
+
 /*===================== [Variables Internas (Globales)] =====================*/ 
 static uint8_t cont_timer = 0;
 static uint64_t _millis;
 static uint64_t delayTimer1 = 0;
 /*===========================================================================*/
-//struct timer timer1[CANT_TIMER];
+
 /*===================== [Variables Externas (Globales)] =====================*/
-/*===========================================================================*/
+
 void init_timer1(){
     
     // Configuracion de timers
@@ -30,39 +31,10 @@ void init_timer1(){
     
     //IFS0bits.T1IF = 0;// Clear Timer1 Interrupt Flag
     T1CONbits.TON = 1;// Start Timer
-    
-    // Inicializacion de las struct timer
-//    uint8_t i;
-//    for(i = 0; i < CANT_TIMER; i++) {
-//        timer1[i].enable = 0;
-//        timer1[i].tiempoCuenta = 0;
-//        timer1[i].timerFlag = 0;
-//    }
 }
 
 
 /* ======================================================================== */
-
-//void SetTimer(uint8_t index, int cont)
-//{
-//    timer1[index].enable = 1;
-//    timer1[index].timerFlag = 0;
-//    timer1[index].tiempoCuenta = cont * 125; // Cada 125 veces que salta _T1Interrupt se cumple un 1 ms 
-//}
-//
-//
-//int GetTimer(uint8_t index)
-//{
-//    if (timer1[index].timerFlag == 0)
-//    {
-//        return 0;
-//    } else {
-//        timer1[index].timerFlag = 0;
-//        timer1[index].enable = 0;
-//        return 1;
-//    }
-//    return 0;
-//}
 
 uint64_t millis() {
     return _millis;
@@ -78,21 +50,8 @@ void delayPIC_ms(uint64_t _delay) {
 /* Timer1 ISR 
     Interrup salta con una frecuencia de 5Mhz 
 */
-
-
 void __attribute__((interrupt,no_auto_psv)) _T1Interrupt(void)
 {
-//    uint8_t i;
-//    for(i = 0; i < CANT_TIMER; i++) {
-//        if(timer1[i].enable == 1)
-//        {
-//            if(timer1[i].tiempoCuenta > 0) {
-//                timer1[i].tiempoCuenta--;
-//            } else {
-//                timer1[i].timerFlag = 1;
-//            }
-//        }
-//    }
     if(cont_timer == 125) {
         cont_timer = 0;
         _millis++;

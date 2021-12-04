@@ -12,11 +12,7 @@
       <itemPath>RingBuffer.h</itemPath>
       <itemPath>DAC.h</itemPath>
       <itemPath>timer1.h</itemPath>
-      <itemPath>GPS.h</itemPath>
       <itemPath>Protocolo_Comm_Yaesu.h</itemPath>
-      <itemPath>dac1.h</itemPath>
-      <itemPath>timer.h</itemPath>
-      <itemPath>Control_automatico.h</itemPath>
       <itemPath>config.h</itemPath>
       <itemPath>IO_Accionamiento.h</itemPath>
     </logicalFolder>
@@ -36,9 +32,7 @@
       <itemPath>RingBuffer.c</itemPath>
       <itemPath>DAC.c</itemPath>
       <itemPath>timer.c</itemPath>
-      <itemPath>GPS.c</itemPath>
       <itemPath>Protocolo_Comm_Yaesu.c</itemPath>
-      <itemPath>Control_automatico.c</itemPath>
       <itemPath>IO_Accionamiento.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"

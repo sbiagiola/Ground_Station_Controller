@@ -1,15 +1,13 @@
-#include "UART.h"
-#include "RingBuffer.h"
-#include "Protocolo_Comm_Yaesu.h"
-//#include "Entradas.h"
-//#include "Salidas_Motores.h"
-#include "IO_Accionamiento.h"
-
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <p33FJ128GP804.h>
+
+#include "UART.h"
+#include "RingBuffer.h"
+#include "Protocolo_Comm_Yaesu.h"
+#include "IO_Accionamiento.h"
 /*
  * (CR)0xD -> Retorno de carro
  * (LF)0xA -> Avance de línea 
@@ -74,20 +72,15 @@ uint32_t FlagRec;
 uint32_t Indice_Rec = 0;
 char Buffer_Recepcion[MAX_SIZE_COMMAND_AVALIBLE];
 
-Info_Comandos_Procesados Comando_Procesado;
-
-extern uint8_t Flag_Parada_Emergencia;     
+Info_Comandos_Procesados Comando_Procesado;    
 Comando_Almacenado Char_Comando;
 uint8_t nuevoComando = 0;
 /*===========================================================================*/
 
 /*===================== [Variables Externas (Globales)] =====================*/
 extern volatile int Error_UART_U2;
-
-extern Struct_Data_Control Data_Control;
-extern _Contador Contador;
-
-const extern uint8_t tracking_flag;
+//const extern uint8_t tracking_flag;
+const extern ID_Comandos estado_Accionamiento;
 /*===========================================================================*/
 
 /*
@@ -201,34 +194,34 @@ uint8_t Verificando_Comando(){
     {
         if(Buffer_Recepcion[0] == 'R' || Buffer_Recepcion[0] == 'r') {
             putrsUART2("[Verificando_Comando] Comando GIRO_HORARIO detectado\n");
-            if(!tracking_flag) return Giro_Horario;
+            if(estado_Accionamiento != Objetivo_Tracking) return Giro_Horario;
         }
 
         if(Buffer_Recepcion[0] == 'L' || Buffer_Recepcion[0] == 'l') {
             putrsUART2("[Verificando_Comando] Comando GIRO_ANTIHORARIO detectado\n");
-            if(!tracking_flag) return Giro_Antihorario;
+            if(estado_Accionamiento != Objetivo_Tracking) return Giro_Antihorario;
         }
 
         if(Buffer_Recepcion[0] == 'A' || Buffer_Recepcion[0] == 'a') {
             putrsUART2("[Verificando_Comando] Comando STOP_ACIMUT detectado\n");
-            if(!tracking_flag) return Stop_Acimut;
+            if(estado_Accionamiento != Objetivo_Tracking) return Stop_Acimut;
         }
 
         // Elevacion:
 
         if(Buffer_Recepcion[0] == 'U' || Buffer_Recepcion[0] == 'u') {
             putrsUART2("[Verificando_Comando] Comando GIRO_ARRIBA detectado\n");
-            if(!tracking_flag) return Giro_Arriba;
+            if(estado_Accionamiento != Objetivo_Tracking) return Giro_Arriba;
         }
 
         if(Buffer_Recepcion[0] == 'D' || Buffer_Recepcion[0] == 'd') {
             putrsUART2("[Verificando_Comando] Comando GIRO_ABAJO detectado\n");
-            if(!tracking_flag) return Giro_Abajo;
+            if(estado_Accionamiento != Objetivo_Tracking) return Giro_Abajo;
         }
 
         if(Buffer_Recepcion[0] == 'E' || Buffer_Recepcion[0] == 'e') {
             putrsUART2("[Verificando_Comando] Comando STOP_ELEVACION detectado\n");
-            if(!tracking_flag) return Stop_Elevacion;
+            if(estado_Accionamiento != Objetivo_Tracking) return Stop_Elevacion;
         }
     }
     
@@ -314,7 +307,7 @@ void Comm_PC_Interface(){
                     Indice_Rec = 0;
                     Clean_RingBufferRx_U2();
                     Mensaje_Env[0] = ACKNOWLEDGE;
-                    putrsUART2("[Comm][PC - Interface] ERROR en la UART2 \n");
+                    putrsUART2("[Comm_PC_Interface] ERROR en la UART2 \n");
                     //uart_ringBuffer_envDatos_U2(Mensaje_Env,sizeof(char));
                     Estado_Comm = Esperando_Datos;
                     Error_UART_U2 = 0;
@@ -366,11 +359,6 @@ void Comm_PC_Interface(){
 //                Comando_Procesado.Ultimo = Comando_Procesado.Actual;
                 Comando_Procesado.Actual = Comando_Procesado.Proximo;
                 nuevoComando = 1;
-                    
-//                if(!Flag_Parada_Emergencia){ 
-//                    Comando_Procesado.Ultimo = Comando_Procesado.Actual;
-//                    Comando_Procesado.Actual = Comando_Procesado.Proximo;
-//                }
                 
                 Estado_Comm = Limpiando_Buffer;
                 break;
@@ -381,7 +369,7 @@ void Comm_PC_Interface(){
                 putrsUART2("[Comm_PC_Interface] Limpiando buffer...\n\n");
                 
                 int i = 0;
-                while(i < MAX_SIZE_COMMAND_AVALIBLE) { // [TO DO] Fijarse si se puede usar size del Buffer_Recepcion 
+                while(i < MAX_SIZE_COMMAND_AVALIBLE) {
                     Buffer_Recepcion[i] = '\0';
                     i++;
                 }

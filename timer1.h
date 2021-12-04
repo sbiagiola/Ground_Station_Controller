@@ -12,20 +12,6 @@
 extern "C" {
 #endif
 
-//#define CANT_TIMER  2       // Cantidad maxima de timers que se pueden setear
-    
-//typedef enum{
-//    TEMP_1 = 0,
-//    TEMP_2,
-//    TEMP_3
-//}timer_index;
-//
-//struct timer {
-//    uint8_t enable;      // Index de timer
-//    uint64_t tiempoCuenta;       // Tiempo de cuenta de timer
-//    uint8_t timerFlag;      // Flag de tiempo cumplido
-//};
-
 /*============================ [Funciones] ==================================*/   
 void init_timer1(void);
 void delayPIC_ms(uint64_t);

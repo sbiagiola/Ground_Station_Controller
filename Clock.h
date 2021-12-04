@@ -1,9 +1,3 @@
-/* 
- * File:   System.h
- * Author: Jeremías
- *
- * Created on 18 de marzo de 2021, 11:11
- */
 
 #ifndef CLOCK_H
 #define	CLOCK_H

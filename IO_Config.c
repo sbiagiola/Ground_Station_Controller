@@ -6,21 +6,11 @@
  */
 #include <xc.h>
 #include <stdio.h>
-
 #include "IO_Config.h"
 #include "UART.h"
-//#include "Entradas.h"
-//#include "IO_Accionamiento.h"
 
-/*==================== [Macros y Definiciones] ========================*/  
-#define OUTPUT 0
-#define INPUT 1
-#define ANALOGIC 0
-#define DIGITAL 1
-/*========================================================================*/
 
-void Config_IO(void){
-    //Podemos poner una verificación con los retornos de cada función
+void Config_IO(void) {
     Set_Pin_As_A_or_D();
     Define_IO_Pins();
     Remappeable_Pins();

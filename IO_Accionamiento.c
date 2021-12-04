@@ -43,118 +43,118 @@ extern Info_Comandos_Procesados Comando_Procesado;
 extern Comando_Almacenado Char_Comando;
 extern Info_Comandos_Procesados Comando_Procesado;
 extern uint8_t nuevoComando;
-uint8_t tracking_flag = 0;
+//uint8_t tracking_flag = 0;
 
 void initCN()
 {
-    valor_anterior.encoder_1_A = ENCODER_1_A;
-    valor_anterior.encoder_1_B = ENCODER_1_B;
-    valor_anterior.encoder_1_Z = ENCODER_1_Z;
+    valor_anterior.encoderElev_A = ENCODER_ELEV_A;
+    valor_anterior.encoderElev_B = ENCODER_ELEV_B;
+    valor_anterior.encoderElev_Z = ENCODER_ELEV_Z;
     
-    valor_anterior.encoder_2_A = ENCODER_2_A;
-    valor_anterior.encoder_2_B = ENCODER_2_B;
-    valor_anterior.encoder_2_Z = ENCODER_2_Z;
+    valor_anterior.encoderAz_A = ENCODER_AZ_A;
+    valor_anterior.encoderAz_B = ENCODER_AZ_B;
+    valor_anterior.encoderAz_Z = ENCODER_AZ_Z;
     
     valor_anterior.anemometro = ANEMOMETRO;
     valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
     
-    valor_anterior.home_stop_1 = HOME_STOP_1;
-    valor_anterior.home_stop_2 = HOME_STOP_2;
+    valor_anterior.home_stop_Elev = HOME_STOP_ELEV;
+    valor_anterior.home_stop_Az = HOME_STOP_AZ;
     
-    contador.encoder_2_Pulsos = 8;
+    contador.encoderAz_Pulsos = 8;
 }
 
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     
-    /* ---------------------------   ENCODER 1   --------------------------- */
+    /* ---------------------------   ENCODER ELEVACION   --------------------------- */
     // Contador de pulsos
-    if((ENCODER_1_A != valor_anterior.encoder_1_A)) {
-        if(ENCODER_1_A == HIGH) {
-            if(ENCODER_1_B == HIGH) {
+    if((ENCODER_ELEV_A != valor_anterior.encoderElev_A)) {
+        if(ENCODER_ELEV_A == HIGH) {
+            if(ENCODER_ELEV_B == HIGH) {
                 putrsUART2("[CNInterrupt]: Encoder 1 (fase B)\n\r");
-                contador.encoder_1_Pulsos++;
+                contador.encoderElev_Pulsos++;
                 estado_Operacion_Encoder_1 = Suma;
             } else {
                 putrsUART2("[CNInterrupt]: Encoder 1 (fase A)\n\r");
-                contador.encoder_1_Pulsos--;
+                contador.encoderElev_Pulsos--;
                 estado_Operacion_Encoder_1 = Resta;
             }
         }
-        valor_anterior.encoder_1_A = ENCODER_1_A;
+        valor_anterior.encoderElev_A = ENCODER_ELEV_A;
     }
     
     // Contador de vueltas
     // [TO DO] Esto no sirve para nada en nuestro proyecto, se deja o se saca?
-    if(ENCODER_1_Z != valor_anterior.encoder_1_Z){
-        if(ENCODER_1_Z == HIGH){
+    if(ENCODER_ELEV_Z != valor_anterior.encoderElev_Z){
+        if(ENCODER_ELEV_Z == HIGH){
             if(estado_Operacion_Encoder_1 == Suma){
-                contador.encoder_1_Vueltas++;
+                contador.encoderElev_Vueltas++;
             } else {
-                contador.encoder_1_Vueltas--;
+                contador.encoderElev_Vueltas--;
             }
         }
-        valor_anterior.encoder_1_Z = ENCODER_1_Z;
+        valor_anterior.encoderElev_Z = ENCODER_ELEV_Z;
     }
-    /* --------------------------------------------------------------------- */
+    /* ----------------------------------------------------------------------------- */
     
-    /* ---------------------------   ENCODER 2   --------------------------- */
+    /* -----------------------------   ENCODER ACIMUT   ---------------------------- */
     // Contador de pulsos
-    if((ENCODER_2_A != valor_anterior.encoder_2_A)) {
-        if(ENCODER_2_A == HIGH) {
-            if(ENCODER_2_B == HIGH) {
+    if((ENCODER_AZ_A != valor_anterior.encoderAz_A)) {
+        if(ENCODER_AZ_A == HIGH) {
+            if(ENCODER_AZ_B == HIGH) {
                 putrsUART2("[CNInterrupt]: Encoder 2 (fase B)\n\r");                
-                contador.encoder_2_Pulsos++;
+                contador.encoderAz_Pulsos++;
                 estado_Operacion_Encoder_2 = Suma;
             } else {
                 putrsUART2("[CNInterrupt]: Encoder 2 (fase A)\n\r");
-                contador.encoder_2_Pulsos--;
+                contador.encoderAz_Pulsos--;
                 estado_Operacion_Encoder_2 = Resta;
             }
         }
-        valor_anterior.encoder_2_A = ENCODER_2_A;
+        valor_anterior.encoderAz_A = ENCODER_AZ_A;
     }
     
     // Contador de vueltas
     // [TO DO] Esto no sirve para nada en nuestro proyecto, se deja o se saca?
-    if(ENCODER_2_Z != valor_anterior.encoder_2_Z){
-        if(ENCODER_2_Z == HIGH){
+    if(ENCODER_AZ_Z != valor_anterior.encoderAz_Z){
+        if(ENCODER_AZ_Z == HIGH){
             if(estado_Operacion_Encoder_2 == Suma){
-                contador.encoder_2_Vueltas++;
+                contador.encoderAz_Vueltas++;
             } else {
-                contador.encoder_2_Vueltas--;
+                contador.encoderAz_Vueltas--;
             }
         }
-        valor_anterior.encoder_2_Z = ENCODER_2_Z;
+        valor_anterior.encoderAz_Z = ENCODER_AZ_Z;
     }
-    /* --------------------------------------------------------------------- */
+    /* ----------------------------------------------------------------------------- */
     
-    /* --------------------------   HOME STOP 1   -------------------------- */
-    if(HOME_STOP_1 != valor_anterior.home_stop_1){
-        putrsUART2("[_CNInterrupt] Home_Stop_1 interrupt detected!");
+    /* --------------------------   HOME STOP ELEVACION   -------------------------- */
+    if(HOME_STOP_ELEV != valor_anterior.home_stop_Elev){
+        putrsUART2("[_CNInterrupt] Home_Stop_1 interrupt detected!\n\r");
         
-        if(HOME_STOP_1 == HIGH) {
-            Stop(ACIMUT);
-            contador.encoder_2_Pulsos = 0;
+        if(HOME_STOP_ELEV == HIGH) {
+            Stop(ELEVACION);
+            contador.encoderAz_Pulsos = 0;
             Bandera_Home_Stop_1 = 1;
         }
         
-        valor_anterior.home_stop_1 = HOME_STOP_1;
+        valor_anterior.home_stop_Elev = HOME_STOP_ELEV;
     }
-    /* --------------------------------------------------------------------- */
+    /* ----------------------------------------------------------------------------- */
     
-    /* --------------------------   HOME STOP 2   -------------------------- */
-    if(HOME_STOP_2 != valor_anterior.home_stop_2){
-        putrsUART2("[_CNInterrupt] Home_Stop_2 interrupt detected!");
+    /* ----------------------------   HOME STOP ACIMUT   --------------------------- */
+    if(HOME_STOP_AZ != valor_anterior.home_stop_Az){
+        putrsUART2("[_CNInterrupt] Home_Stop_2 interrupt detected!\n\r");
         
-        if(HOME_STOP_2 == HIGH && Bandera_Home_Stop_2 == 0)
-            Stop(ELEVACION);
+        if(HOME_STOP_AZ == HIGH && Bandera_Home_Stop_2 == 0)
+            Stop(ACIMUT);
             Bandera_Home_Stop_2 = 1;
 
-        valor_anterior.home_stop_2 = HOME_STOP_2;
+        valor_anterior.home_stop_Az = HOME_STOP_AZ;
     }
-    /* --------------------------------------------------------------------- */
+    /* ----------------------------------------------------------------------------- */
     
-    /* ----------------------   PARADA DE EMERGENCIA   --------------------- */
+    /* --------------------------   PARADA DE EMERGENCIA   ------------------------- */
     // [TO DO] Cambiar comando por stop directo ??
     if(PARADA_EMERGENCIA != valor_anterior.parada_emergencia){
         putrsUART2("[_CNInterrupt] Parada_Emergencia interrupt detected!");
@@ -172,17 +172,17 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         }
         valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
     }
-    /* --------------------------------------------------------------------- */
+    /* ----------------------------------------------------------------------------- */
     
     IFS1bits.CNIF = 0; // Clear CN interrupt
 }
 
 long get_Acimut(void){
-    return contador.encoder_1_Pulsos;
+    return contador.encoderElev_Pulsos;
 }
 
 long get_Elevacion(void){
-    return  contador.encoder_2_Pulsos;
+    return  contador.encoderAz_Pulsos;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,6 +192,45 @@ long get_Elevacion(void){
 void Actualizar_Objetivos(){
     Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
     Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
+}
+
+void Move(OUT out) {
+    switch(out) {
+        case ACIMUT_RIGHT:
+            if(READ_RELE_2 == ON) {
+                OUT_RELE_2 = OFF;
+                delayPIC_ms(2000);
+            }
+            OUT_RELE_1 = ON;
+            break;
+            
+        case ACIMUT_LEFT:
+            if(READ_RELE_1 == ON) {
+                OUT_RELE_1 = OFF;
+                delayPIC_ms(2000);
+            }
+            OUT_RELE_2 = ON;
+            break;
+            
+        case ELEVACION_UP:
+            if(READ_RELE_4 == ON) {
+                OUT_RELE_4 = OFF;
+                delayPIC_ms(2000);
+            }
+            OUT_RELE_3 = ON;
+            break;
+            
+        case ELEVACION_DOWN:
+            if(READ_RELE_3 == ON) {
+                OUT_RELE_3 = OFF;
+                delayPIC_ms(2000);
+            }
+            OUT_RELE_4 = ON;
+            break;
+            
+        default:
+            break;
+    }
 }
 
 void Stop(OUT out) {
@@ -258,11 +297,12 @@ void MEF_Accionamiento(){
             if(estado_Accionamiento != estado_Accionamiento_anterior)
                 estado_Accionamiento_anterior = estado_Accionamiento;
             
-            if(OUT_RELE_2) {
-                OUT_RELE_2 = OFF;
-                delayPIC_ms(2000); // [TO DO] Evaluar el tiempo de delay
-            }
-            OUT_RELE_1 = ON;
+//            if(OUT_RELE_2) {
+//                OUT_RELE_2 = OFF;
+//                delayPIC_ms(2000); // [TO DO] Evaluar el tiempo de delay
+//            }
+//            OUT_RELE_1 = ON;
+            Move(ACIMUT_RIGHT);
             estado_Accionamiento = Sleep;
             break;
             
@@ -270,11 +310,12 @@ void MEF_Accionamiento(){
             if(estado_Accionamiento != estado_Accionamiento_anterior)
                 estado_Accionamiento_anterior = estado_Accionamiento;
             
-            if(OUT_RELE_1) {
-                OUT_RELE_1 = OFF;
-                delayPIC_ms(2000);
-            }
-            OUT_RELE_2 = ON;
+//            if(OUT_RELE_1) {
+//                OUT_RELE_1 = OFF;
+//                delayPIC_ms(2000);
+//            }
+//            OUT_RELE_2 = ON;
+            Move(ACIMUT_LEFT);
             estado_Accionamiento = Sleep;
             break;
             
@@ -292,11 +333,12 @@ void MEF_Accionamiento(){
             if(estado_Accionamiento != estado_Accionamiento_anterior)
                 estado_Accionamiento_anterior = estado_Accionamiento;
             
-            if(OUT_RELE_4) {
-                OUT_RELE_4 = OFF;
-                delayPIC_ms(2000);
-            }
-            OUT_RELE_3 = ON;
+//            if(OUT_RELE_4) {
+//                OUT_RELE_4 = OFF;
+//                delayPIC_ms(2000);
+//            }
+//            OUT_RELE_3 = ON;
+            Move(ELEVACION_UP);
             estado_Accionamiento = Sleep;
             break;
             
@@ -304,11 +346,12 @@ void MEF_Accionamiento(){
             if(estado_Accionamiento != estado_Accionamiento_anterior)
                 estado_Accionamiento_anterior = estado_Accionamiento;
             
-            if(OUT_RELE_3) {
-                OUT_RELE_3 = OFF;
-                delayPIC_ms(2000);
-            }
-            OUT_RELE_4 = ON;
+//            if(OUT_RELE_3) {
+//                OUT_RELE_3 = OFF;
+//                delayPIC_ms(2000);
+//            }
+//            OUT_RELE_4 = ON;
+            Move(ELEVACION_DOWN);
             estado_Accionamiento = Sleep;
             break;
             
@@ -365,29 +408,24 @@ void MEF_Accionamiento(){
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 Stop(ALL);
                 delayPIC_ms(2000);
-                tracking_flag = 1;
+//                tracking_flag = 1;
             }
             
-//            Actualizar_Objetivos(Comando_Procesado.Actual);
-            Data_Control.Valor_Actual_Elevacion = (get_Elevacion()*360.0)/100.0;
+            Data_Control.Valor_Actual_Acimut = (get_Acimut()*360.0)/100.0;
             
 //            Calcular_Posicion_Actual(&contador);
-//            Control_Posicion_Acimut();
-//            Control_Posicion_Elevacion();
-            if(Data_Control.Valor_Actual_Elevacion < (Data_Control.Target_Elevacion - 1))
+
+            if(Data_Control.Valor_Actual_Acimut < (Data_Control.Target_Acimut - 1))
             {
-                OUT_RELE_2 = OFF;
-                OUT_RELE_1 = ON;
+                Move(ACIMUT_RIGHT);
             } 
-            else if (Data_Control.Valor_Actual_Elevacion > (Data_Control.Target_Elevacion + 1))
+            else if (Data_Control.Valor_Actual_Acimut > (Data_Control.Target_Acimut + 1))
             {
-                OUT_RELE_1 = OFF;
-                OUT_RELE_2= ON;
+                Move(ACIMUT_LEFT);
             } else
             {
-                OUT_RELE_1 = OFF;
-                OUT_RELE_2 = OFF;
-                tracking_flag = 0;
+                Stop(ACIMUT);
+//                tracking_flag = 0;
                 estado_Accionamiento = Sleep;
             }      
             
@@ -409,37 +447,3 @@ void MEF_Accionamiento(){
             estado_Accionamiento = Sleep;
     }
 }
-
-//void Control_Posicion_Acimut(void){
-//    //if(){   //Mientras no sale el HOME_STOP_X podemos mover
-//        if(Data_Control.Target_Acimut > (Data_Control.Valor_Actual_Acimut + OFFSET_ANGULAR_ENCODER_ACIMUT)){
-//            // Lógica de control
-//            //Girar_Horario();
-//        }else{
-//            if(Data_Control.Target_Acimut < (Data_Control.Valor_Actual_Acimut + OFFSET_ANGULAR_ENCODER_ACIMUT)){
-//                // Lógica de control
-//                //Girar_Antihorario();
-//            }
-//            else{   //Estamos dentro de la zona muerta que no podemos detectar
-//                Parar_Acimut();
-//            }
-//        }
-//    //}
-//}
-//
-//void Control_Posicion_Elevacion(void){
-//    //if(){   //Mientras no sale el HOME_STOP_X podemos mover
-//        if(Data_Control.Target_Elevacion > (Data_Control.Valor_Actual_Elevacion + OFFSET_ANGULAR_ELEVACION)){
-//            // Logica de control
-//            // Mov_Arriba();
-//        }else{
-//            if(Data_Control.Target_Elevacion < (Data_Control.Valor_Actual_Elevacion + OFFSET_ANGULAR_ELEVACION)){
-//            // Logica de control
-//            // Mov_Abajo();
-//            }
-//            else{   //Estamos dentro de la zona muerta que no podemos detectar
-//                Parar_Elevacion();
-//            }
-//        }
-//    // }
-//}

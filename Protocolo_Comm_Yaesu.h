@@ -5,6 +5,7 @@
  * Created on 24 de mayo de 2021, 10:35
  */
 #include "stdint.h"
+#include "UART.h"
 
 #ifndef PROTOCOL_COMM_YAESU_H
 #define	PROTOCOL_COMM_YAESU_H
@@ -14,19 +15,10 @@ extern "C" {
 #endif
     
 /*==================== [Macros de Comunicaciones] ========================*/
-#define START_OF_HEADING 1      // Comienzo de encabezado
-#define START_OF_TEXT 2         // Comienzo de transmisión de un texto
-#define END_OF_TEXT 3           // Fin de transmisión de un texto
-#define END_OF_TRANSMISION 4    // Fin de la transmisión
-#define ACKNOWLEDGE  6          // Dato recibido correctamente
-#define BELL 7                  // Campana de llamado de atención 
 #define CHAR_LF  10             // Fin de linea  
 #define CHAR_CR  13             // Retorno del carro
-#define NEGATIVE_ACKNOWLEDGE 21 // Dato recibido incorrectamente
 
-#define MAX_SIZE_COMMAND_AVALIBLE 14    // Máximo dado por PC344.1 133.1'CR'
-#define MAX_SIZE_DATA_SEND  16          // 'LF'+0344.1+0133.1'CR'
-#define MAX_LONG_DATA_ANGLE 6           // Máxima longitud de datos asociada al ángulo
+#define MAX_LONG_DATA_ANGLE 7           // Máxima longitud de datos asociada al ángulo
 /*========================================================================*/
     
 
@@ -51,22 +43,22 @@ typedef enum{
         
     // Comandos manuales
     //Acimut
-    Giro_Horario,                   // Clockwise Rotation
-    Giro_Antihorario,               // Counter Clockwise Rotation
-    Stop_Acimut,                    // CW/CCW Rotation Stop
+    Giro_Horario,               // Clockwise Rotation
+    Giro_Antihorario,           // Counter Clockwise Rotation
+    Stop_Acimut,                // CW/CCW Rotation Stop
     // Elevacion
-    Giro_Arriba,                         // UP Direction Rotation
-    Giro_Abajo,                          // DOWN Direction Rotation
-    Stop_Elevacion,                 // UP/DOWN Direction Rotation Stop
+    Giro_Arriba,                // UP Direction Rotation
+    Giro_Abajo,                 // DOWN Direction Rotation
+    Stop_Elevacion,             // UP/DOWN Direction Rotation Stop
 
     // Comandos de lectura
-    Leer_Acimut,          // Retornar el valor de actual del ángulo de de acimut 
-    Leer_Elevacion,       // Retornar el valor de actual del ángulo de elevación
+    Leer_Acimut,                // Retornar el valor de actual del ángulo de de acimut 
+    Leer_Elevacion,             // Retornar el valor de actual del ángulo de elevación
 
     // Comandos de tracking
-    Stop_Global,                     // Stop Global
+    Stop_Global,                // Stop Global
     GoToHome_Elevacion,
-    Objetivo_Tracking,     // Formato de mayor precisión para combinación
+    Objetivo_Tracking,          // Formato de mayor precisión para combinación
             
     Sleep,
 }ID_Comandos;
