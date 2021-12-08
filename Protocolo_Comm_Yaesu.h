@@ -58,6 +58,7 @@ typedef enum{
     // Comandos de tracking
     Stop_Global,                // Stop Global
     GoToHome_Elevacion,
+    GoToHome_Acimut,
     Objetivo_Tracking,          // Formato de mayor precisión para combinación
             
     Sleep,

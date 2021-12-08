@@ -24,11 +24,10 @@
  * ========================================================================
  * Firmware:
  * - Error UART OVERFLOW cuando envio por primera vez comando P
- * - HomeStop durante tracking
  * - Rutina para volver a home despues de PARADA DE EMERGENCIA
  *      - Evaluar si es necesario volver home en algun otro caso
  *          - Luego de un timeout sin comandos
- * - Limpiar variables y funciones de IO_Accionamiento.c
+ * - Enviar angulo actual a PC
  * 
  * Logica general:
  * - Que pasa cuando alguien sube un txt que tenga angulos Elev negativos?
@@ -41,6 +40,8 @@
  *        donde?
  * - Agregar comando de fin de tracking? Cuando llegaria este comando se iria
  *   a home
+ * - Que hacemos cuando durante el traking pega el home stop?
+ *      - Se detiene y se queda ahi? Vuelve a home?
  * ======================================================================== */
 
 //static uint8_t Bandera_Home_Stop_1 = 1;
@@ -91,7 +92,7 @@ int main(){
         
         if (millis() - millis_ANGULO > 1000)
         {
-            angulo = (get_Elevacion()*360.0)/100.0;
+            angulo = (get_Acimut()*360.0)/100.0;
             sprintf(char_Millis, "%llu", millis());
             sprintf(char_Angulo, "%.2f", angulo);
 

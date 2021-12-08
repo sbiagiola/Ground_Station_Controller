@@ -15,8 +15,8 @@
 #define ENCODER_AZ_B        PORTCbits.RC4
 #define ENCODER_AZ_Z        PORTCbits.RC3
 
-#define HOME_STOP_ELEV      PORTBbits.RB9
-#define HOME_STOP_AZ        PORTBbits.RB5
+#define HOME_STOP_ELEV      PORTBbits.RB5 //PORTBbits.RB9
+#define HOME_STOP_AZ        PORTBbits.RB9 //PORTBbits.RB5
     
 #define PARADA_EMERGENCIA   PORTCbits.RC2
 #define ANEMOMETRO          PORTAbits.RA4
@@ -70,9 +70,9 @@
 
 typedef struct{
     long encoderElev_Pulsos;
-    long encoderElev_Vueltas;
+//    long encoderElev_Vueltas;
     long encoderAz_Pulsos;
-    long encoderAz_Vueltas;
+//    long encoderAz_Vueltas;
     long anemometro;
 }_Contador;
 
