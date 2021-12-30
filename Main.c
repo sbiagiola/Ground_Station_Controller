@@ -24,10 +24,11 @@
  * ========================================================================
  * Firmware:
  * - Error UART OVERFLOW cuando envio por primera vez comando P
- * - Rutina para volver a home despues de PARADA DE EMERGENCIA
- *      - Evaluar si es necesario volver home en algun otro caso
- *          - Luego de un timeout sin comandos
+ * >> LIMPIAR EL BUFFER CUANDO TERMINA LA INICIALIZACION
  * - Enviar angulo actual a PC
+ *
+ * - Cambiar timeout de comando a 2 horas
+ * 
  * 
  * Logica general:
  * - Que pasa cuando alguien sube un txt que tenga angulos Elev negativos?
@@ -38,10 +39,17 @@
  *        Ponele si yo quiero que la antena siga al sol durante 3 dias,
  *        durante la noche se va a tener que quedar quieta en un lugar,
  *        donde?
+ * >> AGREGAR COMANDO HOME QUE SERA ENVIADO CUANDO EL PYTHON DETECTE ALGUNOS
+ *    ANGULOS NEGATIVOS.
+ * 
  * - Agregar comando de fin de tracking? Cuando llegaria este comando se iria
  *   a home
+ * >> USAMOS EL COMANDO HOME
+ * 
  * - Que hacemos cuando durante el traking pega el home stop?
  *      - Se detiene y se queda ahi? Vuelve a home?
+ * >> SE TARA EL ANGULO CORRESPONDIENTE Y SIGUE YENDO AL TARGET
+ * 
  * ======================================================================== */
 
 //static uint8_t Bandera_Home_Stop_1 = 1;
@@ -68,6 +76,7 @@ int main(){
     /* ============   Configuración interna del microcontrolador   ============ */
     Config_Clock();
     Config_IO();
+    Stop(ALL);
     initCN();
     Config_UART();
     Config_ADC();
@@ -77,13 +86,12 @@ int main(){
     /* ======================================================================== */
     // Change_Config_UART1();       // Recordar de remapear los pines de la UART 1
     
-    double angulo = 0;
-    char char_Angulo[10] = {};
+    double angulo_Az = 0;
+    double angulo_Elev = 0;
+    char char_Angulo_Az[10] = {};
+    char char_Angulo_Elev[10] = {};
     char char_Millis[15] = {};
 
-    
-    
-    
     unsigned long millis_ANGULO;
   
     while(1) {
@@ -92,15 +100,21 @@ int main(){
         
         if (millis() - millis_ANGULO > 1000)
         {
-            angulo = (get_Acimut()*360.0)/100.0;
+            angulo_Az = get_Acimut();
+            sprintf(char_Angulo_Az, "%.2f", angulo_Az);
+            
+            angulo_Elev = get_Elevacion();
+            sprintf(char_Angulo_Elev, "%.2f", angulo_Elev);
+            
             sprintf(char_Millis, "%llu", millis());
-            sprintf(char_Angulo, "%.2f", angulo);
-
-
+            
+            putrsUART2(">>  az = ");
+            putrsUART2(char_Angulo_Az);
+            putrsUART2("°  |  elev = ");
+            putrsUART2(char_Angulo_Elev);
+            putrsUART2("°  << (");
             putrsUART2(char_Millis);
-            putrsUART2(" - Angulo leido = ");
-            putrsUART2(char_Angulo);
-            putrsUART2("\n");
+            putrsUART2(")\n\r");
             millis_ANGULO = millis();
         }
 

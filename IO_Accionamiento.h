@@ -15,18 +15,18 @@
 #define ENCODER_AZ_B        PORTCbits.RC4
 #define ENCODER_AZ_Z        PORTCbits.RC3
 
-#define HOME_STOP_ELEV      PORTBbits.RB5 //PORTBbits.RB9
-#define HOME_STOP_AZ        PORTBbits.RB9 //PORTBbits.RB5
+#define HOME_STOP_ELEV      PORTBbits.RB9
+#define HOME_STOP_AZ        PORTBbits.RB5
     
 #define PARADA_EMERGENCIA   PORTCbits.RC2
 #define ANEMOMETRO          PORTAbits.RA4
 // ----------------------------------------
 
 // Salidas --------------------------------
-#define LI1_Variador        LATBbits.LATB15
-#define LI2_Variador        LATBbits.LATB14
-#define LI3_Variador        LATAbits.LATA7
-#define LI4_Variador        LATAbits.LATA10
+#define OUT_VAR_1           LATAbits.LATA10
+#define OUT_VAR_2           LATAbits.LATA7
+#define OUT_VAR_3           LATBbits.LATB14
+#define OUT_VAR_4           LATBbits.LATB15
     
 #define OUT_RELE_1          LATCbits.LATC9
 #define READ_RELE_1         PORTCbits.RC9
@@ -38,6 +38,12 @@
 #define READ_RELE_4         PORTCbits.RC6
 // ----------------------------------------
 
+#define HOME_ACIMUT             180
+#define HOME_ELEVACION          90
+
+#define DELAY_CAMBIO_SENTIDO    2000    // 2 segundos
+#define TIMEOUT_TRACKING        300000  // 5 minutos
+#define TIMEOUT_MANUAL          30000   // 30 segundos
 /* ========================================================================= */
 //#define GRADOS_POR_VUELTA                       360
 //
@@ -116,6 +122,8 @@ typedef enum {
     ELEVACION_DOWN,
 }OUT;
 
+
+
 /*===========================  Funciones Entradas   =========================*/
 void initCN(void);
 
@@ -128,7 +136,6 @@ void Stop(OUT);
 void Move(OUT);
 
 void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando);
-void Calcular_Posicion_Actual(const _Contador* Data);
 void MEF_Accionamiento(void);
 void Control_Posicion_Acimut(void);
 void Control_Posicion_Elevacion(void);
