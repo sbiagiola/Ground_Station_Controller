@@ -400,7 +400,7 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
     int i;
     
     
-    Error_UART_U2 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
+//    Error_UART_U2 = 1;     // Seteamos una flag para vaciar el comando recibido en el RB
     putrsUART2("[UART] ERROR_UART_U2\n");
     Respuesta = NEGATIVE_ACKNOWLEDGE;
     uart_ringBuffer_envDatos_U2(&Respuesta,sizeof(char));

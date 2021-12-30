@@ -95,7 +95,6 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     }
     
     // Contador de vueltas
-    // [TO DO] Esto no sirve para nada en nuestro proyecto, se deja o se saca?
 //    if(ENCODER_ELEV_Z != valor_anterior.encoderElev_Z){
 //        if(ENCODER_ELEV_Z == HIGH){
 //            if(estado_Encoder_Elev == Suma){
@@ -124,7 +123,6 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     }
     
     // Contador de vueltas
-    // [TO DO] Esto no sirve para nada en nuestro proyecto, se deja o se saca?
 //    if(ENCODER_AZ_Z != valor_anterior.encoderAz_Z){
 //        if(ENCODER_AZ_Z == HIGH){
 //            if(estado_Encoder_Az == Suma){
@@ -142,9 +140,10 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         if(HOME_STOP_ELEV == HIGH) {
             putrsUART2(" === ELEVACION: HOME STOP DETECTADO! ===\n\r");
             Stop(ELEVACION);
+//            delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             contador.encoderElev_Pulsos = 0;
-            if(HomeStop_Elev_init == 1)
-                elevacionInTarget = 1;
+//            if(HomeStop_Elev_init == 1)
+//                elevacionInTarget = 1;
                 //estado_Accionamiento = Sleep;
             flag_HomeStop_Elev = 1;
         }
@@ -157,9 +156,10 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         if(HOME_STOP_AZ == HIGH) {
             putrsUART2(" === ACIMUT: HOME STOP DETECTADO! ===\n\r");
             Stop(ACIMUT);
-            contador.encoderAz_Pulsos = 200;
-            if(HomeStop_Az_init == 1)
-                acimutInTarget = 1;
+//            delayPIC_ms(DELAY_CAMBIO_SENTIDO);
+            contador.encoderAz_Pulsos = RESOLUCION_ENCODER;
+//            if(HomeStop_Az_init == 1)
+//                acimutInTarget = 1;
                 //estado_Accionamiento = Sleep;
             flag_HomeStop_Az = 1;
         }
@@ -168,7 +168,6 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     /* ----------------------------------------------------------------------------- */
     
     /* --------------------------   PARADA DE EMERGENCIA   ------------------------- */
-    // [TO DO] Cambiar comando por stop directo ??
     if(PARADA_EMERGENCIA != valor_anterior.parada_emergencia && PARADA_EMERGENCIA == LOW){
         putrsUART2("====================================\n\r");
         putrsUART2("=====  ¡PARADA DE EMERGENCIA!  =====\n\r");
@@ -198,12 +197,12 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
 }
 
 long get_Acimut(void){
-    long ang = (contador.encoderAz_Pulsos*360.0)/200.0;
+    long ang = (contador.encoderAz_Pulsos * GRADOS_POR_VUELTA) / RESOLUCION_ENCODER;
     return ang;
 }
 
 long get_Elevacion(void){
-    long ang = (contador.encoderElev_Pulsos*360.0)/200.0;
+    long ang = (contador.encoderElev_Pulsos * GRADOS_POR_VUELTA) / RESOLUCION_ENCODER;
     return  ang;
 }
 
@@ -289,19 +288,12 @@ void MEF_Accionamiento(){
         nuevoComando = 0;
         millis_COMANDO = millis();
     } else {
-        if(millis() - millis_COMANDO > 3600000) { // Una hora sin comandos
-            // [TO DO] Rutina para volver a posicion de home antes de Sleep ???
+        if(millis() - millis_COMANDO > TIMEOUT_COMANDO) { // Dos horas sin comandos
             putrsUART2("TIMEOUT COMANDOS... Volviendo a HOME\n\r");
             millis_COMANDO = millis();
             estado_Accionamiento = Return_ToHome;
         }
     }
-    
-    // Parada de emergencia
-//    if(Flag_Parada_Emergencia == 1) {
-//        Stop(ALL);
-//        estado_Accionamiento = Sleep;
-//    }
     
     switch(estado_Accionamiento){
         
@@ -410,7 +402,7 @@ void MEF_Accionamiento(){
     
             if(goingToHome_Az) {
                 Data_Control.Valor_Actual_Acimut = get_Acimut();
-                if(abs(Data_Control.Valor_Actual_Acimut - HOME_ACIMUT) < 1)
+                if(abs(Data_Control.Valor_Actual_Acimut - HOME_ACIMUT) <= 1)
                 {
                     Stop(ACIMUT);
                     goingToHome_Az = 0;
@@ -432,11 +424,13 @@ void MEF_Accionamiento(){
                 Move(ELEVACION_UP);
                 flag_HomeStop_Elev = 0;
                 goingToHome_Elev = 1;
+                Clean_RingBufferRx_U1();
+                Clean_RingBufferRx_U2();
             }
     
             if(goingToHome_Elev) {
                 Data_Control.Valor_Actual_Elevacion = get_Elevacion();
-                if(abs(Data_Control.Valor_Actual_Elevacion - HOME_ELEVACION) < 1)
+                if(abs(Data_Control.Valor_Actual_Elevacion - HOME_ELEVACION) <= 1)
                 {
                     Stop(ELEVACION);
                     goingToHome_Elev = 0;

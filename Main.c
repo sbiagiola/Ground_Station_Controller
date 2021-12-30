@@ -24,32 +24,7 @@
  * ========================================================================
  * Firmware:
  * - Error UART OVERFLOW cuando envio por primera vez comando P
- * >> LIMPIAR EL BUFFER CUANDO TERMINA LA INICIALIZACION
  * - Enviar angulo actual a PC
- *
- * - Cambiar timeout de comando a 2 horas
- * 
- * 
- * Logica general:
- * - Que pasa cuando alguien sube un txt que tenga angulos Elev negativos?
- *      - Se toma como archivo invalido? En este caso no seria posible
- *        por ejemplo seguir al sol por mas de un dia.
- *      - Se toma como archivo valido pero no se envian los angulos
- *        negativos? En ese caso que se hace con la posicion de la antena?
- *        Ponele si yo quiero que la antena siga al sol durante 3 dias,
- *        durante la noche se va a tener que quedar quieta en un lugar,
- *        donde?
- * >> AGREGAR COMANDO HOME QUE SERA ENVIADO CUANDO EL PYTHON DETECTE ALGUNOS
- *    ANGULOS NEGATIVOS.
- * 
- * - Agregar comando de fin de tracking? Cuando llegaria este comando se iria
- *   a home
- * >> USAMOS EL COMANDO HOME
- * 
- * - Que hacemos cuando durante el traking pega el home stop?
- *      - Se detiene y se queda ahi? Vuelve a home?
- * >> SE TARA EL ANGULO CORRESPONDIENTE Y SIGUE YENDO AL TARGET
- * 
  * ======================================================================== */
 
 //static uint8_t Bandera_Home_Stop_1 = 1;
@@ -98,7 +73,7 @@ int main(){
         
         MasterLEDS();
         
-        if (millis() - millis_ANGULO > 1000)
+        if (millis() - millis_ANGULO > 10000)
         {
             angulo_Az = get_Acimut();
             sprintf(char_Angulo_Az, "%.2f", angulo_Az);
@@ -119,7 +94,7 @@ int main(){
         }
 
 //        if(elevation_inHome)
-            Comm_PC_Interface();
+        Comm_PC_Interface();
         
         MEF_Accionamiento();
         ClrWdt();

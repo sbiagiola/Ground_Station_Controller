@@ -58,6 +58,7 @@
  * 
  * =======================   Comandos tracking   ========================
  *  S               // Parar todo moviento asociado a cualquier ángulo
+ *  H               // Volver a posicion de HOME
  *  Paaa.a eee.e    // Establecer objetivo de tracking
  
    ====================================================================== */
@@ -233,6 +234,12 @@ uint8_t Verificando_Comando(){
         return Stop_Global;
     }
     
+    // Return to home
+    if(Buffer_Recepcion[0] == 'H' || Buffer_Recepcion[0] == 'h'){
+        putrsUART2("[Verificando_Comando] Comando RETURN_TOHOME detectado\n");
+        return Return_ToHome;
+    }
+    
     // Comando objetivo tracking
     if(Buffer_Recepcion[0] == 'P' || Buffer_Recepcion[0] == 'p'){
         putrsUART2("[Verificando_Comando] Comando OBJETIVO_TRACKING detectado\n");
@@ -295,7 +302,8 @@ void Comm_PC_Interface(){
                     putrsUART2("[Comm_PC_Interface] Comando recibido\n\n");
                     Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
                     Indice_Rec++;
-                    
+                    putrsUART2(Buffer_Recepcion);
+                    putrsUART2("\n\r");
                     Estado_Comm = Recopilando_Datos;
                 }      
                 
@@ -318,6 +326,8 @@ void Comm_PC_Interface(){
                     if(Indice_Rec <= MAX_SIZE_COMMAND_AVALIBLE){
                         Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
                         Indice_Rec++;
+                        putrsUART2(Buffer_Recepcion);
+                        putrsUART2("\n\r");
                     }
                     else{
                         Indice_Rec = 0;
@@ -328,7 +338,9 @@ void Comm_PC_Interface(){
                 }
             
                 if( (FlagRec != 0) && (Caracter_Rec == CHAR_CR) ){
-                    Buffer_Recepcion[Indice_Rec] = Caracter_Rec;    
+                    Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
+                    putrsUART2(Buffer_Recepcion);
+                    putrsUART2("\n\r");
                     Estado_Comm = Validando_Comando;
                     break;
                 }
