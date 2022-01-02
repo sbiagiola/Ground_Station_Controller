@@ -185,8 +185,8 @@ int Analizando_Datos(char* Segmento){
 
 uint8_t Verificando_Comando(){
     
-    double angulo = 0;
-    char char_Angulo[MAX_LONG_DATA_ANGLE];
+//    double angulo = 0;
+//    char char_Angulo[MAX_LONG_DATA_ANGLE];
     
     /* --------------------   Comandos manuales   -------------------- */
     
@@ -265,15 +265,12 @@ uint8_t Verificando_Comando(){
 
     // Elevacion
     if(Buffer_Recepcion[0] == 'B' || Buffer_Recepcion[0] == 'b'){
-        
+        char dataToSend[MAX_SIZE_DATA_SEND];
+        uint32_t cant;
         putrsUART2("[Verificando_Comando] Comando LEER_ELEVACION detectado\n\r");
-        angulo = get_Elevacion()/360;
-        sprintf(char_Angulo, "%f", angulo);
-//            ftoa(angulo, Char_Angulo, 1);
-        putrsUART2("[Verificando_Comando] ========= Datos obtenidos ========\n");
-        putrsUART2("[Verificando_Comando] angulo detectado = ");
-        putrsUART2(char_Angulo);
-        putrsUART2("\n[Verificando_Comando] ================================\n");
+        
+        cant = sprintf(dataToSend,"\n+0%.1f\r",get_Elevacion());
+        uart_ringBuffer_envDatos_U2((uint8_t*)dataToSend, cant);
         return Leer_Elevacion;
     }
     

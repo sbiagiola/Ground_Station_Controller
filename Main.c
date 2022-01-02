@@ -25,13 +25,13 @@
  * Firmware:
  * - Error UART OVERFLOW cuando envio por primera vez comando P
  * - Enviar angulo actual a PC
+ * - Probar armar una funcion "tracking" que se pueda usar en ReturnToHome y
+ *   Objetivo_Tracking a la que haya que pasarle solo los targets
+ *      > Evaluar si hace falta las banderas (depende del rebote de la antena)
+ *      > Esto solo esta bueno si no hace falta meterle las banderas
  * ======================================================================== */
 
-//static uint8_t Bandera_Home_Stop_1 = 1;
-
-extern Last_Value Valor_Anterior;
 const extern ID_Comandos estado_Accionamiento;
-uint8_t elevation_inHome = 0;
 unsigned long millis_LED;
 
 void MasterLEDS() {
@@ -73,7 +73,7 @@ int main(){
         
         MasterLEDS();
         
-        if (millis() - millis_ANGULO > 10000)
+        if (millis() - millis_ANGULO > 5000)
         {
             angulo_Az = get_Acimut();
             sprintf(char_Angulo_Az, "%.2f", angulo_Az);
@@ -93,9 +93,7 @@ int main(){
             millis_ANGULO = millis();
         }
 
-//        if(elevation_inHome)
-        Comm_PC_Interface();
-        
+        Comm_PC_Interface();        
         MEF_Accionamiento();
         ClrWdt();
         

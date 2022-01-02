@@ -47,6 +47,7 @@ uint16_t ciclos_sin_comandos;
 unsigned long millis_COMANDO;
 unsigned long millis_TRACKING;
 unsigned long millis_MANUAL;
+unsigned long millis_INIT;
 
 extern uint8_t elevation_inHome;
 extern Info_Comandos_Procesados Comando_Procesado;
@@ -201,8 +202,8 @@ long get_Acimut(void){
     return ang;
 }
 
-long get_Elevacion(void){
-    long ang = (contador.encoderElev_Pulsos * GRADOS_POR_VUELTA) / RESOLUCION_ENCODER;
+double get_Elevacion(void){
+    double ang = (contador.encoderElev_Pulsos * GRADOS_POR_VUELTA) / RESOLUCION_ENCODER;
     return  ang;
 }
 
@@ -393,6 +394,12 @@ void MEF_Accionamiento(){
                 Move(ACIMUT_RIGHT);
             }
             
+            // Timeout de 10 min
+            if(millis() - millis_INIT > TIMEOUT_INIT) {
+                Stop(ALL);
+                estado_Accionamiento = Sleep;
+            }
+            
             if(flag_HomeStop_Az) {
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
                 Move(ACIMUT_LEFT);
@@ -417,6 +424,12 @@ void MEF_Accionamiento(){
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 Move(ELEVACION_DOWN);
+            }
+            
+            // Timeout de 10 min
+            if(millis() - millis_INIT > TIMEOUT_INIT) {
+                Stop(ALL);
+                estado_Accionamiento = Sleep;
             }
             
             if(flag_HomeStop_Elev) {
@@ -447,6 +460,12 @@ void MEF_Accionamiento(){
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 goingToHome_Az = 1;
                 goingToHome_Elev = 1;
+            }
+            
+            // Timeout de 5 min
+            if(millis() - millis_TRACKING > TIMEOUT_TRACKING) {
+                Stop(ALL);
+                estado_Accionamiento = Sleep;
             }
             
             Data_Control.Valor_Actual_Acimut = get_Acimut();

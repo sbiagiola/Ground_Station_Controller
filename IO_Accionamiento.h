@@ -45,6 +45,7 @@
 #define TIMEOUT_COMANDO         (unsigned long)7200*1000 // 2 horas
 #define TIMEOUT_TRACKING        (unsigned long)300*1000  // 5 minutos
 #define TIMEOUT_MANUAL          30*1000   // 30 segundos
+#define TIMEOUT_INIT            (unsigned long)600*1000 // 10 minutos
 
 #define GRADOS_POR_VUELTA       (double)359.9
 #define RESOLUCION_ENCODER      400
@@ -133,7 +134,7 @@ typedef enum {
 void initCN(void);
 
 long get_Acimut(void);
-long get_Elevacion(void);
+double get_Elevacion(void);
 /*========================================================================*/
 
 /*===========================  Funciones Salidas   ==========================*/
