@@ -133,13 +133,15 @@ typedef enum {
 /*===========================  Funciones Entradas   =========================*/
 void initCN(void);
 
-long get_Acimut(void);
+double get_Acimut(void);
 double get_Elevacion(void);
 /*========================================================================*/
 
 /*===========================  Funciones Salidas   ==========================*/
 void Stop(OUT);
 void Move(OUT);
+
+uint8_t Tracking(double, double);
 
 void Generar_Formato_Mensaje(char* Data_A_Enviar,uint8_t Id_Comando);
 void MEF_Accionamiento(void);

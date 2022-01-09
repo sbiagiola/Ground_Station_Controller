@@ -85,27 +85,13 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
             if(ENCODER_ELEV_B == HIGH) {
 //                putrsUART2("[CNInterrupt]: Encoder ELEVACION (B)\n\r");
                 contador.encoderElev_Pulsos++;
-//                estado_Encoder_Elev = Suma;
             } else {
 //                putrsUART2("[CNInterrupt]: Encoder ELEVACION (A)\n\r");
                 contador.encoderElev_Pulsos--;
-//                estado_Encoder_Elev = Resta;
             }
         }
         valor_anterior.encoderElev_A = ENCODER_ELEV_A;
     }
-    
-    // Contador de vueltas
-//    if(ENCODER_ELEV_Z != valor_anterior.encoderElev_Z){
-//        if(ENCODER_ELEV_Z == HIGH){
-//            if(estado_Encoder_Elev == Suma){
-//                contador.encoderElev_Vueltas++;
-//            } else {
-//                contador.encoderElev_Vueltas--;
-//            }
-//        }
-//        valor_anterior.encoderElev_Z = ENCODER_ELEV_Z;
-//    }
     /* ----------------------------------------------------------------------------- */
     
     /* -----------------------------   ENCODER ACIMUT   ---------------------------- */
@@ -122,18 +108,6 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         }
         valor_anterior.encoderAz_A = ENCODER_AZ_A;
     }
-    
-    // Contador de vueltas
-//    if(ENCODER_AZ_Z != valor_anterior.encoderAz_Z){
-//        if(ENCODER_AZ_Z == HIGH){
-//            if(estado_Encoder_Az == Suma){
-//                contador.encoderAz_Vueltas++;
-//            } else {
-//                contador.encoderAz_Vueltas--;
-//            }
-//        }
-//        valor_anterior.encoderAz_Z = ENCODER_AZ_Z;
-//    }
     /* ----------------------------------------------------------------------------- */
     
     /* --------------------------   HOME STOP ELEVACION   -------------------------- */
@@ -174,31 +148,18 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
         putrsUART2("=====  ¡PARADA DE EMERGENCIA!  =====\n\r");
         putrsUART2("====================================\n\r");
         Stop(ALL);
-        delayPIC_ms(100);
         estado_Accionamiento = Sleep;
        
-//        if(PARADA_EMERGENCIA == LOW && Bandera_Parad_Emerg == 0){
-//            Bandera_Parad_Emerg = 1;
-//            Flag_Parada_Emergencia = Bandera_Parad_Emerg;
-//            Comando_Procesado.Proximo = Comando_Procesado.Actual;
-//            Comando_Procesado.Actual = Stop_Global;
-//            putrsUART2("PE encendida!\n\r");
-//        }
-//        else if(PARADA_EMERGENCIA == LOW && Bandera_Parad_Emerg == 1){
-//            Bandera_Parad_Emerg = 0;
-//            Flag_Parada_Emergencia = Bandera_Parad_Emerg;
-//            putrsUART2("PE apagada!\n\r");
-//        }
-        
+        valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
     }
-    valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
+    
     /* ----------------------------------------------------------------------------- */
     
     IFS1bits.CNIF = 0; // Clear CN interrupt
 }
 
-long get_Acimut(void){
-    long ang = (contador.encoderAz_Pulsos * GRADOS_POR_VUELTA) / RESOLUCION_ENCODER;
+double get_Acimut(void){
+    double ang = (contador.encoderAz_Pulsos * GRADOS_POR_VUELTA) / RESOLUCION_ENCODER;
     return ang;
 }
 
@@ -278,6 +239,37 @@ void Stop(OUT out) {
         default:
             break;
     }
+}
+
+uint8_t Tracking(double acimutTarget, double elevacionTarget) {
+    
+    Data_Control.Valor_Actual_Acimut = get_Acimut();
+    Data_Control.Valor_Actual_Elevacion = get_Elevacion();
+            
+    if(!acimutInTarget) {
+        if(Data_Control.Valor_Actual_Acimut < (acimutTarget - 1))
+            Move(ACIMUT_RIGHT); 
+        else if (Data_Control.Valor_Actual_Acimut > (acimutTarget + 1))
+            Move(ACIMUT_LEFT);
+        else {
+            Stop(ACIMUT);
+            acimutInTarget = 1;
+        }
+    }
+
+    if(!elevacionInTarget) {
+        if(Data_Control.Valor_Actual_Elevacion < (elevacionTarget - 1))
+            Move(ELEVACION_UP);
+        else if (Data_Control.Valor_Actual_Elevacion > (elevacionTarget + 1))
+            Move(ELEVACION_DOWN);
+        else {
+            Stop(ELEVACION);
+            elevacionInTarget = 1;
+        }
+    }
+    
+    if(acimutInTarget && elevacionInTarget) return 1;
+    else return 0;
 }
 
 void MEF_Accionamiento(){
@@ -458,8 +450,8 @@ void MEF_Accionamiento(){
         case Return_ToHome:
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
-                goingToHome_Az = 1;
-                goingToHome_Elev = 1;
+                acimutInTarget = 0;
+                elevacionInTarget = 0;
             }
             
             // Timeout de 5 min
@@ -468,32 +460,32 @@ void MEF_Accionamiento(){
                 estado_Accionamiento = Sleep;
             }
             
-            Data_Control.Valor_Actual_Acimut = get_Acimut();
-            Data_Control.Valor_Actual_Elevacion = get_Elevacion();
+//            Data_Control.Valor_Actual_Acimut = get_Acimut();
+//            Data_Control.Valor_Actual_Elevacion = get_Elevacion();
             
-            if(goingToHome_Az) {
-                if(Data_Control.Valor_Actual_Acimut < (HOME_ACIMUT - 1))
-                    Move(ACIMUT_RIGHT); 
-                else if (Data_Control.Valor_Actual_Acimut > (HOME_ACIMUT + 1))
-                    Move(ACIMUT_LEFT);
-                else {
-                    Stop(ACIMUT);
-                    goingToHome_Az = 0;
-                }
-            }
+//            if(goingToHome_Az) {
+//                if(Data_Control.Valor_Actual_Acimut < (HOME_ACIMUT - 1))
+//                    Move(ACIMUT_RIGHT); 
+//                else if (Data_Control.Valor_Actual_Acimut > (HOME_ACIMUT + 1))
+//                    Move(ACIMUT_LEFT);
+//                else {
+//                    Stop(ACIMUT);
+//                    goingToHome_Az = 0;
+//                }
+//            }
+//            
+//            if(goingToHome_Elev) {
+//                if(Data_Control.Valor_Actual_Elevacion < (HOME_ELEVACION - 1))
+//                    Move(ELEVACION_UP);
+//                else if (Data_Control.Valor_Actual_Elevacion > (HOME_ELEVACION + 1))
+//                    Move(ELEVACION_DOWN);
+//                else {
+//                    Stop(ELEVACION);
+//                    goingToHome_Elev = 0;
+//                }
+//            }
             
-            if(goingToHome_Elev) {
-                if(Data_Control.Valor_Actual_Elevacion < (HOME_ELEVACION - 1))
-                    Move(ELEVACION_UP);
-                else if (Data_Control.Valor_Actual_Elevacion > (HOME_ELEVACION + 1))
-                    Move(ELEVACION_DOWN);
-                else {
-                    Stop(ELEVACION);
-                    goingToHome_Elev = 0;
-                }
-            }
-            
-            if(!goingToHome_Az && !goingToHome_Elev) {
+            if(Tracking(HOME_ACIMUT, HOME_ELEVACION)) {
                 putrsUART2("====================================\n\r");
                 putrsUART2("==== ¡LA ESTACION LLEGO A HOME! ====\n\r");
                 putrsUART2("====================================\n\r");
@@ -507,34 +499,36 @@ void MEF_Accionamiento(){
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 Stop(ALL);
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
+                acimutInTarget = 0;
+                elevacionInTarget = 0;
                 putrsUART2("Iniciando tracking...\n\r");
                 millis_TRACKING = millis();
             }
             
-            Data_Control.Valor_Actual_Acimut = get_Acimut();
-            Data_Control.Valor_Actual_Elevacion = get_Elevacion();
+//            Data_Control.Valor_Actual_Acimut = get_Acimut();
+//            Data_Control.Valor_Actual_Elevacion = get_Elevacion();
 
-            if(!acimutInTarget) {
-                if(Data_Control.Valor_Actual_Acimut < (Data_Control.Target_Acimut - 1))
-                    Move(ACIMUT_RIGHT); 
-                else if (Data_Control.Valor_Actual_Acimut > (Data_Control.Target_Acimut + 1))
-                    Move(ACIMUT_LEFT);
-                else {
-                    Stop(ACIMUT);
-                    acimutInTarget = 1;
-                }
-            }
-            
-            if(!elevacionInTarget) {
-                if(Data_Control.Valor_Actual_Elevacion < (Data_Control.Target_Elevacion - 1))
-                    Move(ELEVACION_UP);
-                else if (Data_Control.Valor_Actual_Elevacion > (Data_Control.Target_Elevacion + 1))
-                    Move(ELEVACION_DOWN);
-                else {
-                    Stop(ELEVACION);
-                    elevacionInTarget = 1;
-                }
-            }
+//            if(!acimutInTarget) {
+//                if(Data_Control.Valor_Actual_Acimut < (Data_Control.Target_Acimut - 1))
+//                    Move(ACIMUT_RIGHT); 
+//                else if (Data_Control.Valor_Actual_Acimut > (Data_Control.Target_Acimut + 1))
+//                    Move(ACIMUT_LEFT);
+//                else {
+//                    Stop(ACIMUT);
+//                    acimutInTarget = 1;
+//                }
+//            }
+//            
+//            if(!elevacionInTarget) {
+//                if(Data_Control.Valor_Actual_Elevacion < (Data_Control.Target_Elevacion - 1))
+//                    Move(ELEVACION_UP);
+//                else if (Data_Control.Valor_Actual_Elevacion > (Data_Control.Target_Elevacion + 1))
+//                    Move(ELEVACION_DOWN);
+//                else {
+//                    Stop(ELEVACION);
+//                    elevacionInTarget = 1;
+//                }
+//            }
             
             // Timeout de 5 min
             if(millis() - millis_TRACKING > TIMEOUT_TRACKING) {
@@ -542,12 +536,10 @@ void MEF_Accionamiento(){
                 estado_Accionamiento = Sleep;
             }
             
-            if(acimutInTarget && elevacionInTarget) {
+            if(Tracking(Data_Control.Target_Acimut, Data_Control.Target_Elevacion)) {
                 putrsUART2("===================================\n\r");
                 putrsUART2("== ¡LA ESTACION LLEGO A DESTINO! ==\n\r");
                 putrsUART2("===================================\n\r");
-                acimutInTarget = 0;
-                elevacionInTarget = 0;
                 estado_Accionamiento = Sleep;
             }
             
@@ -561,7 +553,7 @@ void MEF_Accionamiento(){
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 putrsUART2("estado_Accionamiento = SLEEP\n\r");
             }
-            delayPIC_ms(100);
+//            delayPIC_ms(100);
             break;
             
         default:
