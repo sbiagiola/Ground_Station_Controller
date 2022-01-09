@@ -323,8 +323,6 @@ void Comm_PC_Interface(){
                     if(Indice_Rec <= MAX_SIZE_COMMAND_AVALIBLE){
                         Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
                         Indice_Rec++;
-                        putrsUART2(Buffer_Recepcion);
-                        putrsUART2("\n\r");
                     }
                     else{
                         Indice_Rec = 0;
@@ -336,8 +334,6 @@ void Comm_PC_Interface(){
             
                 if( (FlagRec != 0) && (Caracter_Rec == CHAR_CR) ){
                     Buffer_Recepcion[Indice_Rec] = Caracter_Rec;
-                    putrsUART2(Buffer_Recepcion);
-                    putrsUART2("\n\r");
                     Estado_Comm = Validando_Comando;
                     break;
                 }

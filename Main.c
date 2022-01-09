@@ -73,7 +73,7 @@ int main(){
         
         MasterLEDS();
         
-        if (millis() - millis_ANGULO > 5000)
+        if (millis() - millis_ANGULO > 2000)
         {
             angulo_Az = get_Acimut();
             sprintf(char_Angulo_Az, "%.2f", angulo_Az);
