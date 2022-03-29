@@ -263,14 +263,29 @@ uint8_t Verificando_Comando(){
        
     /* --------------------   Comandos lectura   -------------------- */
 
-    // Elevacion
     if(Buffer_Recepcion[0] == 'B' || Buffer_Recepcion[0] == 'b'){
-        char dataToSend[MAX_SIZE_DATA_SEND];
-        uint32_t cant;
+        char dataToSend[MAX_SIZE_DATA_SEND] = "A,";
         putrsUART2("[Verificando_Comando] Comando LEER_ELEVACION detectado\n\r");
         
-        cant = sprintf(dataToSend,"\n+0%.1f\r",get_Elevacion());
-        uart_ringBuffer_envDatos_U2((uint8_t*)dataToSend, cant);
+        double angulo_Az = 0;
+        double angulo_Elev = 0;
+        char char_Angulo_Az[10] = {};
+        char char_Angulo_Elev[10] = {};
+        
+        angulo_Az = get_Acimut();
+        sprintf(char_Angulo_Az, "%.2f", angulo_Az);
+
+        angulo_Elev = get_Elevacion();
+        sprintf(char_Angulo_Elev, "%.2f", angulo_Elev);
+        
+        //dataToSend = "A,";
+        strcat(dataToSend,char_Angulo_Az);
+        strcat(dataToSend,",E,");
+        strcat(dataToSend,char_Angulo_Elev);
+        strcat(dataToSend,",");
+        
+        putrsUART2(dataToSend);
+        
         return Leer_Elevacion;
     }
     
