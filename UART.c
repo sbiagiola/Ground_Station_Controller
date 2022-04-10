@@ -407,29 +407,29 @@ void __attribute__((interrupt,no_auto_psv)) _U2ErrInterrupt(void){
 
     if(U2STAbits.OERR && !U2STAbits.FERR){     
         U2STAbits.OERR = 0b0;       // Clear del overrun para permitir recepción de más datos. Vaciamos la FIFO
-        putrsUART2("[UART Error] ERROR por overflow \n");
+//        putrsUART2("[UART Error] ERROR por overflow \n");
     }
     else if(U2STAbits.PERR && !U2STAbits.FERR){
-        putrsUART2("[UART Error] ERROR de pariedad  \n");
+//        putrsUART2("[UART Error] ERROR de pariedad  \n");
         for (i=1;i<=5;i++){
             if(!U2STAbits.PERR){ 
                 Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, solo vacio la FIFO
             }
             if(U2STAbits.PERR){             // El char en la FIFO contiene falla en el bit de STOP
-                putrsUART2("[UART Error] Error en el caracter\n");
+//                putrsUART2("[UART Error] Error en el caracter\n");
                 Get_Char_Rx_Reg_U2(&data);  
                 break;
             }
         }
     }
     else if(U2STAbits.FERR && !U2STAbits.OERR){
-        putrsUART2("[UART Error] ERROR en el bit STOP \n");
+//        putrsUART2("[UART Error] ERROR en el bit STOP \n");
         for (i=1;i<=5;i++){
             if(!U2STAbits.FERR){ 
                 Get_Char_Rx_Reg_U2(&data);  // Saco un dato x iteración, solo vacio la FIFO
             }
             if(U2STAbits.FERR){             // El char en la FIFO contiene falla en el bit de STOP
-                putrsUART2("[UART Error] Error en el caracter \n");
+//                putrsUART2("[UART Error] Error en el caracter \n");
                 Get_Char_Rx_Reg_U2(&data);  
                 break;
             }

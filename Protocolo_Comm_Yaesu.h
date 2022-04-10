@@ -52,8 +52,7 @@ typedef enum{
     Stop_Elevacion,             // UP/DOWN Direction Rotation Stop
 
     // Comandos de lectura
-    Leer_Acimut,                // Retornar el valor de actual del ángulo de de acimut 
-    Leer_Elevacion,             // Retornar el valor de actual del ángulo de elevación
+    Leer_Posicion,              // Leer posicion actual
 
     // Comandos de tracking
     Stop_Global,                // Stop Global
