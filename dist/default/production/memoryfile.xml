@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/production/Sofware-Micro.production.elf">
+  <executable name="dist/default/production/Ground_Station_Controller.production.elf">
     <memory name="data">
       <units>bytes</units>
       <length>16384</length>
-      <used>580</used>
-      <free>15804</free>
+      <used>728</used>
+      <free>15656</free>
     </memory>
     <memory name="program">
       <units>bytes</units>
       <length>131328</length>
-      <used>19821</used>
-      <free>111507</free>
+      <used>22356</used>
+      <free>108972</free>
     </memory>
   </executable>
 </project>

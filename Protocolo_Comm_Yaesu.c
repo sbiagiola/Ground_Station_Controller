@@ -282,7 +282,7 @@ uint8_t Verificando_Comando(){
         strcat(dataToSend,",E,");
         strcat(dataToSend,char_Angulo_Elev);
         strcat(dataToSend,",");
-        
+        strcat(dataToSend,"\r\n");
         putrsUART2(dataToSend);
         
         return Leer_Posicion;
@@ -364,6 +364,7 @@ void Comm_PC_Interface(){
 
                 if(Comando_Procesado.Proximo == Comando_No_Valido){
                     Estado_Comm = Comando_No_Reconocido;
+                    putrsUART2("?>\r\n");//envio comando de confirmacion 
                     break;
                 }
                 
@@ -374,8 +375,9 @@ void Comm_PC_Interface(){
 //                Comando_Procesado.Ultimo = Comando_Procesado.Actual;
                 Comando_Procesado.Actual = Comando_Procesado.Proximo;
                 nuevoComando = 1;
-                
+                putrsUART2("\r\n");//envio comando de confirmacion 
                 Estado_Comm = Limpiando_Buffer;
+                
                 break;
                 
             

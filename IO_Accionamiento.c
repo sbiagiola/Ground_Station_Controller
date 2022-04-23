@@ -184,7 +184,7 @@ void Move(OUT out) {
                 OUT_RELE_2 = OFF;
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             }
-            OUT_RELE_1 = ON;
+            OUT_RELE_1 = ON;            
             break;
             
         case ACIMUT_LEFT:
@@ -192,7 +192,7 @@ void Move(OUT out) {
                 OUT_RELE_1 = OFF;
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             }
-            OUT_RELE_2 = ON;
+            OUT_RELE_2 = ON;             
             break;
             
         case ELEVACION_UP:
@@ -200,7 +200,7 @@ void Move(OUT out) {
                 OUT_VAR_2 = ON;
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             }
-            OUT_VAR_1 = OFF;
+            OUT_VAR_1 = OFF;            
             break;
             
         case ELEVACION_DOWN:
@@ -208,7 +208,7 @@ void Move(OUT out) {
                 OUT_VAR_1 = ON;
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             }
-            OUT_VAR_2 = OFF;
+            OUT_VAR_2 = OFF;           
             break;
             
         default:
@@ -223,17 +223,17 @@ void Stop(OUT out) {
             OUT_RELE_1  = OFF;
             OUT_RELE_2  = OFF;
             OUT_VAR_1   = ON;
-            OUT_VAR_2   = ON;
+            OUT_VAR_2   = ON;            
             break;
         
         case ACIMUT:
             OUT_RELE_1 = OFF;
-            OUT_RELE_2 = OFF;
+            OUT_RELE_2 = OFF;            
             break;
             
         case ELEVACION:
             OUT_VAR_1 = ON;
-            OUT_VAR_2 = ON;
+            OUT_VAR_2 = ON;    
             break;
                     
         default:
