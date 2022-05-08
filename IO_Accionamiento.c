@@ -247,9 +247,9 @@ uint8_t Tracking(double acimutTarget, double elevacionTarget) {
     Data_Control.Valor_Actual_Elevacion = get_Elevacion();
             
     if(!acimutInTarget) {
-        if(Data_Control.Valor_Actual_Acimut < (acimutTarget - 1))
+        if(Data_Control.Valor_Actual_Acimut < (acimutTarget - OFFSET_ANGULAR_ACIMUT))
             Move(ACIMUT_RIGHT); 
-        else if (Data_Control.Valor_Actual_Acimut > (acimutTarget + 1))
+        else if (Data_Control.Valor_Actual_Acimut > (acimutTarget + OFFSET_ANGULAR_ACIMUT))
             Move(ACIMUT_LEFT);
         else {
             Stop(ACIMUT);
@@ -258,9 +258,9 @@ uint8_t Tracking(double acimutTarget, double elevacionTarget) {
     }
 
     if(!elevacionInTarget) {
-        if(Data_Control.Valor_Actual_Elevacion < (elevacionTarget - 1))
+        if(Data_Control.Valor_Actual_Elevacion < (elevacionTarget - OFFSET_ANGULAR_ELEVACION)) 
             Move(ELEVACION_UP);
-        else if (Data_Control.Valor_Actual_Elevacion > (elevacionTarget + 1))
+        else if (Data_Control.Valor_Actual_Elevacion > (elevacionTarget + OFFSET_ANGULAR_ELEVACION))
             Move(ELEVACION_DOWN);
         else {
             Stop(ELEVACION);
@@ -279,7 +279,7 @@ void MEF_Accionamiento(){
         estado_Accionamiento_anterior = estado_Accionamiento;
         estado_Accionamiento = Comando_Procesado.Actual;
         nuevoComando = 0;
-        millis_COMANDO = millis();
+        millis_COMANDO = millis();  
     } else {
         if(millis() - millis_COMANDO > TIMEOUT_COMANDO) { // Dos horas sin comandos
 //            putrsUART2("TIMEOUT COMANDOS... Volviendo a HOME\n\r");
@@ -336,6 +336,7 @@ void MEF_Accionamiento(){
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 Move(ELEVACION_UP);
+               // putrsUART2("== Giro para arriba ==\n\r");
                 millis_MANUAL = millis();
             }
             
@@ -376,6 +377,7 @@ void MEF_Accionamiento(){
             
             Stop(ALL);
             estado_Accionamiento = Sleep;
+ //           putrsUART2("== stop global ==\n\r");
             break;
             
         /* =========  Movimiento tracking  ========== */
@@ -501,7 +503,7 @@ void MEF_Accionamiento(){
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
                 acimutInTarget = 0;
                 elevacionInTarget = 0;
-//                putrsUART2("Iniciando tracking...\n\r");
+ //               putrsUART2("Iniciando tracking...\n\r");
                 millis_TRACKING = millis();
             }
             
@@ -541,6 +543,7 @@ void MEF_Accionamiento(){
 //                putrsUART2("== ¡LA ESTACION LLEGO A DESTINO! ==\n\r");
 //                putrsUART2("===================================\n\r");
                 estado_Accionamiento = Sleep;
+                putrsUART2("== ¡LA ESTACION LLEGO A DESTINO! ==\n\r");
             }
             
             break;

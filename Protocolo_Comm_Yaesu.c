@@ -75,6 +75,7 @@ char Buffer_Recepcion[MAX_SIZE_COMMAND_AVALIBLE];
 
 Info_Comandos_Procesados Comando_Procesado;    
 Comando_Almacenado Char_Comando;
+uint8_t comandoLectura = 0;
 uint8_t nuevoComando = 0;
 /*===========================================================================*/
 
@@ -285,6 +286,7 @@ uint8_t Verificando_Comando(){
         strcat(dataToSend,"\r\n");
         putrsUART2(dataToSend);
         
+        comandoLectura = 1;
         return Leer_Posicion;
     }
 
@@ -373,8 +375,12 @@ void Comm_PC_Interface(){
                     
 //                putrsUART2("[Comm_PC_Interface] Comando valido!\n");
 //                Comando_Procesado.Ultimo = Comando_Procesado.Actual;
-                Comando_Procesado.Actual = Comando_Procesado.Proximo;
-                nuevoComando = 1;
+                if (!comandoLectura) {
+                    Comando_Procesado.Actual = Comando_Procesado.Proximo;
+                
+                    nuevoComando = 1;
+                    
+                } else comandoLectura = 0;
                 putrsUART2("\r\n");//envio comando de confirmacion 
                 Estado_Comm = Limpiando_Buffer;
                 
