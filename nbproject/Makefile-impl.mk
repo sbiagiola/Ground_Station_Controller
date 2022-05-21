@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=Ground_Station_Controller
+PROJECTNAME=Sofware-Micro
 
 # Active Configuration
 DEFAULTCONF=default

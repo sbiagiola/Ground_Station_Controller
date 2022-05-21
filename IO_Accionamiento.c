@@ -274,7 +274,7 @@ uint8_t Tracking(double acimutTarget, double elevacionTarget) {
 
 void MEF_Accionamiento(){
     
-    if(nuevoComando > 0)
+    if(nuevoComando > 0 && estado_Accionamiento != GoToHome_Acimut && estado_Accionamiento != GoToHome_Elevacion)
     {
         estado_Accionamiento_anterior = estado_Accionamiento;
         estado_Accionamiento = Comando_Procesado.Actual;
@@ -286,6 +286,7 @@ void MEF_Accionamiento(){
             millis_COMANDO = millis();
             estado_Accionamiento = Return_ToHome;
         }
+        nuevoComando = 0;
     }
     
     switch(estado_Accionamiento){
@@ -383,12 +384,14 @@ void MEF_Accionamiento(){
         case GoToHome_Acimut:
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
+                putrsUART2("C1\r\n"); // Inicio de la calibracion
                 Move(ACIMUT_RIGHT);
             }
             
             // Timeout de 10 min
             if(millis() - millis_INIT > TIMEOUT_INIT) {
                 Stop(ALL);
+                putrsUART2("C2\r\n"); // Error en la calibracion
                 estado_Accionamiento = Sleep;
             }
             
@@ -421,6 +424,7 @@ void MEF_Accionamiento(){
             // Timeout de 10 min
             if(millis() - millis_INIT > TIMEOUT_INIT) {
                 Stop(ALL);
+                putrsUART2("C2\r\n"); // Error en la calibracion
                 estado_Accionamiento = Sleep;
             }
             
@@ -440,6 +444,7 @@ void MEF_Accionamiento(){
                     Stop(ELEVACION);
                     goingToHome_Elev = 0;
                     HomeStop_Elev_init = 1;
+                    putrsUART2("C0\r\n"); // Fin de la calibracion
 //                    putrsUART2("Estacion en HOME... Inicializacion finalizada!\n\r");
                     estado_Accionamiento = Sleep;
                 }
@@ -460,31 +465,6 @@ void MEF_Accionamiento(){
                 estado_Accionamiento = Sleep;
             }
             
-//            Data_Control.Valor_Actual_Acimut = get_Acimut();
-//            Data_Control.Valor_Actual_Elevacion = get_Elevacion();
-            
-//            if(goingToHome_Az) {
-//                if(Data_Control.Valor_Actual_Acimut < (HOME_ACIMUT - 1))
-//                    Move(ACIMUT_RIGHT); 
-//                else if (Data_Control.Valor_Actual_Acimut > (HOME_ACIMUT + 1))
-//                    Move(ACIMUT_LEFT);
-//                else {
-//                    Stop(ACIMUT);
-//                    goingToHome_Az = 0;
-//                }
-//            }
-//            
-//            if(goingToHome_Elev) {
-//                if(Data_Control.Valor_Actual_Elevacion < (HOME_ELEVACION - 1))
-//                    Move(ELEVACION_UP);
-//                else if (Data_Control.Valor_Actual_Elevacion > (HOME_ELEVACION + 1))
-//                    Move(ELEVACION_DOWN);
-//                else {
-//                    Stop(ELEVACION);
-//                    goingToHome_Elev = 0;
-//                }
-//            }
-            
             if(Tracking(HOME_ACIMUT, HOME_ELEVACION)) {
 //                putrsUART2("====================================\n\r");
 //                putrsUART2("==== ¡LA ESTACION LLEGO A HOME! ====\n\r");
@@ -504,31 +484,6 @@ void MEF_Accionamiento(){
 //                putrsUART2("Iniciando tracking...\n\r");
                 millis_TRACKING = millis();
             }
-            
-//            Data_Control.Valor_Actual_Acimut = get_Acimut();
-//            Data_Control.Valor_Actual_Elevacion = get_Elevacion();
-
-//            if(!acimutInTarget) {
-//                if(Data_Control.Valor_Actual_Acimut < (Data_Control.Target_Acimut - 1))
-//                    Move(ACIMUT_RIGHT); 
-//                else if (Data_Control.Valor_Actual_Acimut > (Data_Control.Target_Acimut + 1))
-//                    Move(ACIMUT_LEFT);
-//                else {
-//                    Stop(ACIMUT);
-//                    acimutInTarget = 1;
-//                }
-//            }
-//            
-//            if(!elevacionInTarget) {
-//                if(Data_Control.Valor_Actual_Elevacion < (Data_Control.Target_Elevacion - 1))
-//                    Move(ELEVACION_UP);
-//                else if (Data_Control.Valor_Actual_Elevacion > (Data_Control.Target_Elevacion + 1))
-//                    Move(ELEVACION_DOWN);
-//                else {
-//                    Stop(ELEVACION);
-//                    elevacionInTarget = 1;
-//                }
-//            }
             
             // Timeout de 5 min
             if(millis() - millis_TRACKING > TIMEOUT_TRACKING) {
