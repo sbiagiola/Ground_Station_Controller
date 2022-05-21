@@ -69,7 +69,8 @@
 ////#define REDUCCION_CAJA_4                      (double)            // Determinar por ensayos
 //#define REDUCCION_CAJA_5                        (double)7/60        // No modificar el (double) sino se pierde el valor pequeño de la relación
 //
-//#define OFFSET_ANGULAR_ELEVACION                1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
+#define OFFSET_ANGULAR_ELEVACION                0.1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
+#define OFFSET_ANGULAR_ACIMUT                   0.1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
 //#define RESOLUCION_POR_PULSO_ELEVACION          1
 /* ========================================================================= */
 
