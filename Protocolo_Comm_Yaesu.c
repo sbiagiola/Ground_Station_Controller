@@ -265,7 +265,7 @@ uint8_t Verificando_Comando(){
     /* --------------------   Comandos lectura   -------------------- */
 
     if(Buffer_Recepcion[0] == 'B' || Buffer_Recepcion[0] == 'b'){
-        char dataToSend[MAX_SIZE_DATA_SEND] = "A,";
+        char dataToSend[MAX_SIZE_DATA_SEND] = "B,A,";
 //        putrsUART2("[Verificando_Comando] Comando LEER_ELEVACION detectado\n\r");
         
         double angulo_Az = 0;

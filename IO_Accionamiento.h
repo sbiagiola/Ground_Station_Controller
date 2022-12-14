@@ -48,17 +48,17 @@
 #define TIMEOUT_INIT            (unsigned long)600*1000 // 10 minutos
 
 #define GRADOS_POR_VUELTA       (double)359.9
-#define RESOLUCION_ENCODER      400
+#define RESOLUCION_ENCODER      360
 
 /* ========================================================================= */
 //#define GRADOS_POR_VUELTA                       360
 //
 //#define RESOLUCION_ENCODER_ACIMUT               360
-//#define RELACION_CAJA_1                         (double)25/1      // No modificar el (double) sino se pierde el valor pequeño de la relación
-//#define RELACION_CAJA_2                         (double)60/1      // No modificar el (double) sino se pierde el valor pequeño de la relación
-//#define RELACION_CAJA_3                         (double)60/7      // No modificar el (double) sino se pierde el valor pequeño de la relación
+#define RELACION_CAJA_1                         (double)25/1      // No modificar el (double) sino se pierde el valor pequeño de la relación
+#define RELACION_CAJA_2                         (double)60/1      // No modificar el (double) sino se pierde el valor pequeño de la relación
+#define RELACION_CAJA_3                         (double)60/7      // No modificar el (double) sino se pierde el valor pequeño de la relación
 //#define REDUCCION_ACIMUT_COMPLETA               (1/(RELACION_CAJA_1*RELACION_CAJA_2*RELACION_CAJA_3))
-//#define REDUCCION_ENCODER_ANTENA_ACIMUT         (1/(RELACION_CAJA_2*RELACION_CAJA_3))
+#define REDUCCION_ENCODER_ANTENA_ACIMUT         (1/(RELACION_CAJA_2*RELACION_CAJA_3))
 //
 //#define OFFSET_ANGULAR_ENCODER_ACIMUT           (REDUCCION_ENCODER_ANTENA_ACIMUT*(GRADOS_POR_VUELTA/RESOLUCION_ENCODER_ACIMUT))
 //#define CANT_PULSOS_VUELTA_ENCODER              ((1/OFFSET_ANGULAR_ENCODER_ACIMUT))
@@ -69,7 +69,7 @@
 ////#define REDUCCION_CAJA_4                      (double)            // Determinar por ensayos
 //#define REDUCCION_CAJA_5                        (double)7/60        // No modificar el (double) sino se pierde el valor pequeño de la relación
 //
-#define OFFSET_ANGULAR_ELEVACION                0.1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
+#define OFFSET_ANGULAR_ELEVACION                0.5                   //Nos queda así por la ubicación del encoder en el eje de la antena.
 #define OFFSET_ANGULAR_ACIMUT                   0.1                   //Nos queda así por la ubicación del encoder en el eje de la antena.
 //#define RESOLUCION_POR_PULSO_ELEVACION          1
 /* ========================================================================= */

@@ -40,8 +40,9 @@ char Datos_A_Enviados[MAX_SIZE_DATA_SEND];
 uint32_t Cant_Carac_A_Enviar;
 /*===========================================================================*/
 
-ID_Comandos estado_Accionamiento = GoToHome_Acimut;
+//ID_Comandos estado_Accionamiento = GoToHome_Acimut;
 ID_Comandos estado_Accionamiento_anterior = Sleep;
+ID_Comandos estado_Accionamiento = Sleep;
 uint16_t ciclos_sin_comandos;
 
 unsigned long millis_COMANDO;
@@ -72,8 +73,8 @@ void initCN()
     valor_anterior.home_stop_Elev = HOME_STOP_ELEV;
     valor_anterior.home_stop_Az = HOME_STOP_AZ;
     
-    contador.encoderAz_Pulsos = 8;
-    contador.encoderElev_Pulsos = 8;
+    contador.encoderAz_Pulsos = 92571;
+    contador.encoderElev_Pulsos = 90;
 }
 
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
@@ -113,10 +114,10 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     /* --------------------------   HOME STOP ELEVACION   -------------------------- */
     if(HOME_STOP_ELEV != valor_anterior.home_stop_Elev){
         if(HOME_STOP_ELEV == HIGH) {
-//            putrsUART2(" === ELEVACION: HOME STOP DETECTADO! ===\n\r");
+            putrsUART2("HE\n\r");
             Stop(ELEVACION);
 //            delayPIC_ms(DELAY_CAMBIO_SENTIDO);
-            contador.encoderElev_Pulsos = 0;
+            contador.encoderElev_Pulsos = 100;
 //            if(HomeStop_Elev_init == 1)
 //                elevacionInTarget = 1;
                 //estado_Accionamiento = Sleep;
@@ -129,7 +130,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     /* ----------------------------   HOME STOP ACIMUT   --------------------------- */
     if(HOME_STOP_AZ != valor_anterior.home_stop_Az){
         if(HOME_STOP_AZ == HIGH) {
-//            putrsUART2(" === ACIMUT: HOME STOP DETECTADO! ===\n\r");
+            putrsUART2("HA\n\r");
             Stop(ACIMUT);
 //            delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             contador.encoderAz_Pulsos = RESOLUCION_ENCODER;
@@ -160,6 +161,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
 
 double get_Acimut(void){
     double ang = (contador.encoderAz_Pulsos * GRADOS_POR_VUELTA) / RESOLUCION_ENCODER;
+    ang = ang*REDUCCION_ENCODER_ANTENA_ACIMUT;
     return ang;
 }
 
@@ -180,19 +182,21 @@ void Actualizar_Objetivos(){
 void Move(OUT out) {
     switch(out) {
         case ACIMUT_RIGHT:
+            OUT_RELE_1 = ON;
+            if(READ_RELE_3 == ON) {
+                OUT_RELE_3 = OFF;
+                delayPIC_ms(DELAY_CAMBIO_SENTIDO);
+            }
+            OUT_RELE_2 = ON;            
+            break;
+            
+        case ACIMUT_LEFT:
+            OUT_RELE_1 = ON;
             if(READ_RELE_2 == ON) {
                 OUT_RELE_2 = OFF;
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             }
-            OUT_RELE_1 = ON;            
-            break;
-            
-        case ACIMUT_LEFT:
-            if(READ_RELE_1 == ON) {
-                OUT_RELE_1 = OFF;
-                delayPIC_ms(DELAY_CAMBIO_SENTIDO);
-            }
-            OUT_RELE_2 = ON;             
+            OUT_RELE_3 = ON;             
             break;
             
         case ELEVACION_UP:
@@ -222,13 +226,16 @@ void Stop(OUT out) {
         case ALL:
             OUT_RELE_1  = OFF;
             OUT_RELE_2  = OFF;
+            OUT_RELE_3 = OFF;
+            OUT_RELE_4 = OFF;
             OUT_VAR_1   = ON;
             OUT_VAR_2   = ON;            
             break;
         
         case ACIMUT:
             OUT_RELE_1 = OFF;
-            OUT_RELE_2 = OFF;            
+            OUT_RELE_2 = OFF;
+            OUT_RELE_3 = OFF;
             break;
             
         case ELEVACION:
@@ -298,7 +305,9 @@ void MEF_Accionamiento(){
         case Giro_Horario:
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
-                Move(ACIMUT_RIGHT);
+//                Move(ACIMUT_RIGHT);
+                OUT_RELE_1=ON;
+                OUT_RELE_2=ON;
                 millis_MANUAL = millis();
             }
             
@@ -312,7 +321,9 @@ void MEF_Accionamiento(){
         case Giro_Antihorario:
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
-                Move(ACIMUT_LEFT);
+//                Move(ACIMUT_LEFT);
+                OUT_RELE_1=ON;
+                OUT_RELE_3=ON;
                 millis_MANUAL = millis();
             }
                 
@@ -498,7 +509,7 @@ void MEF_Accionamiento(){
 //                putrsUART2("== ¡LA ESTACION LLEGO A DESTINO! ==\n\r");
 //                putrsUART2("===================================\n\r");
                 estado_Accionamiento = Sleep;
-                putrsUART2("== ¡LA ESTACION LLEGO A DESTINO! ==\n\r");
+//                putrsUART2("== ¡LA ESTACION LLEGO A DESTINO! ==\n\r");
             }
             
             break;
