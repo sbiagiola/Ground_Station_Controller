@@ -44,7 +44,7 @@
 #define DELAY_CAMBIO_SENTIDO    2*1000    // 2 segundos
 #define TIMEOUT_COMANDO         (unsigned long)7200*1000 // 2 horas
 #define TIMEOUT_TRACKING        (unsigned long)300*1000  // 5 minutos
-#define TIMEOUT_MANUAL          30*1000   // 30 segundos
+#define TIMEOUT_MANUAL          (unsigned long)60*1000   // 60 segundos
 #define TIMEOUT_INIT            (unsigned long)600*1000 // 10 minutos
 
 #define GRADOS_POR_VUELTA       (double)359.9
@@ -59,6 +59,8 @@
 #define RELACION_CAJA_3                         (double)60/7      // No modificar el (double) sino se pierde el valor pequeño de la relación
 //#define REDUCCION_ACIMUT_COMPLETA               (1/(RELACION_CAJA_1*RELACION_CAJA_2*RELACION_CAJA_3))
 #define REDUCCION_ENCODER_ANTENA_ACIMUT         (1/(RELACION_CAJA_2*RELACION_CAJA_3))
+
+
 //
 //#define OFFSET_ANGULAR_ENCODER_ACIMUT           (REDUCCION_ENCODER_ANTENA_ACIMUT*(GRADOS_POR_VUELTA/RESOLUCION_ENCODER_ACIMUT))
 //#define CANT_PULSOS_VUELTA_ENCODER              ((1/OFFSET_ANGULAR_ENCODER_ACIMUT))

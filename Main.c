@@ -27,7 +27,7 @@
  * ======================================================================== */
 
 const extern ID_Comandos estado_Accionamiento;
-unsigned long millis_LED;
+unsigned long millis_LED, millisHE;
 
 void MasterLEDS() {
     int frecLED;
@@ -58,9 +58,12 @@ int main(){
     while(1) {
         
         MasterLEDS();
-
+        
         Comm_PC_Interface();        
         MEF_Accionamiento();
+        
+        
+        
         ClrWdt();
         
     }
