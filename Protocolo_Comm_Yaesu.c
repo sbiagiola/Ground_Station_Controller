@@ -270,14 +270,19 @@ uint8_t Verificando_Comando(){
         
         double angulo_Az = 0;
         double angulo_Elev = 0;
+        uint8_t state = 0;
         char char_Angulo_Az[10] = {};
         char char_Angulo_Elev[10] = {};
+        char char_state[10] = {};
         
         angulo_Az = get_Acimut();
         sprintf(char_Angulo_Az, "%.2f", angulo_Az);
 
         angulo_Elev = get_Elevacion();
         sprintf(char_Angulo_Elev, "%.2f", angulo_Elev);
+        
+        state = getStatusEL();
+        sprintf(char_state,"%d", state);
         
         strcat(dataToSend,char_Angulo_Az);
         strcat(dataToSend,",E,");

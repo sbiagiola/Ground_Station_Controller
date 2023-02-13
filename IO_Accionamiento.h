@@ -41,7 +41,7 @@
 #define HOME_ACIMUT             180
 #define HOME_ELEVACION          90
 
-#define DELAY_CAMBIO_SENTIDO    2*1000    // 2 segundos
+#define DELAY_CAMBIO_SENTIDO    5*1000    // 2 segundos
 #define TIMEOUT_COMANDO         (unsigned long)7200*1000 // 2 horas
 #define TIMEOUT_TRACKING        (unsigned long)300*1000  // 5 minutos
 #define TIMEOUT_MANUAL          (unsigned long)60*1000   // 60 segundos
@@ -138,6 +138,7 @@ void initCN(void);
 
 double get_Acimut(void);
 double get_Elevacion(void);
+uint8_t getStatusEL(void);
 /*========================================================================*/
 
 /*===========================  Funciones Salidas   ==========================*/

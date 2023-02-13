@@ -62,8 +62,6 @@ int main(){
         Comm_PC_Interface();        
         MEF_Accionamiento();
         
-        
-        
         ClrWdt();
         
     }

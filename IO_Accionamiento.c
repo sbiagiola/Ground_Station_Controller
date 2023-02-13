@@ -46,6 +46,8 @@ uint32_t Cant_Carac_A_Enviar;
 ID_Comandos estado_Accionamiento_anterior = Sleep;
 ID_Comandos estado_Accionamiento = Sleep;
 uint16_t ciclos_sin_comandos;
+uint8_t stateEncoder_AZ = 0;
+uint8_t stateEncoder_EL = 0;
 
 unsigned long millis_COMANDO;
 unsigned long millis_TRACKING;
@@ -79,38 +81,98 @@ void initCN()
     contador.encoderElev_Pulsos = 90;
 }
 
+uint32_t millis_ELEV_A = 0;
+uint32_t millis_ELEV_B = 0;
+
 void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     
     /* ---------------------------   ENCODER ELEVACION   --------------------------- */
-    // Contador de pulsos
-    if((ENCODER_ELEV_A != valor_anterior.encoderElev_A)) {
-        if(ENCODER_ELEV_A == HIGH) {
-            if(ENCODER_ELEV_B == HIGH) {
-//                putrsUART2("[CNInterrupt]: Encoder ELEVACION (B)\n\r");
-                contador.encoderElev_Pulsos++;
-            } else {
-//                putrsUART2("[CNInterrupt]: Encoder ELEVACION (A)\n\r");
-                contador.encoderElev_Pulsos--;
-            }
-        }
-        valor_anterior.encoderElev_A = ENCODER_ELEV_A;
-    }
+    
     /* ----------------------------------------------------------------------------- */
     
     /* -----------------------------   ENCODER ACIMUT   ---------------------------- */
     // Contador de pulsos
-    if((ENCODER_AZ_A != valor_anterior.encoderAz_A)) {
-        if(ENCODER_AZ_A == HIGH) {
-            if(ENCODER_AZ_B == HIGH) {
-//                putrsUART2("[CNInterrupt]: Encoder ACIMUT (B)\n\r");                
-                contador.encoderAz_Pulsos++;
-            } else {
-//                putrsUART2("[CNInterrupt]: Encoder ACIMUT (A)\n\r");
-                contador.encoderAz_Pulsos--;
+    
+    
+    if(ENCODER_AZ_A != valor_anterior.encoderAz_A)
+    {
+        if(ENCODER_AZ_A == HIGH)
+        {
+            if(stateEncoder_AZ == 0)
+            {
+                stateEncoder_AZ = 1;
+            }
+            else 
+            {
+                stateEncoder_AZ = 2;
+            }
+        }
+        else
+        {
+            if(stateEncoder_AZ == 2)
+            {
+                stateEncoder_AZ = 3;
+            }
+            else
+            {
+                if(stateEncoder_AZ == 3)
+                {
+                    // pulso
+                    contador.encoderAz_Pulsos--;
+                }
+                else
+                {
+                    // RUIDO. Se descarta el pulso
+                }
+                stateEncoder_AZ = 0;
             }
         }
         valor_anterior.encoderAz_A = ENCODER_AZ_A;
     }
+    
+    if(ENCODER_AZ_B != valor_anterior.encoderAz_B)
+    {
+        if(ENCODER_AZ_B == HIGH)
+        {
+            if(stateEncoder_AZ == 1)
+            {
+                stateEncoder_AZ = 2;
+            }
+            else 
+            {
+                if(stateEncoder_AZ == 0)
+                {
+                    stateEncoder_AZ = 1;
+                }
+                else
+                {
+                    stateEncoder_AZ = 2;
+                }
+            }
+        }
+        else
+        {
+            if(stateEncoder_AZ == 3)
+            {
+                contador.encoderAz_Pulsos++;
+                stateEncoder_AZ = 0;
+            }
+            else
+            {
+                if(stateEncoder_AZ == 2)
+                {
+                    stateEncoder_AZ = 3;
+                }
+                else
+                {
+                    // RUIDO. Se descarta el pulso
+                    stateEncoder_AZ = 0;
+                }
+            }
+        }
+        valor_anterior.encoderAz_B = ENCODER_AZ_B;
+    }
+
     /* ----------------------------------------------------------------------------- */
     
     /* --------------------------   HOME STOP ELEVACION   -------------------------- */
@@ -123,11 +185,18 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     /* ----------------------------------------------------------------------------- */
     
     /* ----------------------------   HOME STOP ACIMUT   --------------------------- */
+//    if(HOME_STOP_AZ == HIGH) {putrsUART2("1");}
+//    else if(HOME_STOP_AZ == LOW) {putrsUART2("0");}
+//    
+//    if(valor_anterior.home_stop_Az == HIGH) {putrsUART2("a1\n\r");}
+//    else if(valor_anterior.home_stop_Az == LOW) {putrsUART2("a0\n\r");}
+    
     if(HOME_STOP_AZ != valor_anterior.home_stop_Az){
-        if(HOME_STOP_AZ == HIGH) {
-            flag_hs_a=1;
-        }
         valor_anterior.home_stop_Az = HOME_STOP_AZ;
+        
+        if(HOME_STOP_AZ == HIGH && READ_RELE_3 == ON){
+            flag_hs_a = 1;
+        }
     }
     /* ----------------------------------------------------------------------------- */
     
@@ -167,24 +236,35 @@ void Actualizar_Objetivos(){
     Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
 }
 
+uint8_t getStatusEL()
+{
+    return stateEncoder_EL;
+}
+
 void Move(OUT out) {
     switch(out) {
         case ACIMUT_RIGHT:
             OUT_RELE_1 = ON;
+            delayPIC_ms(500);
             if(READ_RELE_2 == ON) {
                 OUT_RELE_2 = OFF;
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             }
-            OUT_RELE_3 = ON;            
+            OUT_RELE_3 = ON;
+//            stateEncoder_EL = 0;
+//            putrsUART2("stateEncoder_EL = 0\n\r");
             break;
             
         case ACIMUT_LEFT:
             OUT_RELE_1 = ON;
+            delayPIC_ms(500);
             if(READ_RELE_3 == ON) {
                 OUT_RELE_3 = OFF;
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             }
-            OUT_RELE_2 = ON;             
+            OUT_RELE_2 = ON;
+//            stateEncoder_EL = 0;
+//            putrsUART2("stateEncoder_EL = 0\n\r");
             break;
             
         case ELEVACION_UP:
@@ -209,6 +289,7 @@ void Move(OUT out) {
 }
 
 void Stop(OUT out) {
+    ClrWdt();
     switch(out)
     {
         case ALL:
@@ -217,7 +298,7 @@ void Stop(OUT out) {
             OUT_RELE_3 = OFF;
             OUT_RELE_4 = OFF;
             OUT_VAR_1   = ON;
-            OUT_VAR_2   = ON;            
+            OUT_VAR_2   = ON;
             break;
         
         case ACIMUT:
@@ -228,12 +309,13 @@ void Stop(OUT out) {
             
         case ELEVACION:
             OUT_VAR_1 = ON;
-            OUT_VAR_2 = ON;    
+            OUT_VAR_2 = ON;
             break;
                     
         default:
             break;
     }
+    ClrWdt();
 }
 
 uint8_t Tracking(double acimutTarget, double elevacionTarget) {
@@ -290,7 +372,7 @@ void MEF_Accionamiento(){
             putrsUART2("HA\n\r");
             Stop(ACIMUT);
 //            delayPIC_ms(DELAY_CAMBIO_SENTIDO);
-            contador.encoderAz_Pulsos = 2631;
+            contador.encoderAz_Pulsos = 185142;
 //            if(HomeStop_Az_init == 1)
 //                acimutInTarget = 1;
                 //estado_Accionamiento = Sleep;
@@ -299,7 +381,105 @@ void MEF_Accionamiento(){
         flag_hs_a = 0;
     }
     
-    if(nuevoComando > 0 && estado_Accionamiento != GoToHome_Acimut && estado_Accionamiento != GoToHome_Elevacion)
+    if(ENCODER_ELEV_A != valor_anterior.encoderElev_A)
+        {
+            valor_anterior.encoderElev_A = ENCODER_ELEV_A;
+            if(ENCODER_ELEV_A == HIGH)
+            {
+                switch(stateEncoder_EL)
+                {
+                    case 0:
+                        stateEncoder_EL = 1;
+//                        putrsUART2("1A\n\r");
+                        break;
+
+                    case 1:
+                        stateEncoder_EL = 2;
+//                        putrsUART2("2A\n\r");
+                        break;
+
+                    case 2:
+                    case 3:
+                        stateEncoder_EL = 0;
+//                        putrsUART2("r0A\n\r");
+                        break;
+                }
+            }
+            else if(ENCODER_ELEV_A == LOW)
+            {
+                switch(stateEncoder_EL)
+                {
+                    case 0:
+                    case 1:
+                        stateEncoder_EL = 0;
+//                        putrsUART2("r0A\n\r");
+                        break;
+
+                    case 2:
+                        stateEncoder_EL = 3;
+//                        putrsUART2("3A\n\r");
+                        break;
+
+                    case 3:
+                        // pulso
+                        contador.encoderElev_Pulsos++;
+                        stateEncoder_EL = 0;
+//                        putrsUART2("p0A\n\r");
+                        break;
+                }
+            }
+        }
+
+        if(ENCODER_ELEV_B != valor_anterior.encoderElev_B)
+        {
+            valor_anterior.encoderElev_B = ENCODER_ELEV_B;
+            if(ENCODER_ELEV_B == HIGH)
+            {
+                switch(stateEncoder_EL)
+                {
+                    case 0:
+                        stateEncoder_EL = 1;
+//                        putrsUART2("1B\n\r");
+                        break;
+
+                    case 1:
+                        stateEncoder_EL = 2;
+//                        putrsUART2("2B\n\r");
+                        break;
+
+                    case 2:
+                    case 3:
+                        stateEncoder_EL = 0; // 2
+//                        putrsUART2("r0B\n\r");
+                        break;
+                }
+            }
+            else if(ENCODER_ELEV_B == LOW)
+            {
+                switch(stateEncoder_EL)
+                {
+                    case 0:
+                    case 1:
+                        stateEncoder_EL = 0;
+//                        putrsUART2("0B\n\r");
+                        break;
+
+                    case 2:
+                        stateEncoder_EL = 3;
+//                        putrsUART2("3B\n\r");
+                        break;
+
+                    case 3:
+                        // pulso
+                        contador.encoderElev_Pulsos--;
+                        stateEncoder_EL = 0;
+//                        putrsUART2("p0B\n\r");
+                        break;
+                }
+            }
+        }
+    
+    if(nuevoComando > 0 && (estado_Accionamiento != GoToHome_Acimut && estado_Accionamiento != GoToHome_Elevacion))
     {
         estado_Accionamiento_anterior = estado_Accionamiento;
         estado_Accionamiento = Comando_Procesado.Actual;
@@ -416,8 +596,9 @@ void MEF_Accionamiento(){
         case GoToHome_Acimut:
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
+                millis_INIT = millis();
                 putrsUART2("C1\r\n"); // Inicio de la calibracion
-                Move(ACIMUT_LEFT); // me muevo antihorario buscando el 0
+                Move(ACIMUT_RIGHT); // me muevo antihorario buscando el 0
             }
             
             // Timeout de 10 min
@@ -429,7 +610,7 @@ void MEF_Accionamiento(){
             
             if(flag_HomeStop_Az) {
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
-                Move(ACIMUT_RIGHT);
+                Move(ACIMUT_LEFT);
                 flag_HomeStop_Az = 0;
                 goingToHome_Az = 1;
             }
@@ -450,6 +631,7 @@ void MEF_Accionamiento(){
         case GoToHome_Elevacion:
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
+                millis_INIT = millis();
                 Move(ELEVACION_DOWN);
             }
             
