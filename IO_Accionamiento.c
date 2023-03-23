@@ -382,102 +382,102 @@ void MEF_Accionamiento(){
     }
     
     if(ENCODER_ELEV_A != valor_anterior.encoderElev_A)
+    {
+        valor_anterior.encoderElev_A = ENCODER_ELEV_A;
+        if(ENCODER_ELEV_A == HIGH)
         {
-            valor_anterior.encoderElev_A = ENCODER_ELEV_A;
-            if(ENCODER_ELEV_A == HIGH)
+            switch(stateEncoder_EL)
             {
-                switch(stateEncoder_EL)
-                {
-                    case 0:
-                        stateEncoder_EL = 1;
+                case 0:
+                    stateEncoder_EL = 1;
 //                        putrsUART2("1A\n\r");
-                        break;
+                    break;
 
-                    case 1:
-                        stateEncoder_EL = 2;
+                case 1:
+                    stateEncoder_EL = 2;
 //                        putrsUART2("2A\n\r");
-                        break;
+                    break;
 
-                    case 2:
-                    case 3:
-                        stateEncoder_EL = 0;
+                case 2:
+                case 3:
+                    stateEncoder_EL = 0;
 //                        putrsUART2("r0A\n\r");
-                        break;
-                }
-            }
-            else if(ENCODER_ELEV_A == LOW)
-            {
-                switch(stateEncoder_EL)
-                {
-                    case 0:
-                    case 1:
-                        stateEncoder_EL = 0;
-//                        putrsUART2("r0A\n\r");
-                        break;
-
-                    case 2:
-                        stateEncoder_EL = 3;
-//                        putrsUART2("3A\n\r");
-                        break;
-
-                    case 3:
-                        // pulso
-                        contador.encoderElev_Pulsos++;
-                        stateEncoder_EL = 0;
-//                        putrsUART2("p0A\n\r");
-                        break;
-                }
+                    break;
             }
         }
-
-        if(ENCODER_ELEV_B != valor_anterior.encoderElev_B)
+        else if(ENCODER_ELEV_A == LOW)
         {
-            valor_anterior.encoderElev_B = ENCODER_ELEV_B;
-            if(ENCODER_ELEV_B == HIGH)
+            switch(stateEncoder_EL)
             {
-                switch(stateEncoder_EL)
-                {
-                    case 0:
-                        stateEncoder_EL = 1;
-//                        putrsUART2("1B\n\r");
-                        break;
+                case 0:
+                case 1:
+                    stateEncoder_EL = 0;
+//                        putrsUART2("r0A\n\r");
+                    break;
 
-                    case 1:
-                        stateEncoder_EL = 2;
-//                        putrsUART2("2B\n\r");
-                        break;
+                case 2:
+                    stateEncoder_EL = 3;
+//                        putrsUART2("3A\n\r");
+                    break;
 
-                    case 2:
-                    case 3:
-                        stateEncoder_EL = 0; // 2
-//                        putrsUART2("r0B\n\r");
-                        break;
-                }
-            }
-            else if(ENCODER_ELEV_B == LOW)
-            {
-                switch(stateEncoder_EL)
-                {
-                    case 0:
-                    case 1:
-                        stateEncoder_EL = 0;
-//                        putrsUART2("0B\n\r");
-                        break;
-
-                    case 2:
-                        stateEncoder_EL = 3;
-//                        putrsUART2("3B\n\r");
-                        break;
-
-                    case 3:
-                        // pulso
-                        contador.encoderElev_Pulsos--;
-                        stateEncoder_EL = 0;
-//                        putrsUART2("p0B\n\r");
-                        break;
-                }
+                case 3:
+                    // pulso
+                    contador.encoderElev_Pulsos++;
+                    stateEncoder_EL = 0;
+//                        putrsUART2("p0A\n\r");
+                    break;
             }
         }
+    }
+
+    if(ENCODER_ELEV_B != valor_anterior.encoderElev_B)
+    {
+        valor_anterior.encoderElev_B = ENCODER_ELEV_B;
+        if(ENCODER_ELEV_B == HIGH)
+        {
+            switch(stateEncoder_EL)
+            {
+                case 0:
+                    stateEncoder_EL = 1;
+//                        putrsUART2("1B\n\r");
+                    break;
+
+                case 1:
+                    stateEncoder_EL = 2;
+//                        putrsUART2("2B\n\r");
+                    break;
+
+                case 2:
+                case 3:
+                    stateEncoder_EL = 0; // 2
+//                        putrsUART2("r0B\n\r");
+                    break;
+            }
+        }
+        else if(ENCODER_ELEV_B == LOW)
+        {
+            switch(stateEncoder_EL)
+            {
+                case 0:
+                case 1:
+                    stateEncoder_EL = 0;
+//                        putrsUART2("0B\n\r");
+                    break;
+
+                case 2:
+                    stateEncoder_EL = 3;
+//                        putrsUART2("3B\n\r");
+                    break;
+
+                case 3:
+                    // pulso
+                    contador.encoderElev_Pulsos--;
+                    stateEncoder_EL = 0;
+//                        putrsUART2("p0B\n\r");
+                    break;
+            }
+        }
+    }
     
     if(nuevoComando > 0 && (estado_Accionamiento != GoToHome_Acimut && estado_Accionamiento != GoToHome_Elevacion))
     {
@@ -504,8 +504,6 @@ void MEF_Accionamiento(){
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 Move(ACIMUT_RIGHT);
-//                OUT_RELE_1=ON;
-//                OUT_RELE_3=ON;
                 millis_MANUAL = millis();
             }
             
@@ -520,9 +518,6 @@ void MEF_Accionamiento(){
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 Move(ACIMUT_LEFT);
-//                OUT_RELE_1=ON;
-//                OUT_RELE_2=ON;
-                
                 millis_MANUAL = millis();
             }
                 
@@ -693,8 +688,8 @@ void MEF_Accionamiento(){
         case Objetivo_Tracking:
             if(estado_Accionamiento != estado_Accionamiento_anterior) {
                 estado_Accionamiento_anterior = estado_Accionamiento;
-                Stop(ALL);
-                delayPIC_ms(DELAY_CAMBIO_SENTIDO);
+//                Stop(ALL);
+//                delayPIC_ms(DELAY_CAMBIO_SENTIDO);
                 acimutInTarget = 0;
                 elevacionInTarget = 0;
  //               putrsUART2("Iniciando tracking...\n\r");
