@@ -194,7 +194,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
     if(HOME_STOP_AZ != valor_anterior.home_stop_Az){
         valor_anterior.home_stop_Az = HOME_STOP_AZ;
         
-        if(HOME_STOP_AZ == HIGH && READ_RELE_3 == ON){
+        if(HOME_STOP_AZ == HIGH && READ_RELE_2 == ON){
             flag_hs_a = 1;
         }
     }
@@ -205,7 +205,7 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
 //        putrsUART2("====================================\n\r");
 //        putrsUART2("=====  ¡PARADA DE EMERGENCIA!  =====\n\r");
 //        putrsUART2("====================================\n\r");
-        Stop(ALL);
+//        Stop(ALL);
         estado_Accionamiento = Sleep;
        
         valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
@@ -233,6 +233,9 @@ double get_Elevacion(void){
 
 void Actualizar_Objetivos(){
     Data_Control.Target_Acimut = atof(Char_Comando.Char_Acimut);
+    if(Data_Control.Target_Acimut < 160){
+        Data_Control.Target_Acimut = Data_Control.Target_Acimut + 360;
+    }
     Data_Control.Target_Elevacion = atof(Char_Comando.Char_Elevacion);
 }
 
@@ -246,25 +249,21 @@ void Move(OUT out) {
         case ACIMUT_RIGHT:
             OUT_RELE_1 = ON;
             delayPIC_ms(500);
-            if(READ_RELE_2 == ON) {
-                OUT_RELE_2 = OFF;
-                delayPIC_ms(DELAY_CAMBIO_SENTIDO);
-            }
-            OUT_RELE_3 = ON;
-//            stateEncoder_EL = 0;
-//            putrsUART2("stateEncoder_EL = 0\n\r");
-            break;
-            
-        case ACIMUT_LEFT:
-            OUT_RELE_1 = ON;
-            delayPIC_ms(500);
             if(READ_RELE_3 == ON) {
                 OUT_RELE_3 = OFF;
                 delayPIC_ms(DELAY_CAMBIO_SENTIDO);
             }
             OUT_RELE_2 = ON;
-//            stateEncoder_EL = 0;
-//            putrsUART2("stateEncoder_EL = 0\n\r");
+            break;
+            
+        case ACIMUT_LEFT:
+            OUT_RELE_1 = ON;
+            delayPIC_ms(500);
+            if(READ_RELE_2 == ON) {
+                OUT_RELE_2 = OFF;
+                delayPIC_ms(DELAY_CAMBIO_SENTIDO);
+            }
+            OUT_RELE_3 = ON;
             break;
             
         case ELEVACION_UP:
@@ -293,18 +292,21 @@ void Stop(OUT out) {
     switch(out)
     {
         case ALL:
-            OUT_RELE_1  = OFF;
-            OUT_RELE_2  = OFF;
-            OUT_RELE_3 = OFF;
-            OUT_RELE_4 = OFF;
+            OUT_RELE_1 = OFF;
+            delayPIC_ms(500);
+            if(READ_RELE_2) OUT_RELE_2 = OFF;
+            if(READ_RELE_3) OUT_RELE_3 = OFF;
+
             OUT_VAR_1   = ON;
             OUT_VAR_2   = ON;
             break;
         
         case ACIMUT:
+            
             OUT_RELE_1 = OFF;
-            OUT_RELE_2 = OFF;
-            OUT_RELE_3 = OFF;
+            delayPIC_ms(500);
+            if(READ_RELE_2) OUT_RELE_2 = OFF;
+            if(READ_RELE_3) OUT_RELE_3 = OFF;
             break;
             
         case ELEVACION:
@@ -372,7 +374,12 @@ void MEF_Accionamiento(){
             putrsUART2("HA\n\r");
             Stop(ACIMUT);
 //            delayPIC_ms(DELAY_CAMBIO_SENTIDO);
-            contador.encoderAz_Pulsos = 185142;
+            double ang = 510;
+            contador.encoderAz_Pulsos = ((ang / REDUCCION_ENCODER_ANTENA_ACIMUT)* RESOLUCION_ENCODER)/GRADOS_POR_VUELTA;
+//            (contador.encoderAz_Pulsos * GRADOS_POR_VUELTA) / RESOLUCION_ENCODER;
+//    ang = ang*REDUCCION_ENCODER_ANTENA_ACIMUT;
+    
+//            contador.encoderAz_Pulsos = 185142;
 //            if(HomeStop_Az_init == 1)
 //                acimutInTarget = 1;
                 //estado_Accionamiento = Sleep;
@@ -529,6 +536,7 @@ void MEF_Accionamiento(){
             break;
             
         case Stop_Acimut:
+            ClrWdt();
             if(estado_Accionamiento != estado_Accionamiento_anterior)
                 estado_Accionamiento_anterior = estado_Accionamiento;
             
@@ -578,6 +586,7 @@ void MEF_Accionamiento(){
         // ------- Stop_Global:
             
         case Stop_Global:
+            ClrWdt();
             if(estado_Accionamiento != estado_Accionamiento_anterior)
                 estado_Accionamiento_anterior = estado_Accionamiento;
             

@@ -28,17 +28,17 @@
 #define OUT_VAR_3           LATBbits.LATB14
 #define OUT_VAR_4           LATBbits.LATB15
     
-#define OUT_RELE_1          LATCbits.LATC9
-#define READ_RELE_1         PORTCbits.RC9
+#define OUT_RELE_4          LATCbits.LATC9
+#define READ_RELE_4         PORTCbits.RC9
 #define OUT_RELE_2          LATCbits.LATC8
 #define READ_RELE_2         PORTCbits.RC8
 #define OUT_RELE_3          LATCbits.LATC7
 #define READ_RELE_3         PORTCbits.RC7
-#define OUT_RELE_4          LATCbits.LATC6
-#define READ_RELE_4         PORTCbits.RC6
+#define OUT_RELE_1          LATCbits.LATC6
+#define READ_RELE_1         PORTCbits.RC6
 // ----------------------------------------
 
-#define HOME_ACIMUT             180
+#define HOME_ACIMUT             340
 #define HOME_ELEVACION          90
 
 #define DELAY_CAMBIO_SENTIDO    5*1000    // 2 segundos

@@ -275,7 +275,13 @@ uint8_t Verificando_Comando(){
         char char_Angulo_Elev[10] = {};
         char char_state[10] = {};
         
+        
+        
+        
         angulo_Az = get_Acimut();
+        if(angulo_Az>360){
+            angulo_Az = angulo_Az - 360;
+        }
         sprintf(char_Angulo_Az, "%.2f", angulo_Az);
 
         angulo_Elev = get_Elevacion();
@@ -284,10 +290,11 @@ uint8_t Verificando_Comando(){
         state = getStatusEL();
         sprintf(char_state,"%d", state);
         
+        
+        
         strcat(dataToSend,char_Angulo_Az);
         strcat(dataToSend,",E,");
         strcat(dataToSend,char_Angulo_Elev);
-        strcat(dataToSend,",");
         strcat(dataToSend,"\r\n");
         putrsUART2(dataToSend);
         

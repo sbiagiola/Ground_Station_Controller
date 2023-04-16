@@ -53,13 +53,21 @@ int main(){
     /* ============   Configuración interna del microcontrolador   ============ */
     Config_Clock();
     Config_IO();
-    Stop(ALL);
+    OUT_VAR_1   = ON;
+    OUT_VAR_2   = ON;
     initCN();
     Config_UART();
     Config_ADC();
     
     init_timer1();
     initInterrupts();
+    
+    uint16_t reset = RCON;
+    char char_rcon[10] = {};
+    
+    sprintf(char_rcon,"%d\n\r", reset);
+    putrsUART2(char_rcon);
+    
     /* ======================================================================== */
   
     while(1) {
@@ -68,6 +76,8 @@ int main(){
         
         Comm_PC_Interface();        
         MEF_Accionamiento();
+        
+        
         
         ClrWdt();
         
