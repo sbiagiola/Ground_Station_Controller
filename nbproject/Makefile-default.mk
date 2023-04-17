@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Clock.c Main.c IO_Config.c UART.c interupts.c ADC.c RingBuffer.c DAC.c timer.c Protocolo_Comm_Yaesu.c IO_Accionamiento.c
+SOURCEFILES_QUOTED_IF_SPACED=Clock.c Main.c IO_Config.c UART.c interupts.c ADC.c RingBuffer.c DAC.c timer.c Protocolo_Comm_Yaesu.c IO_Accionamiento.c IO_Basic.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Clock.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/IO_Config.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/interupts.o ${OBJECTDIR}/ADC.o ${OBJECTDIR}/RingBuffer.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/Protocolo_Comm_Yaesu.o ${OBJECTDIR}/IO_Accionamiento.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/IO_Config.o.d ${OBJECTDIR}/UART.o.d ${OBJECTDIR}/interupts.o.d ${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/RingBuffer.o.d ${OBJECTDIR}/DAC.o.d ${OBJECTDIR}/timer.o.d ${OBJECTDIR}/Protocolo_Comm_Yaesu.o.d ${OBJECTDIR}/IO_Accionamiento.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Clock.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/IO_Config.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/interupts.o ${OBJECTDIR}/ADC.o ${OBJECTDIR}/RingBuffer.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/Protocolo_Comm_Yaesu.o ${OBJECTDIR}/IO_Accionamiento.o ${OBJECTDIR}/IO_Basic.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/IO_Config.o.d ${OBJECTDIR}/UART.o.d ${OBJECTDIR}/interupts.o.d ${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/RingBuffer.o.d ${OBJECTDIR}/DAC.o.d ${OBJECTDIR}/timer.o.d ${OBJECTDIR}/Protocolo_Comm_Yaesu.o.d ${OBJECTDIR}/IO_Accionamiento.o.d ${OBJECTDIR}/IO_Basic.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Clock.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/IO_Config.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/interupts.o ${OBJECTDIR}/ADC.o ${OBJECTDIR}/RingBuffer.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/Protocolo_Comm_Yaesu.o ${OBJECTDIR}/IO_Accionamiento.o
+OBJECTFILES=${OBJECTDIR}/Clock.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/IO_Config.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/interupts.o ${OBJECTDIR}/ADC.o ${OBJECTDIR}/RingBuffer.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/Protocolo_Comm_Yaesu.o ${OBJECTDIR}/IO_Accionamiento.o ${OBJECTDIR}/IO_Basic.o
 
 # Source Files
-SOURCEFILES=Clock.c Main.c IO_Config.c UART.c interupts.c ADC.c RingBuffer.c DAC.c timer.c Protocolo_Comm_Yaesu.c IO_Accionamiento.c
+SOURCEFILES=Clock.c Main.c IO_Config.c UART.c interupts.c ADC.c RingBuffer.c DAC.c timer.c Protocolo_Comm_Yaesu.c IO_Accionamiento.c IO_Basic.c
 
 
 
@@ -172,6 +172,13 @@ ${OBJECTDIR}/IO_Accionamiento.o: IO_Accionamiento.c  nbproject/Makefile-${CND_CO
 	${MP_CC} $(MP_EXTRA_CC_PRE)  IO_Accionamiento.c  -o ${OBJECTDIR}/IO_Accionamiento.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/IO_Accionamiento.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1    -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -I"../../../../../../../Program Files (x86)/Microchip/xc16/v1.50/support/dsPIC33F/h" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	@${FIXDEPS} "${OBJECTDIR}/IO_Accionamiento.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/IO_Basic.o: IO_Basic.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/IO_Basic.o.d 
+	@${RM} ${OBJECTDIR}/IO_Basic.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  IO_Basic.c  -o ${OBJECTDIR}/IO_Basic.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/IO_Basic.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1    -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -I"../../../../../../../Program Files (x86)/Microchip/xc16/v1.50/support/dsPIC33F/h" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	@${FIXDEPS} "${OBJECTDIR}/IO_Basic.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/Clock.o: Clock.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -249,6 +256,13 @@ ${OBJECTDIR}/IO_Accionamiento.o: IO_Accionamiento.c  nbproject/Makefile-${CND_CO
 	@${RM} ${OBJECTDIR}/IO_Accionamiento.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  IO_Accionamiento.c  -o ${OBJECTDIR}/IO_Accionamiento.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/IO_Accionamiento.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -I"../../../../../../../Program Files (x86)/Microchip/xc16/v1.50/support/dsPIC33F/h" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	@${FIXDEPS} "${OBJECTDIR}/IO_Accionamiento.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/IO_Basic.o: IO_Basic.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/IO_Basic.o.d 
+	@${RM} ${OBJECTDIR}/IO_Basic.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  IO_Basic.c  -o ${OBJECTDIR}/IO_Basic.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/IO_Basic.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -I"../../../../../../../Program Files (x86)/Microchip/xc16/v1.50/support/dsPIC33F/h" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	@${FIXDEPS} "${OBJECTDIR}/IO_Basic.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

@@ -10,6 +10,7 @@
 #include "timer1.h"
 #include "libpic30.h"
 #include "UART.h"
+#include "IO_Basic.h"
 
 /*===================== [Variables Internas (Globales)] =====================*/ 
 static uint8_t cont_timer = 0;
@@ -43,6 +44,7 @@ uint64_t millis() {
 void delayPIC_ms(uint64_t _delay) {
     delayTimer1 = millis();
     while(millis() - delayTimer1 < _delay) {
+        read_EncoderElev();
         ClrWdt();
     }
 }

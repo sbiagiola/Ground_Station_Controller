@@ -16,6 +16,7 @@
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
 #include "interrupts.h"
+#include "IO_Basic.h"
 #include "IO_Accionamiento.h"
 #include "timer1.h"
 
@@ -39,7 +40,7 @@ unsigned long millis_LED, millisHE;
 void MasterLEDS() {
     int frecLED;
     if(estado_Accionamiento == Objetivo_Tracking) frecLED = 100;
-    else frecLED = 500;
+    else frecLED = 1000;
     
     if(millis() - millis_LED > frecLED)
     {
@@ -62,11 +63,11 @@ int main(){
     init_timer1();
     initInterrupts();
     
-    uint16_t reset = RCON;
-    char char_rcon[10] = {};
-    
-    sprintf(char_rcon,"%d\n\r", reset);
-    putrsUART2(char_rcon);
+//    uint16_t reset = RCON;
+//    char char_rcon[10] = {};
+//    
+//    sprintf(char_rcon,"%d\n\r", reset);
+//    putrsUART2(char_rcon);
     
     /* ======================================================================== */
   
@@ -76,8 +77,6 @@ int main(){
         
         Comm_PC_Interface();        
         MEF_Accionamiento();
-        
-        
         
         ClrWdt();
         

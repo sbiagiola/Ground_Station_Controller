@@ -7,6 +7,7 @@
 #include "UART.h"
 #include "RingBuffer.h"
 #include "Protocolo_Comm_Yaesu.h"
+#include "IO_Basic.h"
 #include "IO_Accionamiento.h"
 /*
  * (CR)0xD -> Retorno de carro
@@ -243,21 +244,14 @@ uint8_t Verificando_Comando(){
     
     // Comando objetivo tracking
     if(Buffer_Recepcion[0] == 'P' || Buffer_Recepcion[0] == 'p'){
-//        putrsUART2("[Verificando_Comando] Comando OBJETIVO_TRACKING detectado\n");
+
         if(Analizando_Datos(Buffer_Recepcion)){
             Segmentar_Datos(Buffer_Recepcion,Char_Comando.Char_Acimut,Char_Comando.Char_Elevacion);
             
-//            putrsUART2("[Verificando_Comando] ========= Datos obtenidos ========\n");
-//            putrsUART2("[Verificando_Comando] azimut --> ");
-//            putrsUART2(Char_Comando.Char_Acimut);
-//            putrsUART2("\n[Verificando_Comando] elevacion --> ");
-//            putrsUART2(Char_Comando.Char_Elevacion);
-//            putrsUART2("\n[Verificando_Comando] ================================\n");
             Actualizar_Objetivos();
             return Objetivo_Tracking;
         }
         else{
-//            putrsUART2("[Verificando_Comando] Comando tracking no valido\n\r");
             return Comando_No_Valido;
         }
     }
@@ -270,27 +264,17 @@ uint8_t Verificando_Comando(){
         
         double angulo_Az = 0;
         double angulo_Elev = 0;
-        uint8_t state = 0;
         char char_Angulo_Az[10] = {};
         char char_Angulo_Elev[10] = {};
-        char char_state[10] = {};
-        
-        
-        
         
         angulo_Az = get_Acimut();
         if(angulo_Az>360){
             angulo_Az = angulo_Az - 360;
         }
-        sprintf(char_Angulo_Az, "%.2f", angulo_Az);
+        sprintf(char_Angulo_Az, "%.1f", angulo_Az);
 
         angulo_Elev = get_Elevacion();
-        sprintf(char_Angulo_Elev, "%.2f", angulo_Elev);
-        
-        state = getStatusEL();
-        sprintf(char_state,"%d", state);
-        
-        
+        sprintf(char_Angulo_Elev, "%.1f", angulo_Elev);
         
         strcat(dataToSend,char_Angulo_Az);
         strcat(dataToSend,",E,");
