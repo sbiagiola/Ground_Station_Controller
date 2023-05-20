@@ -16,8 +16,8 @@
 #define TIMEOUT_INIT_AZ         (unsigned long)900*1000 // 15 minutos
 #define TIMEOUT_INIT_ELEV       (unsigned long)300*1000 // 15 minutos
 
-#define POSICION_HS_AZ          510 // grados
-#define POSICION_HS_ELEV        45  // grados
+#define POSICION_HS_AZ          515 // grados
+#define POSICION_HS_ELEV        40  // grados
 
 #define OFFSET_ANGULAR_ELEVACION                0.5                   //Nos queda así por la ubicación del encoder en el eje de la antena.
 #define OFFSET_ANGULAR_ACIMUT                   0.2                   //Nos queda así por la ubicación del encoder en el eje de la antena.

@@ -239,7 +239,7 @@ uint8_t Verificando_Comando(){
     // Return to home
     if(Buffer_Recepcion[0] == 'H' || Buffer_Recepcion[0] == 'h'){
 //        putrsUART2("[Verificando_Comando] Comando RETURN_TOHOME detectado\n");
-        return Return_ToHome;
+        return GoToHome_Acimut;
     }
     
     // Comando objetivo tracking

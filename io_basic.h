@@ -123,7 +123,7 @@ uint8_t read_HS_Az(void);
 uint8_t read_HS_Elev(void);
 uint8_t read_Emergencia(void);
 
-uint8_t set_Contador(uint8_t value, OUT direccion);
+uint8_t set_Contador(long value, OUT direccion);
 
 #ifdef	__cplusplus
 extern "C" {

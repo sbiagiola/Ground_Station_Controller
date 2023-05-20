@@ -243,15 +243,15 @@ uint8_t read_HS_Elev()
 
 uint8_t read_Emergencia()
 {
-    if(PARADA_EMERGENCIA != valor_anterior.parada_emergencia && PARADA_EMERGENCIA == LOW){
-        
-        return 1;
+    if(PARADA_EMERGENCIA != valor_anterior.parada_emergencia){
         valor_anterior.parada_emergencia = PARADA_EMERGENCIA;
+        if(PARADA_EMERGENCIA == HIGH)
+            return 1;
     }
     return 0;
 }
 
-uint8_t set_Contador(uint8_t value, OUT direccion)
+uint8_t set_Contador(long value, OUT direccion)
 {
     if(direccion == ACIMUT) contador.encoderAz_Pulsos = value;
     else if(direccion == ELEVACION) contador.encoderElev_Pulsos = value;

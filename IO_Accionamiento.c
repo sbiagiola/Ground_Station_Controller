@@ -28,6 +28,8 @@ uint8_t acimutInTarget = 0;
 uint8_t elevacionInTarget = 0;
 
 uint8_t flag_Emergencia = 0;
+
+uint8_t calibracion = 0;
 /*===========================================================================*/
 
 /*===================== [Variables Internas (Globales)] =====================*/
@@ -80,6 +82,14 @@ void __attribute__((interrupt,no_auto_psv)) _CNInterrupt(void){
 //        }
 //    }
     /* ----------------------------------------------------------------------------- */
+    
+    if(read_Emergencia())
+    {
+//        Stop(ALL);
+//        putrsUART2("BOTON");
+        estado_Accionamiento = Sleep;
+        flag_Emergencia = 1;
+    }
     
     IFS1bits.CNIF = 0; // Clear CN interrupt
 }
@@ -215,7 +225,7 @@ void verificar_HS(void)
         if(HOME_STOP_ELEV == HIGH){
             putrsUART2("HE\n\r");
             Stop(ELEVACION);
-            set_Contador(ELEVACION,POSICION_HS_ELEV);
+            set_Contador(POSICION_HS_ELEV,ELEVACION);
             
             flag_HomeStop_Elev = 1;
         }
@@ -227,9 +237,9 @@ void verificar_HS(void)
         if(HOME_STOP_AZ == HIGH){
             putrsUART2("HA\n\r");
             Stop(ACIMUT);
-            int pulsos = POSICION_HS_AZ / REDUCCION_ENCODER_ANTENA_ACIMUT;
+            long pulsos = POSICION_HS_AZ / REDUCCION_ENCODER_ANTENA_ACIMUT;
             pulsos = (pulsos * RESOLUCION_ENCODER)/GRADOS_POR_VUELTA;
-            set_Contador(ACIMUT,pulsos);
+            set_Contador(pulsos,ACIMUT);
 
             flag_HomeStop_Az = 1;
         }
@@ -260,12 +270,7 @@ void MEF_Accionamiento(){
         nuevoComando = 0;
     }
     
-    if(read_Emergencia())
-    {
-        Stop(ALL);
-        estado_Accionamiento = Sleep;
-        flag_Emergencia = 1;
-    }
+    
     
     switch(estado_Accionamiento){
         
@@ -368,6 +373,7 @@ void MEF_Accionamiento(){
                 estado_Accionamiento_anterior = estado_Accionamiento;
                 millis_INIT = millis();
                 putrsUART2("C1\r\n"); // Inicio de la calibracion
+                calibracion = 1;
                 Move(ACIMUT_RIGHT); // me muevo antihorario buscando el 0
             }
             
@@ -387,7 +393,7 @@ void MEF_Accionamiento(){
     
             if(goingToHome_Az) {
                 Data_Control.Valor_Actual_Acimut = get_Acimut();
-                if(abs(Data_Control.Valor_Actual_Acimut - HOME_ACIMUT) <= 1)
+                if(abs(Data_Control.Valor_Actual_Acimut - HOME_ACIMUT) <= OFFSET_ANGULAR_ACIMUT)
                 {
                     Stop(ACIMUT);
                     goingToHome_Az = 0;
@@ -429,6 +435,7 @@ void MEF_Accionamiento(){
                     goingToHome_Elev = 0;
                     HomeStop_Elev_init = 1;
                     putrsUART2("C0\r\n"); // Fin de la calibracion
+                    calibracion = 0;
 //                    putrsUART2("Estacion en HOME... Inicializacion finalizada!\n\r");
                     estado_Accionamiento = Sleep;
                 }
@@ -483,6 +490,8 @@ void MEF_Accionamiento(){
             
             if(flag_Emergencia)
             {
+                Stop(ALL);
+                putrsUART2("C3\r\n"); // Fin de la calibracion
                 delayPIC_ms(10000);
                 flag_Emergencia = 0;
             }
